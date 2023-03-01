@@ -23,6 +23,15 @@
     --neutral-800: #cdcdcd;
     --neutral-900: #e4e4e4;
 
+    --primary-500: #139a49;
+
+    --secondary-500: #ea1093;
+
+    --tertiary-500: #9855fd;
+
+    --error-500: #b91c1c;
+    --warning-500: #b97420;
+
     width: 100vw;
     min-height: 100vh;
     margin: 0;
@@ -50,6 +59,9 @@
   }
 
   header {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 70px;
     padding: 0 1rem;
@@ -57,8 +69,8 @@
   }
 
   main {
-    min-height: calc(100vh - 120px);
-    padding: 1rem;
+    min-height: calc(100vh - 50px);
+    padding-top: 70px;
   }
 
   footer {
