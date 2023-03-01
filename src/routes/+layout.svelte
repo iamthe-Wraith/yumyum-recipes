@@ -1,5 +1,16 @@
+<script>
+  import './global.scss';
+	import Logo from './Logo.svelte';
+</script>
+
+<svelte:head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+</svelte:head>
+
 <header class="flex-row-center">
-  <h1>YumYum Recipes</h1>
+  <Logo />
 </header>
 
 <main>
@@ -11,53 +22,6 @@
 </footer>
 
 <style lang="scss">
-  :global(body) {
-    /* lower numbers === darker colors */
-    --neutral-100: #0f0f0f;
-    --neutral-200: #272727;
-    --neutral-300: #3f3f3f;
-    --neutral-400: #5a5959;
-    --neutral-500: #747474;
-    --neutral-600: #8c8b8b;
-    --neutral-700: #aeaeae;
-    --neutral-800: #cdcdcd;
-    --neutral-900: #e4e4e4;
-
-    --primary-500: #139a49;
-
-    --secondary-500: #ea1093;
-
-    --tertiary-500: #9855fd;
-
-    --error-500: #b91c1c;
-    --warning-500: #b97420;
-
-    width: 100vw;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    background: var(--neutral-100);
-  }
-
-  :global(*) {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    color: var(--neutral-900);
-  }
-
-  :global(.flex-center) {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  :global(.flex-row-center) {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-
   header {
     position: fixed;
     top: 0;
@@ -66,6 +30,10 @@
     height: 70px;
     padding: 0 1rem;
     background: #000;
+
+    h1 {
+      color: var(--primary-500);
+    }
   }
 
   main {

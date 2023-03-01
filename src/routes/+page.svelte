@@ -3,9 +3,3 @@
 </script>
 
 <Hero />
-
-<style>
-  p {
-    color: var(--primary-500);
-  }
-</style>

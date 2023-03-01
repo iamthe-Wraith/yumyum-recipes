@@ -1,0 +1,61 @@
+body {
+  /* lower numbers === darker colors */
+  --neutral-100: #0f0f0f;
+  --neutral-200: #272727;
+  --neutral-300: #3f3f3f;
+  --neutral-400: #5a5959;
+  --neutral-500: #747474;
+  --neutral-600: #8c8b8b;
+  --neutral-700: #aeaeae;
+  --neutral-800: #cdcdcd;
+  --neutral-900: #e4e4e4;
+
+  --primary-500: #139a49;
+
+  --secondary-500: #ea1093;
+
+  --tertiary-500: #9855fd;
+
+  --error-500: #b91c1c;
+  --warning-500: #b97420;
+
+  --header-font: 'Bebas Neue', cursive;
+  --body-font: 'Open Sans', sans-serif;
+  --highlight-font: 'Shadows Into Light', cursive;
+
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: var(--neutral-100);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: var(--body-font);
+  color: var(--neutral-900);
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--header-font);
+  color: var(--primary-900);
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-row-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
