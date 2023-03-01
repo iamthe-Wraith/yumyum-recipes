@@ -27,9 +27,10 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 70px;
+    height: 85px;
     padding: 0 1rem;
     background: #000;
+    z-index: 99;
 
     h1 {
       color: var(--primary-500);
@@ -38,7 +39,7 @@
 
   main {
     min-height: calc(100vh - 50px);
-    padding-top: 70px;
+    padding-top: 85px;
   }
 
   footer {

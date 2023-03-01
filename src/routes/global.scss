@@ -45,7 +45,35 @@ h4,
 h5,
 h6 {
   font-family: var(--header-font);
-  color: var(--primary-900);
+  color: var(--primary-500);
+}
+
+h1 {
+  font-size: 2.2rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.8rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  line-height: 1.6rem;
 }
 
 .flex-center {

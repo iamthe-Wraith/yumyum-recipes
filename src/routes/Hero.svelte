@@ -2,36 +2,31 @@
   import image_url from '$lib/assets/images/hero-bg.jpg';
 </script>
 
-<div class="hero-container" style="background-image: url({image_url});">
-  <p>Planning meals has never been easier!</p>
-</div>
+<div class="hero-container" style="background-image: url({image_url});"></div>
+<h1>Planning meals has never been easier!</h1>
+<p>
+  Tired of spending hours planning out your meals for the week? Let us do the work for you. We'll even build you a grocery list so
+  you can spend more time doing the things you love!
+</p>
 
 <style lang="scss">
   .hero-container {
-    position: relative;
     display: flex;
     justify-content: center;
     align-items: flex-end;
     background-position: center;
     background-size: cover;
     height: 200px;
+  }
 
-    &:before {
-      content: ' ';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        0deg,
-        #000 0%,
-        transparent 100%
-      );
-    }
+  h1 {
+    padding: 1rem 1.5rem 0;
+    text-align: center;
+  }
 
-    p {
-      position: relative;
-      padding: 1.5rem;
-      z-index: 1;
-    }
+  p {
+    padding: .5rem 1.5rem;
+    max-width: 70rem;
+    margin: 0 auto;
   }
 </style>

@@ -18,7 +18,8 @@
   }
 
   h1 {
-    /* color: var(--primary-500); */
+    font-size: 2.25rem;
+    color: var(--neutral-900);
     line-height: 1.75rem;
   }
 
