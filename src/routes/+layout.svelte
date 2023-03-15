@@ -31,10 +31,6 @@
     padding: 0 1rem;
     background: #000;
     z-index: 99;
-
-    h1 {
-      color: var(--primary-500);
-    }
   }
 
   main {

@@ -23,7 +23,7 @@ body {
   --body-font: 'Open Sans', sans-serif;
   --highlight-font: 'Shadows Into Light', cursive;
 
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   margin: 0;
   padding: 0;
@@ -45,7 +45,6 @@ h4,
 h5,
 h6 {
   font-family: var(--header-font);
-  color: var(--primary-500);
 }
 
 h1 {
@@ -85,5 +84,11 @@ p {
 .flex-row-center {
   display: flex;
   flex-direction: row;
+  align-items: center;
+}
+
+.flex-col-center {
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }

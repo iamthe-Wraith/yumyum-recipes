@@ -20,12 +20,11 @@
   }
 
   h1 {
-    padding: 1rem 1.5rem 0;
-    text-align: center;
+    padding: 1rem 1rem 0;
   }
 
   p {
-    padding: .5rem 1.5rem;
+    padding: .5rem 1rem;
     max-width: 70rem;
     margin: 0 auto;
   }
