@@ -1,6 +1,7 @@
 <script>
   import './global.scss';
 	import Logo from './Logo.svelte';
+	import Nav from './Nav.svelte';
 </script>
 
 <svelte:head>
@@ -11,6 +12,7 @@
 
 <header class="flex-row-center">
   <Logo />
+  <Nav />
 </header>
 
 <main>
@@ -26,6 +28,8 @@
     position: fixed;
     top: 0;
     left: 0;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
     height: 85px;
     padding: 0 1rem;

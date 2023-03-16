@@ -1,0 +1,1 @@
+export type ColorKind = 'primary' | 'secondary' | 'tertiary' | 'neutral';
