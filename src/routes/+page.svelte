@@ -1,1 +1,7 @@
-<p>Welcome to YumYum Recipes!</p>
+<script>
+	import Hero from "./Hero.svelte";
+	import Steps from "./Steps.svelte";
+</script>
+
+<Hero />
+<Steps />

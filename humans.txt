@@ -1,0 +1,9 @@
+/* TEAM */
+Developer: wraith.
+contact: allhailthewraith@pm.me
+Mastodon: @wraith
+Location: Raleigh, NC USA
+
+/* SITE */
+This site is a static site built with Svelte and uses a Postgres database to store the data. The site is built with the help of the following tools:
+Components: Svelte,Postgres,Nodejs.
