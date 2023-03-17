@@ -5,7 +5,7 @@
   export let ariaLabel: string | null = null;
 </script>
 
-<button on:click class={ kind } aria-label={ariaLabel}>
+<button on:click class={kind} aria-label={ariaLabel}>
   <slot />
 </button>
 

@@ -16,4 +16,16 @@
       <path d="M60,46.8H4c-1.2,0-2.3,1-2.3,2.3s1,2.3,2.3,2.3h56c1.2,0,2.3-1,2.3-2.3S61.2,46.8,60,46.8z"/>
       <path d="M4,17.2h56c1.2,0,2.3-1,2.3-2.3s-1-2.3-2.3-2.3H4c-1.2,0-2.3,1-2.3,2.3S2.8,17.2,4,17.2z"/>
     </g>
-  </svg> 
+  </svg>
+
+  <style>
+    svg {
+      width: var(--size, 2rem);
+      height: var(--size, 2rem);
+      fill: var(--fill-color, --neutral-300);
+    }
+    
+    svg:hover {
+      --fill-color: var(--hover-fill-color, --neutral-100);
+    }
+  </style>

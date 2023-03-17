@@ -4,8 +4,6 @@
 
   let isOpen = false;
 
-  $: console.log('>>>>> isOpen: ', isOpen);
-
   const toggleNav = () => {
     console.log('toggling nav...');
 
