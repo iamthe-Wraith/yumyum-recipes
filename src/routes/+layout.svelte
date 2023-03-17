@@ -39,7 +39,7 @@
 
   main {
     min-height: calc(100vh - 50px);
-    padding-top: 85px;
+    padding: 85px 0;
   }
 
   footer {
