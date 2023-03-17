@@ -24,8 +24,4 @@
       height: var(--size, 2rem);
       fill: var(--fill-color, --neutral-300);
     }
-    
-    svg:hover {
-      --fill-color: var(--hover-fill-color, --neutral-100);
-    }
   </style>

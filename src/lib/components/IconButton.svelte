@@ -25,7 +25,7 @@
 
     &:hover,
     &:focus {
-      --hover-fill-color: var(--primary-300);
+      --fill-color: var(--primary-300);
     }
   }
 
@@ -34,7 +34,7 @@
 
     &:hover,
     &:focus {
-      --hover-fill-color: var(--secondary-300);
+      --fill-color: var(--secondary-300);
     }
 
     &:focus-visible {
@@ -47,7 +47,7 @@
 
     &:hover,
     &:focus {
-      --hover-fill-color: var(--tertiary-300);
+      --fill-color: var(--tertiary-300);
     }
 
     &:focus-visible {
@@ -60,7 +60,7 @@
 
     &:hover,
     &:focus {
-      --hover-fill-color: var(--neutral-300);
+      --fill-color: var(--neutral-300);
     }
 
     &:focus-visible {
