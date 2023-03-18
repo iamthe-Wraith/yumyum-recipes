@@ -6,7 +6,7 @@ import { MIN_PASSWORD_LENGTH } from "$lib/constants/auth";
 export interface INewUserData {
   email: string;
   password: string;
-  confirmed: string;
+  confirmedPassword: string;
 }
 
 const passwordError = `Password must be at least ${MIN_PASSWORD_LENGTH} characters long and contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (!@#$%^&*(),.?":{}|<>)`;
@@ -26,9 +26,9 @@ const newUserSchema = z.object({
     .regex(/[!@#$%^&*(),.?":{}|<>]/, { message: passwordError })
     .regex(/[A-Z]/, { message: passwordError })
     .regex(/[a-z]/, { message: passwordError }),
-  confirmed: z.string({
-    required_error: "You must confirm your password.",
-    invalid_type_error: "Password confirmation must be a string.",
+  confirmedPassword: z.string({
+    required_error: "You must confirmed your password.",
+    invalid_type_error: "Password confirmedation must be a string.",
   }),
 });
 
@@ -40,8 +40,8 @@ export const createUser = async (email: string, password: string) => {
   return { id: 'abc123', email };
 };
 
-export const validateNewUserData = async ({ email, password, confirmed }: INewUserData) => {
-  const parsed = newUserSchema.safeParse({ email, password, confirmed });
+export const validateNewUserData = async ({ email, password, confirmedPassword }: INewUserData) => {
+  const parsed = newUserSchema.safeParse({ email, password, confirmedPassword });
 
   if (!parsed.success) {
     const error = parsed.error.issues[0];
@@ -50,8 +50,8 @@ export const validateNewUserData = async ({ email, password, confirmed }: INewUs
 
   // TODO: check if email is already in use
 
-  if (parsed.data.password !== parsed.data.confirmed) {
-    throw new ApiError('Passwords do not match.', HttpStatus.INVALID_ARG, 'confirmed', { email });
+  if (parsed.data.password !== parsed.data.confirmedPassword) {
+    throw new ApiError('Passwords do not match.', HttpStatus.INVALID_ARG, 'confirmedPassword', { email });
   }
 
   return true;
