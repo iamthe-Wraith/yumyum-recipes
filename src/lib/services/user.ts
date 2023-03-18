@@ -2,6 +2,9 @@ import { z } from "zod";
 import { HttpStatus } from "$lib/constants/error";
 import { ApiError } from "$lib/error";
 import { MIN_PASSWORD_LENGTH } from "$lib/constants/auth";
+import { prisma } from "$lib/db/client";
+import { generatePasswordHash } from "./auth";
+import type { users } from "@prisma/client";
 
 export interface INewUserData {
   email: string;
@@ -28,16 +31,38 @@ const newUserSchema = z.object({
     .regex(/[a-z]/, { message: passwordError }),
   confirmedPassword: z.string({
     required_error: "You must confirmed your password.",
-    invalid_type_error: "Password confirmedation must be a string.",
+    invalid_type_error: "Password confirmation must be a string.",
   }),
 });
 
-export const createUser = async (email: string, password: string) => {
-  // TODO: create user
+export const sterilizeUser = (user: users) => {
+  return {
+    id: user.id,
+    email: user.email,
+  };
+};
 
-  console.log('>>>>> creating user: ', email, password);
+export const createUser = async ({ email, password, confirmedPassword }: INewUserData) => {
+  try {
+    await validateNewUserData({ email, password, confirmedPassword });
 
-  return { id: 'abc123', email };
+    const hash = await generatePasswordHash(password);
+
+    const user = await prisma.users.create({
+      data: {
+        email,
+        password: hash,
+      }
+    });
+
+    return user;
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw err;
+    } else {
+      throw new ApiError('There was an error creating your account. Please try again later.', HttpStatus.SERVER, undefined, { email });
+    }
+  }
 };
 
 export const validateNewUserData = async ({ email, password, confirmedPassword }: INewUserData) => {
@@ -48,10 +73,22 @@ export const validateNewUserData = async ({ email, password, confirmedPassword }
     throw new ApiError(error.message, HttpStatus.INVALID_ARG, error.path[0].toString(), { email });
   }
 
-  // TODO: check if email is already in use
-
   if (parsed.data.password !== parsed.data.confirmedPassword) {
     throw new ApiError('Passwords do not match.', HttpStatus.INVALID_ARG, 'confirmedPassword', { email });
+  }
+
+  try {
+    const existingUser = await prisma.users.findFirst({ where: { email }});
+
+    if (existingUser) {
+      throw new ApiError('There is already an account with this email.', HttpStatus.CONFLICT, 'email', { email });
+    }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw err;
+    } else {
+      throw new ApiError('There was an error validating your data.', HttpStatus.INTERNAL_SERVER_ERROR, undefined, { email });
+    }
   }
 
   return true;
