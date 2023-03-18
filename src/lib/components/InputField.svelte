@@ -1,18 +1,24 @@
 <script lang="ts">
   export let error = '';
   export let label = '';
+  export let type = 'text';
+  export let id = '';
+  export let name = id;
+  export let value = '';
+  export let required = false;
 </script>
 
 <div class='input-field-container'>
   {#if label}
-    <label for={$$props.id}>{label}</label>
+    <label for={id}>{label}</label>
   {/if}
 
   <input
-    type={$$props.type ?? 'text'}
-    id={$$props.id}
-    name={$$props.name}
-    value={$$props.value ?? ''}
+    {type}
+    {id}
+    {name}
+    {value}
+    {required}
   />
 
   {#if error}
