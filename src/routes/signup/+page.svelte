@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Button from "$lib/components/Button.svelte";
-import InputField from "$lib/components/InputField.svelte";
-import { isErrorStatus } from "$lib/helpers/response";
+  import InputField from "$lib/components/InputField.svelte";
+  import { isErrorStatus } from "$lib/helpers/response";
 	import type { ActionData } from "./$types";
-
+  
   export let form: ActionData;
 </script>
 

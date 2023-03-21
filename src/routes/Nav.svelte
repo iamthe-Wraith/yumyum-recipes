@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { log } from '$lib/services/log';
   import { fly } from 'svelte/transition';
 	import ToggleMenuButton from "./ToggleMenuButton.svelte";
 
   let isOpen = false;
 
   const toggleNav = () => {
-    console.log('toggling nav...');
+    log('toggling nav...');
 
     isOpen = !isOpen;
   }
