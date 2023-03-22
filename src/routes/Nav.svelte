@@ -19,7 +19,7 @@
   <button
     tabindex="-1"
     class='nav-overlay'
-    transition:fly={{ x: -50 }}
+    transition:fly={{ x: 50 }}
     on:click={toggleNav}
     aria-label="Close Navigation"
     aria-expanded={isOpen}
@@ -48,6 +48,8 @@
     top: 85px;
     bottom: 0;
     left: 0;
+    display: flex;
+    justify-content: flex-end;
     width: 100vw;
     background: rgba(0, 0, 0, 0.5);
     border: none;
@@ -60,7 +62,7 @@
     height: 100%;
     padding: 1rem;
     background: var(--neutral-100);
-    border-right: 1px solid var(--primary-500);
+    border-left: 1px solid var(--primary-500);
     text-align: left;
   }
 
