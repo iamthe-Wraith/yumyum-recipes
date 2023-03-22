@@ -1,12 +1,15 @@
 <script lang="ts">
-  import type { PageData } from './$types';
-
-  export let data: PageData;
+  import { user } from '$lib/stores/user';
+  import { authenticated } from '$lib/stores/authenticated';
 </script>
 
 <div class="dashboard-container">
   <h1>Dashboard</h1>
-  <p>your email is: {data.user.email}</p>
+  {#if $authenticated}
+    <p>you are logged in and your email is {$user?.email}</p>
+  {:else}
+    <p>you are not logged in</p>
+  {/if}
 </div>
 
 <style lang="scss">

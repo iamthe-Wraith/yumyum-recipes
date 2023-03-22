@@ -18,7 +18,9 @@ export const authenticate = (async ({ event, resolve }) => {
 
       const data = await getSession(session);
 
-      if (data?.user) event.locals = { ...event.locals, user: data.user }
+      if (data?.user) {
+        event.locals = { ...event.locals, user: data.user }
+      }
     } catch (err) {
       log('[-] authentication error: ', err);
     }

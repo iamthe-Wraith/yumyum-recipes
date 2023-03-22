@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { log } from '$lib/services/log';
+	import { authenticated } from '$lib/stores/authenticated';
   import { fly } from 'svelte/transition';
 	import ToggleMenuButton from "./ToggleMenuButton.svelte";
 
@@ -29,7 +30,13 @@
       on:keydown|stopPropagation={() => {}}
     >
       <nav>
-        <a href="/signup">Sign Up</a>
+        {#if $authenticated}
+          <a href="/dashboard">Dashboard</a>
+          <a href="/logout">Log Out</a>
+        {:else}
+          <a href="/login">Log In</a>
+          <a href="/signup">Sign Up</a>
+        {/if}
       </nav>
     </div>
   </button>
@@ -59,6 +66,7 @@
 
   nav {
     a {
+      display: block;
       font-size: 1rem;
       text-decoration: none;
 

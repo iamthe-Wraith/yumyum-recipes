@@ -13,11 +13,11 @@ export const actions = {
 
     try {
       const data = await parseFormData<INewUserData>(request);
-      const user = await createUser(data);
+      const newUser = await createUser(data);
 
-      const sessionToken = await signSessionJWT(user);
+      const sessionToken = await signSessionJWT(newUser);
 
-      cookies.set('session', sessionToken, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: (60 * 60 * 24) * SESSION_TOKEN_DURATION });      
+      cookies.set('session', sessionToken, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: (60 * 60 * 24) * SESSION_TOKEN_DURATION });
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err

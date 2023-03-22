@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { enhance } from "$app/forms";
 	import Button from "$lib/components/Button.svelte";
   import InputField from "$lib/components/InputField.svelte";
   import { isErrorStatus } from "$lib/helpers/response";
+	import { user } from "$lib/stores/user";
 	import type { ActionData } from "./$types";
   
   export let form: ActionData;
@@ -9,7 +11,7 @@
 
 <div class="signup-container">
   <h1>Sign up</h1>
-  <form method="POST">
+  <form method="POST" use:enhance>
     <InputField
       label="Email"
       type="email"
