@@ -3,6 +3,8 @@ import { writable } from 'svelte/store';
 interface IUser {
   id: number;
   email: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 function createUserStore() {
