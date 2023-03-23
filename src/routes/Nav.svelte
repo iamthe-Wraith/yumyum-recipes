@@ -41,9 +41,9 @@
       <nav>
         {#if $authenticated}
           <a href="/dashboard">Dashboard</a>
-          <a href="/logout">Log Out</a>
+          <a href="/signout">Sign Out</a>
         {:else}
-          <a href="/login">Log In</a>
+          <a href="/signin">Sign In</a>
           <a href="/signup">Sign Up</a>
         {/if}
       </nav>

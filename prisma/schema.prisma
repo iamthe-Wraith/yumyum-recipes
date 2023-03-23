@@ -18,7 +18,7 @@ model users {
 
 model sessions {
   id            Int             @id @default(autoincrement())
-  token         String
+  token         String          @unique
   userId        Int
   user          users           @relation(fields: [userId], references: [id])
   createdAt     DateTime        @default(now()) @db.Timestamp(6)
