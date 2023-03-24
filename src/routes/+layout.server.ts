@@ -7,8 +7,8 @@ export const load = (async ({ locals }) => {
     user: {
       id: locals.user.id,
       email: locals.user.email,
-      createdAt: locals.user.createdAt,
-      updatedAt: locals.user.updatedAt
+      createdAt: locals.user.createdAt.toISOString(),
+      updatedAt: locals.user.updatedAt.toISOString()
     }
   };
 }) satisfies LayoutServerLoad;

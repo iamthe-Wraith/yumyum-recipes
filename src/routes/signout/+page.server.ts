@@ -1,11 +1,11 @@
 import { prisma } from "$lib/db/client";
 import { isValidToken, readToken } from "$lib/services/jwt";
+import { user } from "$lib/stores/user";
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
 export const load = (async ({ locals, cookies }) => {
   delete locals.user;
-
   const sessionToken = cookies.get('session');
   
   if (sessionToken) {
@@ -21,6 +21,4 @@ export const load = (async ({ locals, cookies }) => {
       })
     }
   }
-
-  throw redirect(303, '/signin');
 }) satisfies PageServerLoad;
