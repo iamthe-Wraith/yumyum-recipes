@@ -39,13 +39,13 @@ import { authenticated } from "$lib/stores/authenticated";
 
   <div class="nav-overlay" bind:this={navOverlay}>
     <div class="nav-container">
-      <nav class={!authenticated ? 'center-col' : ''}>
+      <nav class={$authenticated ? 'authenticated' : 'unauthenticated center-col'}>
         {#if $authenticated}
           <a href="/dashboard">Dashboard</a>
           <a href="/signout" class="signout">Sign Out</a>
         {:else}
-          <LinkButton href="/signup">Sign Up</LinkButton>
           <a href="/signin">Sign In</a>
+          <LinkButton href="/signup">Sign Up</LinkButton>
         {/if}
       </nav>
     </div>
@@ -164,6 +164,10 @@ import { authenticated } from "$lib/stores/authenticated";
       flex-direction: column;
       justify-content: center;
 
+      &.unauthenticated {
+        flex-direction: column-reverse;
+      }
+
       a {
         text-align: center;
       }
@@ -185,6 +189,11 @@ import { authenticated } from "$lib/stores/authenticated";
 
   .signout {
     border-top: 1px solid var(--neutral-300);
+
+    &:hover,
+    &:focus {
+      color: var(--danger-500);
+    }
   }
 
   @media (min-width: 768px) {
@@ -219,6 +228,10 @@ import { authenticated } from "$lib/stores/authenticated";
           align-items: center;
           height: 100%;
 
+          &.unauthenticated {
+            flex-direction: row;
+          }
+
           & > * {
             margin-left: 1.5rem;
           }
@@ -227,7 +240,9 @@ import { authenticated } from "$lib/stores/authenticated";
     }
 
     .signout {
+      padding-left: 1.5rem;
       border-top: none;
+      border-left: 1px solid var(--neutral-300);
     }
   }
 </style>

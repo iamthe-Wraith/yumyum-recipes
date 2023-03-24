@@ -3,12 +3,15 @@ import { HttpStatus } from "$lib/constants/error";
 import { ApiError } from "$lib/error";
 import { MIN_PASSWORD_LENGTH } from "$lib/constants/auth";
 import { prisma } from "$lib/db/client";
-import { generatePasswordHash } from "./auth";
+import { generatePasswordHash, isValidPassword } from "./auth";
 import type { users } from "@prisma/client";
 
-export interface INewUserData {
+export interface IUserSignInData {
   email: string;
   password: string;
+}
+
+export interface INewUserData extends IUserSignInData {
   confirmedPassword: string;
 }
 
@@ -35,12 +38,39 @@ const newUserSchema = z.object({
   }),
 });
 
-export const sterilizeUser = (user: users) => {
-  return {
-    id: user.id,
-    email: user.email,
-  };
-};
+const signInSchema = z.object({
+  email: z.string({
+    required_error: "Email is required.",
+    invalid_type_error: "Email must be a string.",
+  })
+    .email({ message: "Invalid email address." }),
+  password: z.string({
+    required_error: "Password is required.",
+    invalid_type_error: "Password must be a string.",
+  })
+});
+
+export const authenticateUser = async (email: string, password: string) => {
+  try {
+    validateUserSignInData({ email, password });
+
+    const user = await prisma.users.findFirst({ where: { email }});
+
+    if (!user) {
+      throw new ApiError('Invalid email or password.', HttpStatus.UNAUTHORIZED, undefined, { email });
+    }
+
+    await isValidPassword(password, user.password);
+
+    return user;
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw err;
+    } else {
+      throw new ApiError('There was an error authenticating your account. Please try again later.', HttpStatus.SERVER, undefined, { email });
+    }
+  }
+}
 
 export const createUser = async ({ email, password, confirmedPassword }: INewUserData) => {
   try {
@@ -63,6 +93,13 @@ export const createUser = async ({ email, password, confirmedPassword }: INewUse
       throw new ApiError('There was an error creating your account. Please try again later.', HttpStatus.SERVER, undefined, { email });
     }
   }
+};
+
+export const sterilizeUser = (user: users) => {
+  return {
+    id: user.id,
+    email: user.email,
+  };
 };
 
 export const validateNewUserData = async ({ email, password, confirmedPassword }: INewUserData) => {
@@ -93,3 +130,14 @@ export const validateNewUserData = async ({ email, password, confirmedPassword }
 
   return true;
 };
+
+export const validateUserSignInData = ({ email, password }: IUserSignInData) => {
+  const parsed = signInSchema.safeParse({ email, password });
+
+  if (!parsed.success) {
+    const error = parsed.error.issues[0];
+    throw new ApiError(error.message, HttpStatus.INVALID_ARG, error.path[0].toString(), { email });
+  }
+
+  return true;
+}

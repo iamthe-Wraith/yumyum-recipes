@@ -3,7 +3,6 @@
 	import Button from "$lib/components/Button.svelte";
   import InputField from "$lib/components/InputField.svelte";
   import { isErrorStatus } from "$lib/helpers/response";
-	import { user } from "$lib/stores/user";
 	import type { ActionData } from "./$types";
   
   export let form: ActionData;
@@ -40,6 +39,7 @@
     />
 
     <Button>Sign Up</Button>
+    <a href="/signin">Already have an account?</a>
   </form>
 </div>
 
@@ -60,5 +60,10 @@
     width: 100%;
     max-width: 400px;
     margin: 0 auto;
+
+    a {
+      margin-top: 1rem;
+      text-align: center;
+    }
   }
 </style>
