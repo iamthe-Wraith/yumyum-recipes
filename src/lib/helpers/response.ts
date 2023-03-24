@@ -1,0 +1,1 @@
+export const isErrorStatus = (status?: number) => !!status && status >= 400;
