@@ -6,6 +6,7 @@
 </script>
 
 <a
+  on:click
   {href}
   class={type}
 >

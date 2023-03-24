@@ -1,14 +1,21 @@
 <script lang="ts">
+  import { page } from '$app/stores';
 	import LinkButton from "$lib/components/LinkButton.svelte";
-import { authenticated } from "$lib/stores/authenticated";
+  import { authenticated } from "$lib/stores/authenticated";
 	import { onDestroy, onMount } from "svelte";
 
+  let checkbox: HTMLInputElement;
   let navOverlay: HTMLDivElement;
   let noTransitionTimer: number;
 
-  const onResize = () => {
-    console.log('resizing...');
+  const close = () => {
+    if (checkbox) checkbox.checked = false;
+  }
 
+  $: $page.route && close();
+
+  const onResize = () => {
+    close();
     clearTimeout(noTransitionTimer);
 
     navOverlay.classList.add('no-transition');
@@ -31,7 +38,7 @@ import { authenticated } from "$lib/stores/authenticated";
 </script>
 
 <div class="nav-toggle-container">
-  <input type="checkbox" id="nav-checkbox" class="nav-checkbox" />
+  <input type="checkbox" id="nav-checkbox" class="nav-checkbox" bind:this={checkbox} />
 
   <label for="nav-checkbox" class="nav-toggle" aria-label="navigation toggle">
     <span class="nav-toggle-line" />
