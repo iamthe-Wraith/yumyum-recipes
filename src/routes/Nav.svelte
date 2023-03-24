@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { authenticated } from "$lib/stores/authenticated";
+	import LinkButton from "$lib/components/LinkButton.svelte";
+import { authenticated } from "$lib/stores/authenticated";
 	import { onDestroy, onMount } from "svelte";
 
   let navOverlay: HTMLDivElement;
@@ -38,13 +39,13 @@
 
   <div class="nav-overlay" bind:this={navOverlay}>
     <div class="nav-container">
-      <nav>
+      <nav class={!authenticated ? 'center-col' : ''}>
         {#if $authenticated}
           <a href="/dashboard">Dashboard</a>
-          <a href="/signout">Sign Out</a>
+          <a href="/signout" class="signout">Sign Out</a>
         {:else}
+          <LinkButton href="/signup">Sign Up</LinkButton>
           <a href="/signin">Sign In</a>
-          <a href="/signup">Sign Up</a>
         {/if}
       </nav>
     </div>
@@ -158,8 +159,19 @@
   }
 
   nav {
+    &.center-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      a {
+        text-align: center;
+      }
+    }
+
     a {
       display: block;
+      padding: .5rem 0;
       font-size: 1rem;
       text-decoration: none;
 
@@ -169,6 +181,10 @@
         text-decoration: underline;
       }
     }
+  }
+
+  .signout {
+    border-top: 1px solid var(--neutral-300);
   }
 
   @media (min-width: 768px) {
@@ -192,6 +208,8 @@
       visibility: visible;
 
       .nav-container {
+        display: flex;
+        justify-content: flex-end;
         border-left: none;
         background: none;
 
@@ -206,6 +224,10 @@
           }
         }
       }
+    }
+
+    .signout {
+      border-top: none;
     }
   }
 </style>
