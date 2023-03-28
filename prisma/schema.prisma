@@ -12,6 +12,7 @@ model users {
   email         String          @unique
   password      String
   sessions      sessions[]
+  recipes       recipes[]
   createdAt     DateTime        @default(now()) @db.Timestamp(6)
   updatedAt     DateTime        @default(now()) @db.Timestamp(6)
 }
@@ -23,4 +24,58 @@ model sessions {
   user          users           @relation(fields: [userId], references: [id])
   createdAt     DateTime        @default(now()) @db.Timestamp(6)
   updatedAt     DateTime        @default(now()) @db.Timestamp(6)
+}
+
+model recipes {
+  id            Int             @id @default(autoincrement())
+  name          String
+  img           String?
+  ownerId       Int
+  owner         users           @relation(fields: [ownerId], references: [id])
+  prepTime      Int
+  cookTime      Int
+  servings      Int
+  steps         String[]
+  ingredients   ingredients[]
+  description   String          @default("") @db.VarChar(300)
+  isPublic      Boolean         @default(false)
+  notes         String          @default("")
+  origRecipeId  Int?
+  origRecipe    recipes?        @relation("OriginalRecipe", fields: [origRecipeId], references: [id])
+  recipe        recipes[]       @relation("OriginalRecipe")   
+  createdAt     DateTime        @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime        @default(now()) @db.Timestamp(6)
+}
+
+model ingredients {
+  id            Int             @id @default(autoincrement())
+  recipeId      Int
+  recipe        recipes         @relation(fields: [recipeId], references: [id])
+  name          String
+  amount        String
+  unit          IngredientUnitOfMeasure
+  kelevens      Float
+  type          IngredientType
+}
+
+enum IngredientUnitOfMeasure {
+  PINCH
+  TEASPOON
+  TABLESPOON
+  CUP
+  PINT
+  QUART
+  GALLON
+  POUND
+  MILLILITER
+  LITER
+  GRAM
+  OUNCE
+  FLUID_OUNCE
+  KILOGRAM
+}
+
+enum IngredientType {
+  DRY
+  LIQUID
 }
