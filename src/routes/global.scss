@@ -60,6 +60,11 @@ body {
   font-family: var(--body-font);
   color: var(--neutral-900);
   box-sizing: border-box;
+
+  &::selection {
+    background: var(--primary-500);
+    color: var(--neutral-900);
+  }
 }
 
 h1,
@@ -105,8 +110,10 @@ p {
 
 a,
 button,
-input {
+input,
+textarea {
   outline: none;
+  font-size: 1rem;
 
   &:focus-visible {
     outline: 1px dashed var(--primary-500);

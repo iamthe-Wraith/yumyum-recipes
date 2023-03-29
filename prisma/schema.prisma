@@ -28,12 +28,12 @@ model sessions {
 
 model recipes {
   id            Int             @id @default(autoincrement())
-  name          String
+  name          String          @db.VarChar(50)
   img           String?
   ownerId       Int
   owner         users           @relation(fields: [ownerId], references: [id])
-  prepTime      Int
-  cookTime      Int
+  prepTime      String
+  cookTime      String
   servings      Int
   steps         String[]
   ingredients   ingredients[]
