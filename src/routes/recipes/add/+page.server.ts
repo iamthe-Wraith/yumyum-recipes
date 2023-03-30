@@ -13,6 +13,7 @@ export const actions = {
       if (!locals.user) throw redirect(303, '/signin');
 
       const data = await parseFormData<INewRecipeData>(request);
+
       recipe = await createRecipe(data, locals.user);
     } catch (err: any) {
       const error = err instanceof ApiError

@@ -18,7 +18,7 @@ export const actions = {
 
       const sessionToken = await signSessionJWT(user);
 
-      cookies.set('session', sessionToken, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: (60 * 60 * 24) * SESSION_TOKEN_DURATION });
+      cookies.set('session', sessionToken, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: (60 * 60 * 24) * SESSION_TOKEN_DURATION });
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err

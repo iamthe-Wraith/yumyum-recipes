@@ -1,11 +1,17 @@
 <script lang="ts">
   import type { ColorKind } from '$types';
 
-  export let kind: ColorKind | 'transparent' = 'primary';
+  export let kind: Exclude<ColorKind, 'transparent'> = 'primary';
+  export let type: 'button' | 'submit' = 'submit';
   export let ariaLabel: string | null = null;
 </script>
 
-<button on:click class={kind} aria-label={ariaLabel}>
+<button
+  on:click
+  {type}
+  class={kind}
+  aria-label={ariaLabel}
+>
   <slot />
 </button>
 
@@ -65,6 +71,32 @@
 
     &:focus-visible {
       outline: 1px dashed var(--neutral-300);
+    }
+  }
+
+  .danger {
+    --fill-color: var(--danger-500);
+
+    &:hover,
+    &:focus {
+      --fill-color: var(--danger-300);
+    }
+
+    &:focus-visible {
+      outline: 1px dashed var(--danger-300);
+    }
+  }
+
+  .warning {
+    --fill-color: var(--warning-500);
+
+    &:hover,
+    &:focus {
+      --fill-color: var(--warning-300);
+    }
+
+    &:focus-visible {
+      outline: 1px dashed var(--warning-300);
     }
   }
 </style>

@@ -2,10 +2,16 @@
   import type { ColorKind } from '$types';
 
   export let kind: ColorKind | 'transparent' = 'primary';
+  export let type: 'button' | 'submit' = 'submit';
   export let ariaLabel: string | null = null;
 </script>
 
-<button on:click class={kind} aria-label={ariaLabel}>
+<button
+  on:click
+  {type}
+  class={kind}
+  aria-label={ariaLabel}
+>
   <slot />
 </button>
 

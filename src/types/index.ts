@@ -1,1 +1,1 @@
-export type ColorKind = 'primary' | 'secondary' | 'tertiary' | 'neutral';
+export type ColorKind = 'primary' | 'secondary' | 'tertiary' | 'neutral' | 'danger' | 'warning' | 'transparent';

@@ -20,8 +20,8 @@
 
 <style>
   svg {
-    width: var(--size, 2rem);
-    height: var(--size, 2rem);
+    width: var(--icon-size, 2rem);
+    height: var(--icon-size, 2rem);
     fill: var(--fill-color, --neutral-300);
   }
 </style>

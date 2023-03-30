@@ -28,6 +28,10 @@ const recipeSchema = z.object({
       invalid_type_error: "Servings must be a number.",
     }).positive().min(1, { message: "Servings must be at least 1." })
   ),
+  steps: z.string()
+    .array()
+    .optional()
+    .default([]),
   notes: z.string({
     invalid_type_error: "Notes must be a string.",
   }),
