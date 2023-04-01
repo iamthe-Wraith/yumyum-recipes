@@ -6,6 +6,7 @@
   export let type = 'text';
   export let id = '';
   export let name = id;
+  export let step = 1
   export let value = '';
   export let required = false;
   export let placeholder = '';
@@ -23,6 +24,7 @@
     {value}
     {required}
     {placeholder}
+    step={type === 'number' ? step : undefined} 
     on:change
     on:blur
     on:focus

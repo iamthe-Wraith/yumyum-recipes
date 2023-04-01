@@ -3,7 +3,7 @@ import { ApiError } from '$lib/error';
 import type { Actions, PageServerLoad } from './$types';
 import { log } from '$lib/services/log';
 import { parseFormData } from '$lib/helpers/request';
-import { createRecipe, type INewRecipeData } from '$lib/services/recipe';
+import { createRecipe, parseIngredients, type INewRecipeData } from '$lib/services/recipe';
 import type { recipes } from '@prisma/client';
 
 export const actions = {
@@ -13,8 +13,11 @@ export const actions = {
       if (!locals.user) throw redirect(303, '/signin');
 
       const data = await parseFormData<INewRecipeData>(request);
+      data.ingredients = parseIngredients((data as any)['ingredients.amount'], (data as any)['ingredients.name']);
 
       recipe = await createRecipe(data, locals.user);
+
+      console.log('>>>>> recipe: ', recipe);
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err

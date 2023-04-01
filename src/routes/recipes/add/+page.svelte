@@ -12,6 +12,7 @@
   
   export let form: ActionData;
 
+  let ingredients = 1;
   let steps = 1;
 </script>
 
@@ -64,7 +65,48 @@
     </div>
 
     <div>
-      <!-- ingredients -->
+      <fieldset>
+        <legend>Ingredients</legend>
+        {#each {length: ingredients} as _, i}
+          <div class="ingredient-row">
+            <InputField
+              id="ingredient-{i}-amount"
+              name="ingredients[].amount"
+              value={form?.data?.ingredients?.[i]?.amount ?? ''}
+              type="number"
+              step={0.01}
+              label="Amount"
+            />
+
+            <!-- TODO: add unit -->
+
+            <!-- TODO: add type (liquid or dry) -->
+
+            <InputField
+              id="ingredient-{i}-amount"
+              name="ingredients[].name"
+              value={form?.data?.ingredients?.[i]?.name ?? ''}
+              label="Name"
+            />
+
+            {#if i === ingredients - 1 && ingredients > 1}
+              <IconButton
+                kind="danger"
+                type="button"
+                on:click={() => ingredients--}
+              >
+                <XIcon />
+              </IconButton>
+            {/if}
+          </div>
+        {/each}
+
+        <Button type="button" on:click={() => ingredients++}>+ Add Ingredient</Button>
+
+        {#if isErrorStatus(form?.status) && form?.field === 'servings'}
+          <ErrorText>{form?.message}</ErrorText>
+        {/if}
+      </fieldset>
     </div>
 
     <div>
@@ -163,15 +205,25 @@
     }
   }
 
+  .ingredient-row,
   .step-row {
     display: grid;
-    grid-template-columns: 1rem auto 1.5rem;
     grid-gap: 1rem;
     align-items: center;
     margin-bottom: 1rem;
 
     --input-field-margin-bottom: 0;
     --icon-size: 1rem;
+  }
+
+  .ingredient-row {
+    grid-template-columns: 5rem auto 1.5rem;
+
+    --icon-button-margin-top: 1.5rem;
+  }
+
+  .step-row {
+    grid-template-columns: 1rem auto 1.5rem;
   }
 
   fieldset {

@@ -20,6 +20,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: var(--icon-button-margin-top, 0);
+    margin-right: var(--icon-button-margin-right, 0);
+    margin-bottom: var(--icon-button-margin-bottom, 0);
+    margin-left: var(--icon-button-margin-left, 0);
     padding: 0.25rem;
     border: none;
     background: none;

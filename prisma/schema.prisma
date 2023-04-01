@@ -8,51 +8,51 @@ datasource db {
 }
 
 model users {
-  id            Int             @id @default(autoincrement())
-  email         String          @unique
-  password      String
-  sessions      sessions[]
-  recipes       recipes[]
-  createdAt     DateTime        @default(now()) @db.Timestamp(6)
-  updatedAt     DateTime        @default(now()) @db.Timestamp(6)
+  id           Int             @id @default(autoincrement())
+  email        String          @unique
+  password     String
+  sessions     sessions[]
+  recipes      recipes[]
+  createdAt    DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt    DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
 
 model sessions {
-  id            Int             @id @default(autoincrement())
-  token         String          @unique
-  userId        Int
-  user          users           @relation(fields: [userId], references: [id])
-  createdAt     DateTime        @default(now()) @db.Timestamp(6)
-  updatedAt     DateTime        @default(now()) @db.Timestamp(6)
+  id           Int             @id @default(autoincrement())
+  token        String          @unique
+  userId       Int             @map("user_id")
+  user         users           @relation(fields: [userId], references: [id])
+  createdAt    DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt    DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
 
 model recipes {
-  id            Int             @id @default(autoincrement())
-  name          String          @db.VarChar(50)
-  img           String?
-  ownerId       Int
-  owner         users           @relation(fields: [ownerId], references: [id])
-  prepTime      String
-  cookTime      String
-  servings      Int
-  steps         String[]
-  ingredients   ingredients[]
-  description   String          @default("") @db.VarChar(300)
-  isPublic      Boolean         @default(false)
-  notes         String          @default("")
-  origRecipeId  Int?
-  origRecipe    recipes?        @relation("OriginalRecipe", fields: [origRecipeId], references: [id])
-  recipe        recipes[]       @relation("OriginalRecipe")   
-  createdAt     DateTime        @default(now()) @db.Timestamp(6)
-  updatedAt     DateTime        @default(now()) @db.Timestamp(6)
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(50)
+  img            String?
+  ownerId        Int              @map("owner_id")
+  owner          users            @relation(fields: [ownerId], references: [id])
+  prepTime       String           @map("prep_time")
+  cookTime       String           @map("cook_time")
+  servings       Int
+  steps          String[]
+  ingredients    ingredients[]
+  description    String           @default("") @db.VarChar(300)
+  isPublic       Boolean          @default(false) @map("is_public")
+  notes          String           @default("")
+  origRecipeId   Int?             @map("orig_recipe_id")
+  origRecipe     recipes?         @relation("OriginalRecipe", fields: [origRecipeId], references: [id])
+  recipe         recipes[]        @relation("OriginalRecipe")   
+  createdAt      DateTime         @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt      DateTime         @default(now()) @db.Timestamp(6) @map("updated_at")
 }
 
 model ingredients {
   id            Int             @id @default(autoincrement())
-  recipeId      Int
+  recipeId     Int              @map("recipe_id")
   recipe        recipes         @relation(fields: [recipeId], references: [id])
   name          String
-  amount        String
+  amount        Float
   unit          IngredientUnitOfMeasure
   kelevens      Float
   type          IngredientType

@@ -10,6 +10,7 @@ export const parseFormData = async <T extends object>(request: Request) => {
       body[key] = value;
     } else if (key.includes('[]')) {
       const newKey = key.replace('[]', '');
+
       if (body[newKey]) {
         body[newKey].push(value.toString());
       } else {
