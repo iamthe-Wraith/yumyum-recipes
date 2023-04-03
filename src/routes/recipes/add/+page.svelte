@@ -2,6 +2,7 @@
   import { enhance } from "$app/forms";
 	import Button from "$lib/components/Button.svelte";
 	import Checkbox from "$lib/components/Checkbox.svelte";
+	import Dropdown from "$lib/components/Dropdown.svelte";
 	import ErrorText from "$lib/components/ErrorText.svelte";
 	import IconButton from "$lib/components/IconButton.svelte";
 	import InputField from "$lib/components/InputField.svelte";
@@ -80,7 +81,15 @@
 
             <!-- TODO: add unit -->
 
-            <!-- TODO: add type (liquid or dry) -->
+            <Dropdown
+              id="ingredient-{i}-type"
+              name="ingredients[].type"
+              label="Type"
+              options={[
+                { value: 'dry', label: 'Dry', selected: true },
+                { value: 'liquid', label: 'Liquid' },
+              ]}
+            />
 
             <InputField
               id="ingredient-{i}-amount"
@@ -214,10 +223,11 @@
 
     --input-field-margin-bottom: 0;
     --icon-size: 1rem;
+    --dropdown-margin-bottom: 0;
   }
 
   .ingredient-row {
-    grid-template-columns: 5rem auto 1.5rem;
+    grid-template-columns: 5rem 6rem auto 1.5rem;
 
     --icon-button-margin-top: 1.5rem;
   }
