@@ -3,6 +3,7 @@
 
   export let error = '';
   export let label = '';
+  export let description = '';
   export let id = '';
   export let name = id;
   export let value = '';
@@ -12,6 +13,10 @@
 <div class='input-field-container'>
   {#if label}
     <label for={id}>{label}</label>
+  {/if}
+
+  {#if description}
+    <p>{description}</p>
   {/if}
 
   <textarea
@@ -36,6 +41,13 @@
 
   label {
     margin-bottom: 0.25rem;
+  }
+
+  p {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+    line-height: 1.2rem;
   }
 
   textarea {

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { IngredientType, IngredientUnitOfMeasure } from "@prisma/client";
   import { enhance } from "$app/forms";
 	import Button from "$lib/components/Button.svelte";
 	import Checkbox from "$lib/components/Checkbox.svelte";
@@ -7,14 +8,59 @@
 	import IconButton from "$lib/components/IconButton.svelte";
 	import InputField from "$lib/components/InputField.svelte";
 	import TextArea from "$lib/components/TextArea.svelte";
+	import { IngredientTypes, UnitsOfMeasure, type IIngredientTypes } from "$lib/constants/ingredients";
 	import { isErrorStatus } from "$lib/helpers/response";
 	import XIcon from "$lib/icons/XIcon.svelte";
+	import type { IDropdownOption } from "$types/dropdown";
   import type { ActionData } from "./$types";
+	import { onMount } from "svelte";
   
   export let form: ActionData;
 
   let ingredients = 1;
   let steps = 1;
+  let amounts = [1];
+  let ingredientTypes: IIngredientTypes[] = [IngredientTypes[0]];
+  let unitsOfMeasureOptions: IDropdownOption[][] = [];
+
+  setUnitsOfMeasure(0);
+
+  $: if (ingredients !== ingredientTypes.length) {
+    if (ingredients < ingredientTypes.length) {
+      ingredientTypes.splice(ingredients, ingredientTypes.length - ingredients);
+      unitsOfMeasureOptions.splice(ingredients, unitsOfMeasureOptions.length - ingredients);
+    }
+
+    if (ingredients > ingredientTypes.length) {
+      for (let i = ingredientTypes.length; i < ingredients; i++) {
+        ingredientTypes.push(IngredientTypes[0]);
+        setUnitsOfMeasure(i);
+      }
+    }
+  }
+
+  const onAmountChange = (i: number) => (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    amounts[i] = Number(target.value);
+  };
+
+  const onIngredientTypeChange = (i: number) => (option: IDropdownOption) => {
+    ingredientTypes[i] = IngredientTypes.find((type) => type.name === option.value)!;
+    setUnitsOfMeasure(i);
+  };
+
+  function setUnitsOfMeasure(index: number) {
+    if (ingredientTypes[index].name === IngredientType.COUNT) {
+      unitsOfMeasureOptions[index] = [];
+      return;
+    };
+
+    const uom = UnitsOfMeasure.filter((u) => u.type === ingredientTypes[index].name);
+    unitsOfMeasureOptions[index] = uom.map((unit) => ({
+      value: unit.name,
+      label: unit.name,
+    })) as IDropdownOption[];
+  }
 </script>
 
 <noscript>
@@ -33,79 +79,103 @@
 
     <TextArea
       label="Description"
+      description="Add a short description of the recipe to let others know what it's like."
       id="description"
       name="description"
       error={isErrorStatus(form?.status) && form?.field === 'description' ? form.message : ''}
     />
 
-    <div class="row row-3">
-      <InputField
-        label="Prep Time"
-        id="prepTime"
-        name="prepTime"
-        placeholder="1 hour 30 minutes"
-        error={isErrorStatus(form?.status) && form?.field === 'prepTime' ? form.message : ''}
-      />
-
-      <InputField
-        label="Cook Time"
-        id="cookTime"
-        name="cookTime"
-        placeholder="45 minutes"
-        error={isErrorStatus(form?.status) && form?.field === 'cookTime' ? form.message : ''}
-      />
-
-      <InputField
-        label="Servings"
-        id="servings"
-        name="servings"
-        type="number"
-        placeholder="3"
-        error={isErrorStatus(form?.status) && form?.field === 'servings' ? form.message : ''}
-      />
-    </div>
+    <fieldset>
+      <legend>info</legend>
+      <div class="row row-3">
+        <InputField
+          label="Prep Time"
+          id="prepTime"
+          name="prepTime"
+          placeholder="1 hour 30 minutes"
+          error={isErrorStatus(form?.status) && form?.field === 'prepTime' ? form.message : ''}
+        />
+  
+        <InputField
+          label="Cook Time"
+          id="cookTime"
+          name="cookTime"
+          placeholder="45 minutes"
+          error={isErrorStatus(form?.status) && form?.field === 'cookTime' ? form.message : ''}
+        />
+  
+        <InputField
+          label="Servings"
+          id="servings"
+          name="servings"
+          type="number"
+          placeholder="3"
+          error={isErrorStatus(form?.status) && form?.field === 'servings' ? form.message : ''}
+        />
+      </div>
+    </fieldset>
 
     <div>
       <fieldset>
         <legend>Ingredients</legend>
         {#each {length: ingredients} as _, i}
-          <div class="ingredient-row">
-            <InputField
-              id="ingredient-{i}-amount"
-              name="ingredients[].amount"
-              value={form?.data?.ingredients?.[i]?.amount ?? ''}
-              type="number"
-              step={0.01}
-              label="Amount"
-            />
+          <div class="ingredient-row {ingredientTypes[i].name === IngredientType.COUNT ? 'partial-row' : 'full-row'}">
+            <div>
+              <Dropdown
+                id="ingredient-{i}-type"
+                name="ingredients[].type"
+                label="Type"
+                onChange={onIngredientTypeChange(i)}
+                options={IngredientTypes.map((type) => ({
+                  value: type.name,
+                  label: type.name,
+                  selected: type.name === ingredientTypes[i].name,
+                }))}
+              />
+            </div>
 
-            <!-- TODO: add unit -->
+            <div>
+              <InputField
+                id="ingredient-{i}-amount"
+                name="ingredients[].amount"
+                value={form?.data?.ingredients?.[i]?.amount ?? ''}
+                type="number"
+                step={0.01}
+                label="Amount"
+                on:change={onAmountChange(i)}
+              />
+            </div>
 
-            <Dropdown
-              id="ingredient-{i}-type"
-              name="ingredients[].type"
-              label="Type"
-              options={[
-                { value: 'dry', label: 'Dry', selected: true },
-                { value: 'liquid', label: 'Liquid' },
-              ]}
-            />
+            {#if unitsOfMeasureOptions[i].length}
+              <div>
+                <Dropdown
+                  id="ingredient-{i}-unit"
+                  name="ingredients[].unit"
+                  label="Unit"
+                  options={unitsOfMeasureOptions[i]}
+                />
+              </div>
+            {/if}
 
-            <InputField
-              id="ingredient-{i}-amount"
-              name="ingredients[].name"
-              value={form?.data?.ingredients?.[i]?.name ?? ''}
-              label="Name"
-            />
+            <div>
+              <InputField
+                id="ingredient-{i}-amount"
+                name="ingredients[].name"
+                value={form?.data?.ingredients?.[i]?.name ?? ''}
+                label="Name"
+              />
+            </div>
 
             {#if i === ingredients - 1 && ingredients > 1}
-              <IconButton
-                kind="danger"
-                type="button"
-                on:click={() => ingredients--}
-              >
-                <XIcon />
-              </IconButton>
+              <div>
+                <IconButton
+                  kind="danger"
+                  type="button"
+                  on:click={() => ingredients--}
+                >
+                  <XIcon />
+                </IconButton>
+              </div>
             {/if}
           </div>
         {/each}
@@ -152,6 +222,7 @@
 
     <TextArea
       label="Notes"
+      description="These are notes just for you. They will not be shared with the public."
       id="notes"
       name="notes"
       error={isErrorStatus(form?.status) && form?.field === 'notes' ? form.message : ''}
@@ -227,9 +298,89 @@
   }
 
   .ingredient-row {
-    grid-template-columns: 5rem 6rem auto 1.5rem;
+    &.full-row {
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--neutral-200);
 
-    --icon-button-margin-top: 1.5rem;
+      & > :first-child {
+        grid-area: type;
+      }
+
+      & > :nth-child(2) {
+        grid-area: amount;
+      }
+
+      & >:nth-child(3) {
+        grid-area: unit;
+      }
+
+      & > :nth-child(4) {
+        grid-area: name;
+      }
+
+      & > :nth-child(5) {
+        grid-area: remove;
+        place-self: start end;
+      }
+
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "type type . remove"
+        "amount amount unit unit"
+        "name name name name";
+
+
+      @media(min-width: 768px) {
+        grid-template-columns: 7rem 5rem 10rem auto 1.5rem;
+        grid-template-areas: "type amount unit name remove";
+
+        & > :nth-child(5) {
+          place-self: center end;
+        }
+      }
+    }
+
+    &.partial-row {
+      border-bottom: 1px solid var(--neutral-200);
+      padding-bottom: 1rem;
+
+      & > :first-child {
+        grid-area: type;
+      }
+
+      & > :nth-child(2) {
+        grid-area: amount;
+      }
+
+      & > :nth-child(3) {
+        grid-area: name;
+      }
+
+      & > :nth-child(4) {
+        grid-area: remove;
+        place-self: start end;
+      }
+
+      grid-template-columns: 1fr 1fr 1fr 1fr 1.5rem;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "type type amount amount remove"
+        "name name name name .";
+
+      @media(min-width: 767px) {
+        grid-template-columns: 7rem 5rem auto 1.5rem;
+        grid-template-areas: "type amount name remove";
+
+        & > :nth-child(4) {
+          place-self: center end;
+        }
+      }
+    }
+
+    @media(min-width: 768px) {
+      --icon-button-margin-top: 1.5rem;
+    }
   }
 
   .step-row {
@@ -238,11 +389,12 @@
 
   fieldset {
     padding: 1rem;
-    margin-bottom: 1rem;
+    margin: 3rem 0;
     border: 1px solid var(--neutral-200);
   }
 
   legend {
     padding: 0 0.5rem;
+    color: var(--secondary-500);
   }
 </style>

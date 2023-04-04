@@ -11,17 +11,13 @@
   */
 
 	import { onMount } from "svelte";
-	import { listen } from "svelte/internal";
-
-  interface IDropdownOption {
-    value: string;
-    label: string;
-    selected?: boolean;
-  }
+	import { noop } from "$lib/helpers/noop";
+	import type { IDropdownOption } from "$types/dropdown";
 
   export let id: string;
   export let name: string;
   export let label: string;
+  export let onChange: (option: IDropdownOption) => void = noop;
   export let options: IDropdownOption[];
 
   let selected: IDropdownOption = options.find((option) => option.selected) || options[0];
@@ -42,8 +38,6 @@
     if (dropdown) dropdown.classList.remove('disabled');
 
     dropdownOptions = Array.from(dropdownList.querySelectorAll('.dropdown-option'));
-
-    // <input type="hidden" name={name} value={selected.value} />
 
     dropdownInput = document.createElement('input');
     dropdownInput.type = 'hidden';
@@ -113,6 +107,7 @@
     if ((e.type !== 'click' && (e as KeyboardEvent).key !== 'Enter') || e.target === null) return;
     selected = options.find((option) => option.value === (e.target as HTMLLIElement).dataset.value) || options[0];
     dropdownInput.value = selected.value;
+    onChange(selected);
   }
 </script>
 
@@ -268,6 +263,7 @@
     border: 1px solid var(--neutral-500);
     border-radius: 0.25rem;
     overflow: hidden;
+    z-index: 10;
 
     &.open {
       display: block;

@@ -49,11 +49,11 @@ model recipes {
 
 model ingredients {
   id            Int             @id @default(autoincrement())
-  recipeId     Int              @map("recipe_id")
+  recipeId      Int             @map("recipe_id")
   recipe        recipes         @relation(fields: [recipeId], references: [id])
   name          String
   amount        Float
-  unit          IngredientUnitOfMeasure
+  unit          IngredientUnitOfMeasure?
   kelevens      Float
   type          IngredientType
 }
@@ -76,6 +76,7 @@ enum IngredientUnitOfMeasure {
 }
 
 enum IngredientType {
-  DRY
-  LIQUID
+  VOLUME
+  WEIGHT
+  COUNT
 }
