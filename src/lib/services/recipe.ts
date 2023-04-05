@@ -1,4 +1,5 @@
 import { HttpStatus } from "$lib/constants/error";
+import { UnitsOfMeasure } from "$lib/constants/ingredients";
 import { prisma } from "$lib/db/client";
 import { ApiError } from "$lib/error";
 import { IngredientType, IngredientUnitOfMeasure, type users } from "@prisma/client";
@@ -10,6 +11,7 @@ const recipeSchema = z.object({
     required_error: "Recipe name is required.",
     invalid_type_error: "Recipe name must be a string.",
   })
+    .min(1, { message: "Recipe name must be at least 1 character." })
     .max(50, { message: "Recipe name must be less than 50 characters." }),
   description: z.string({
     invalid_type_error: "Password must be a string.",
@@ -29,20 +31,16 @@ const recipeSchema = z.object({
     }).positive().min(1, { message: "Servings must be at least 1." })
   ),
   ingredients: z.object({
-    // amount: z.preprocess(
-    //   (x) => parseFloat(z.string().parse(x)),
-    //   z.number({
-    //     invalid_type_error: "Ingredient amounts must be a number.",
-    //   }).positive().min(0.01, { message: "Ingredient amounts must be at least 0.01." })
-    // ),
     amount: z.number({
       required_error: "Each ingredient must specify an amount.",
       invalid_type_error: "Ingredient amounts must be a number.",
-    }),
+    })
+      .gt(0, { message: "Ingredient amounts must be greater than 0." }),
     name: z.string({
       required_error: "Each ingredient must have a name.",
       invalid_type_error: "Ingredient names must be a string.",
-    }),
+    })
+      .min(1, { message: "Ingredient names must be at least 1 character." }),
     type: z.enum(Object.values(IngredientType) as [string, ...string[]], {
       required_error: "Each ingredient must specify a type.",
       invalid_type_error: "Invalid ingredient type found.",
@@ -53,15 +51,16 @@ const recipeSchema = z.object({
       .optional(),
   })
     .array()
-    .optional()
-    .default([]),
+    .min(1, { message: "Recipes must have at least 1 ingredient." }),
   steps: z.string()
+    .min(1, { message: "Recipes must have at least 1 step." })
     .array()
-    .optional()
-    .default([]),
+    .min(1, { message: "Recipes must have at least 1 step." }),
   notes: z.string({
     invalid_type_error: "Notes must be a string.",
-  }),
+  })
+    .max(500, { message: "Recipe notes must be less than 500 characters." })
+    .optional(),
   isPublic: z.string({
     invalid_type_error: "isPublic must be a string.",
   })
@@ -97,14 +96,27 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
           amount,
           type,
           unit,
-        }) => ({
-          recipeId: recipe.id,
-          name,
-          amount,
-          unit: unit as IngredientUnitOfMeasure,
-          kelevens: 5.0,
-          type: type as IngredientType,
-        })),
+        }) => {
+          log('unit: ', unit);
+          log('type: ', type);
+
+          const unitOfMeasure = type === IngredientType.COUNT
+            ? UnitsOfMeasure.find((uom) => uom.type === IngredientType.COUNT)
+            : UnitsOfMeasure.find((uom) => uom.name === unit && uom.type === type);
+
+          if (!unitOfMeasure) throw new ApiError(`Invalid unit of measure for ingredient type ${type}.`, HttpStatus.INVALID_ARG, 'type', parsed.data);
+
+          const kelevens = unitOfMeasure.kelevens * amount;
+
+          return {
+            recipeId: recipe.id,
+            name,
+            amount,
+            unit: unit as IngredientUnitOfMeasure,
+            kelevens,
+            type: type as IngredientType,
+          };
+        }),
       });
 
       const ingredients = await tx.ingredients.findMany({
@@ -162,7 +174,9 @@ export const parseIngredients = (
   const ingredients: IIngredient[] = [];
 
   for (let i = 0; i < amounts.length; i++) {
-    const unit = i < unitsOfMeasure.length ? unitsOfMeasure[i] : undefined;
+    const unit = (i < unitsOfMeasure.length && unitsOfMeasure[i])
+      ? unitsOfMeasure[i]
+      : undefined;
 
     ingredients.push({
       amount: parseFloat(amounts[i]),
@@ -180,7 +194,7 @@ export const validateRecipeData = (data: INewRecipeData) => {
 
   if (!parsed.success) {
     const error = parsed.error.issues[0];
-    throw new ApiError(error.message, HttpStatus.INVALID_ARG, error.path[0].toString(), data);
+    throw new ApiError(error.message, HttpStatus.INVALID_ARG, error.path.join('.'), data);
   }
 
   return parsed;

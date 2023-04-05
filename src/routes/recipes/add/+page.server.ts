@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { ApiError } from '$lib/error';
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
 import { log } from '$lib/services/log';
 import { parseFormData } from '$lib/helpers/request';
 import { createRecipe, parseIngredients, type INewRecipeData } from '$lib/services/recipe';
@@ -15,7 +15,6 @@ export const actions = {
 
     try {
       data = await parseFormData<INewRecipeData>(request);
-      log('>>>>> data: ', data);
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err
@@ -45,7 +44,6 @@ export const actions = {
 
     try {
       recipe = await createRecipe(data, locals.user);
-      log('>>>>> recipe: ', recipe);
     } catch (err) {
       const error = err instanceof ApiError
       ? new ApiError(err.message, err.status, err.field, data)
@@ -59,7 +57,3 @@ export const actions = {
     throw redirect(303, `/recipes${recipe?.id ? `?recipe=${recipe.id}` : ''}`);
   }
 } satisfies Actions;
-
-export const load = (async () => {
-  return {};
-}) satisfies PageServerLoad;

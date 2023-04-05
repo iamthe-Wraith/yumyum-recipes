@@ -13,12 +13,14 @@
 	import { onMount } from "svelte";
 	import { noop } from "$lib/helpers/noop";
 	import type { IDropdownOption } from "$types/dropdown";
+	import ErrorText from "./ErrorText.svelte";
 
   export let id: string;
   export let name: string;
   export let label: string;
   export let onChange: (option: IDropdownOption) => void = noop;
   export let options: IDropdownOption[];
+  export let error = ''
 
   let selected: IDropdownOption = options.find((option) => option.selected) || options[0];
   let highlighted: number | null = null;
@@ -58,7 +60,6 @@
     switch (dir) {
       case 'ArrowUp': {
         if (highlighted === null || highlighted <= 0) return;
-        console.log('arrow up', highlighted);
         highlighted -= 1;
         dropdownOptions[highlighted].focus();
         break;
@@ -180,6 +181,10 @@
       </ul>
     </li>
   </ul>
+
+  {#if error}
+    <ErrorText>{error}</ErrorText>
+  {/if}
 </div>
 
 <style lang="scss">

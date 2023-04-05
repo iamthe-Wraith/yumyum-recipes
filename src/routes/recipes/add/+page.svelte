@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { IngredientType, IngredientUnitOfMeasure } from "@prisma/client";
+	import { IngredientType } from "@prisma/client";
   import { enhance } from "$app/forms";
 	import Button from "$lib/components/Button.svelte";
 	import Checkbox from "$lib/components/Checkbox.svelte";
@@ -13,7 +13,7 @@
 	import XIcon from "$lib/icons/XIcon.svelte";
 	import type { IDropdownOption } from "$types/dropdown";
   import type { ActionData } from "./$types";
-	import { onMount } from "svelte";
+	import { log } from "$lib/services/log";
   
   export let form: ActionData;
 
@@ -22,6 +22,10 @@
   let amounts = [1];
   let ingredientTypes: IIngredientTypes[] = [IngredientTypes[0]];
   let unitsOfMeasureOptions: IDropdownOption[][] = [];
+
+  $: if (isErrorStatus(form?.status)) {
+    window.scrollTo(0, 0);
+  }
 
   setUnitsOfMeasure(0);
 
@@ -74,6 +78,7 @@
       label="Name"
       id="name"
       name="name"
+      value={form?.data?.name || ''}
       error={isErrorStatus(form?.status) && form?.field === 'name' ? form.message : ''}
     />
 
@@ -82,6 +87,7 @@
       description="Add a short description of the recipe to let others know what it's like."
       id="description"
       name="description"
+      value={form?.data?.description || ''}
       error={isErrorStatus(form?.status) && form?.field === 'description' ? form.message : ''}
     />
 
@@ -93,6 +99,7 @@
           id="prepTime"
           name="prepTime"
           placeholder="1 hour 30 minutes"
+          value={form?.data?.prepTime || ''}
           error={isErrorStatus(form?.status) && form?.field === 'prepTime' ? form.message : ''}
         />
   
@@ -101,6 +108,7 @@
           id="cookTime"
           name="cookTime"
           placeholder="45 minutes"
+          value={form?.data?.cookTime || ''}
           error={isErrorStatus(form?.status) && form?.field === 'cookTime' ? form.message : ''}
         />
   
@@ -110,6 +118,7 @@
           name="servings"
           type="number"
           placeholder="3"
+          value={form?.data?.servings || ''}
           error={isErrorStatus(form?.status) && form?.field === 'servings' ? form.message : ''}
         />
       </div>
@@ -119,72 +128,83 @@
       <fieldset>
         <legend>Ingredients</legend>
         {#each {length: ingredients} as _, i}
-          <div class="ingredient-row {ingredientTypes[i].name === IngredientType.COUNT ? 'partial-row' : 'full-row'}">
-            <div>
-              <Dropdown
-                id="ingredient-{i}-type"
-                name="ingredients[].type"
-                label="Type"
-                onChange={onIngredientTypeChange(i)}
-                options={IngredientTypes.map((type) => ({
-                  value: type.name,
-                  label: type.name,
-                  selected: type.name === ingredientTypes[i].name,
-                }))}
-              />
-            </div>
-
-            <div>
-              <InputField
-                id="ingredient-{i}-amount"
-                name="ingredients[].amount"
-                value={form?.data?.ingredients?.[i]?.amount ?? ''}
-                type="number"
-                step={0.01}
-                label="Amount"
-                on:change={onAmountChange(i)}
-              />
-            </div>
-
-            {#if unitsOfMeasureOptions[i].length}
+          <div class="ingredient-row">
+            <div class="ingredient-row-inputs {ingredientTypes[i].name === IngredientType.COUNT ? 'partial-row' : 'full-row'}">
               <div>
                 <Dropdown
-                  id="ingredient-{i}-unit"
-                  name="ingredients[].unit"
-                  label="Unit"
-                  options={unitsOfMeasureOptions[i]}
+                  id="ingredient-{i}-type"
+                  name="ingredients[].type"
+                  label="Type"
+                  onChange={onIngredientTypeChange(i)}
+                  options={IngredientTypes.map((type) => ({
+                    value: type.name,
+                    label: type.name,
+                    selected: type.name === ingredientTypes[i].name,
+                  }))}
                 />
               </div>
-            {/if}
 
-            <div>
-              <InputField
-                id="ingredient-{i}-amount"
-                name="ingredients[].name"
-                value={form?.data?.ingredients?.[i]?.name ?? ''}
-                label="Name"
-              />
-            </div>
-
-            {#if i === ingredients - 1 && ingredients > 1}
               <div>
-                <IconButton
-                  kind="danger"
-                  type="button"
-                  on:click={() => ingredients--}
-                >
-                  <XIcon />
-                </IconButton>
+                <InputField
+                  id="ingredient-{i}-amount"
+                  name="ingredients[].amount"
+                  value={form?.data?.ingredients?.[i]?.amount ?? ''}
+                  type="number"
+                  step={0.01}
+                  label="Amount"
+                  on:change={onAmountChange(i)}
+                />
+              </div>
+
+              {#if unitsOfMeasureOptions[i].length}
+                <div>
+                  <Dropdown
+                    id="ingredient-{i}-unit"
+                    name="ingredients[].unit"
+                    label="Unit"
+                    options={unitsOfMeasureOptions[i]}
+                  />
+                </div>
+              {/if}
+
+              <div>
+                <InputField
+                  id="ingredient-{i}-name"
+                  name="ingredients[].name"
+                  value={form?.data?.ingredients?.[i]?.name ?? ''}
+                  label="Name"
+                />
+              </div>
+
+              {#if i === ingredients - 1 && ingredients > 1}
+                <div>
+                  <IconButton
+                    kind="danger"
+                    type="button"
+                    on:click={() => ingredients--}
+                  >
+                    <XIcon />
+                  </IconButton>
+                </div>
+              {/if}
+
+              {#if !unitsOfMeasureOptions[i].length}
+                <input
+                  type="hidden" 
+                  name="ingredients[].unit" 
+                  value=""
+                />
+              {/if}
+            </div>
+            {#if isErrorStatus(form?.status) && form?.message && (form?.field === `ingredients.${i}.type` || form?.field === `ingredients.${i}.amount` || form?.field === `ingredients.${i}.unit` || form?.field === `ingredients.${i}.name`)}
+              <div>
+                <ErrorText>{form?.message}</ErrorText>
               </div>
             {/if}
           </div>
         {/each}
 
         <Button type="button" on:click={() => ingredients++}>+ Add Ingredient</Button>
-
-        {#if isErrorStatus(form?.status) && form?.field === 'servings'}
-          <ErrorText>{form?.message}</ErrorText>
-        {/if}
       </fieldset>
     </div>
 
@@ -193,30 +213,34 @@
         <legend>Steps</legend>
         {#each {length: steps} as _, i}
           <div class="step-row">
-            <label for="step-{i}">{i + 1}.</label>
-            <InputField
-              id="step-{i}"
-              name="steps[]"
-              value={form?.data?.steps?.[i] ?? ''}
-            />
-
-            {#if i === steps - 1 && steps > 1}
-              <IconButton
-                kind="danger"
-                type="button"
-                on:click={() => steps--}
-              >
-                <XIcon />
-              </IconButton>
+            <div class="step-row-inputs">
+              <label for="step-{i}">{i + 1}.</label>
+              <InputField
+                id="step-{i}"
+                name="steps[]"
+                value={form?.data?.steps?.[i] ?? ''}
+              />
+  
+              {#if i === steps - 1 && steps > 1}
+                <IconButton
+                  kind="danger"
+                  type="button"
+                  on:click={() => steps--}
+                >
+                  <XIcon />
+                </IconButton>
+              {/if}
+            </div>
+  
+            {#if isErrorStatus(form?.status) && form?.field === `steps.${i}`}
+              <div>
+                <ErrorText>{form?.message}</ErrorText>
+              </div>
             {/if}
           </div>
         {/each}
 
         <Button type="button" on:click={() => steps++}>+ Add Step</Button>
-
-        {#if isErrorStatus(form?.status) && form?.field === 'servings'}
-          <ErrorText>{form?.message}</ErrorText>
-        {/if}
       </fieldset>
     </div>
 
@@ -241,11 +265,6 @@
     {#if isErrorStatus(form?.status) && !form?.field && form?.message}
       <ErrorText>{form?.message}</ErrorText>
     {/if}
-
-    {#if isErrorStatus(form?.status) && form?.message}
-      <ErrorText>[DEBUGGING MODE]</ErrorText>
-      <ErrorText>{form?.message}</ErrorText>
-    {/if}
   </form>
 </div>
 
@@ -260,7 +279,7 @@
   .row {
     display: grid;
     grid-gap: 1rem;
-    align-items: center;
+    align-items: start;
   }
 
   .row-2 {
@@ -285,23 +304,31 @@
     }
   }
 
-  .ingredient-row,
-  .step-row {
+  .ingredient-row-inputs,
+  .step-row-inputs {
     display: grid;
     grid-gap: 1rem;
-    align-items: center;
-    margin-bottom: 1rem;
 
     --input-field-margin-bottom: 0;
     --icon-size: 1rem;
     --dropdown-margin-bottom: 0;
   }
 
-  .ingredient-row {
-    &.full-row {
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--neutral-200);
+  .ingredient-row,
+  .step-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--neutral-200);
+  }
 
+  .ingredient-row-inputs {
+    align-items: start;
+
+    &.full-row {
       & > :first-child {
         grid-area: type;
       }
@@ -332,7 +359,7 @@
 
 
       @media(min-width: 768px) {
-        grid-template-columns: 7rem 5rem 10rem auto 1.5rem;
+        grid-template-columns: 7rem 5rem 10rem auto 1.5rem 0;
         grid-template-areas: "type amount unit name remove";
 
         & > :nth-child(5) {
@@ -342,9 +369,6 @@
     }
 
     &.partial-row {
-      border-bottom: 1px solid var(--neutral-200);
-      padding-bottom: 1rem;
-
       & > :first-child {
         grid-area: type;
       }
@@ -362,6 +386,10 @@
         place-self: start end;
       }
 
+      & > :nth-child(5) {
+        grid-area: unit;
+      }
+
       grid-template-columns: 1fr 1fr 1fr 1fr 1.5rem;
       grid-template-rows: auto;
       grid-template-areas:
@@ -369,8 +397,8 @@
         "name name name name .";
 
       @media(min-width: 767px) {
-        grid-template-columns: 7rem 5rem auto 1.5rem;
-        grid-template-areas: "type amount name remove";
+        grid-template-columns: 7rem 5rem auto 1.5rem 0;
+        grid-template-areas: "type amount name remove unit";
 
         & > :nth-child(4) {
           place-self: center end;
@@ -383,8 +411,14 @@
     }
   }
 
-  .step-row {
+  .step-row-inputs {
     grid-template-columns: 1rem auto 1.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  input[type="hidden"] {
+    display: none;
   }
 
   fieldset {
