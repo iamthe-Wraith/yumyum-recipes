@@ -295,15 +295,6 @@
     }
   }
 
-  .row-4 {    
-    grid-template-columns: repeat(4, 1fr);
-
-    @media (max-width: 550px) {
-      grid-template-columns: repeat(1, 1fr);
-      grid-gap: 0;
-    }
-  }
-
   .ingredient-row-inputs,
   .step-row-inputs {
     display: grid;
