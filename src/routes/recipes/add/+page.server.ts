@@ -8,22 +8,50 @@ import type { recipes } from '@prisma/client';
 
 export const actions = {
   default: async ({ request, locals }) => {
+    if (!locals.user) throw redirect(303, '/signin');
+    
     let recipe: recipes | null = null;
+    let data: INewRecipeData;
+
     try {
-      if (!locals.user) throw redirect(303, '/signin');
-
-      const data = await parseFormData<INewRecipeData>(request);
-      data.ingredients = parseIngredients((data as any)['ingredients.amount'], (data as any)['ingredients.name']);
-
-      recipe = await createRecipe(data, locals.user);
-
-      console.log('>>>>> recipe: ', recipe);
+      data = await parseFormData<INewRecipeData>(request);
+      log('>>>>> data: ', data);
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err
         : new ApiError('There was an error creating your recipe. Please try again later.', 500);
 
-      log('Error adding new recipe: ', err);
+      log('Error parsing recipe form data: ', err);
+      
+      return fail(error.status, (error as ApiError).toJSON());
+    }
+
+    try {
+      data.ingredients = parseIngredients(
+        (data as any)['ingredients.amount'], 
+        (data as any)['ingredients.name'],
+        (data as any)['ingredients.type'],
+        (data as any)['ingredients.unit']
+      );
+    } catch (err) {
+      const error = err instanceof ApiError
+        ? new ApiError(err.message, err.status, err.field, data)
+        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+
+      log('Error parsing ingredients: ', err);
+      
+      return fail(error.status, (error as ApiError).toJSON());
+    }
+
+    try {
+      recipe = await createRecipe(data, locals.user);
+      log('>>>>> recipe: ', recipe);
+    } catch (err) {
+      const error = err instanceof ApiError
+      ? new ApiError(err.message, err.status, err.field, data)
+        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+
+      log('Error creating recipe: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }

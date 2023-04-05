@@ -1,7 +1,7 @@
 import { HttpStatus } from "$lib/constants/error";
 import { prisma } from "$lib/db/client";
 import { ApiError } from "$lib/error";
-import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from "@prisma/client";
+import { IngredientType, IngredientUnitOfMeasure, type users } from "@prisma/client";
 import { z } from "zod";
 import { log } from "./log";
 
@@ -43,6 +43,14 @@ const recipeSchema = z.object({
       required_error: "Each ingredient must have a name.",
       invalid_type_error: "Ingredient names must be a string.",
     }),
+    type: z.enum(Object.values(IngredientType) as [string, ...string[]], {
+      required_error: "Each ingredient must specify a type.",
+      invalid_type_error: "Invalid ingredient type found.",
+    }),
+    unit: z.enum(Object.values(IngredientUnitOfMeasure) as [string, ...string[]], {
+      invalid_type_error: "Invalid ingredient unit found.",
+    })
+      .optional(),
   })
     .array()
     .optional()
@@ -66,6 +74,8 @@ export type INewRecipeData = z.infer<typeof recipeSchema>;
 export interface IIngredient {
   amount: number;
   name: string;
+  type: IngredientType;
+  unit?: IngredientUnitOfMeasure;
 }
 
 export const createRecipe = async (data: INewRecipeData, requestor: users) => {
@@ -85,13 +95,15 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
         data: parsed.data.ingredients.map(({
           name,
           amount,
+          type,
+          unit,
         }) => ({
           recipeId: recipe.id,
           name,
           amount,
-          unit: IngredientUnitOfMeasure.TABLESPOON,
+          unit: unit as IngredientUnitOfMeasure,
           kelevens: 5.0,
-          type: IngredientType.DRY,
+          type: type as IngredientType,
         })),
       });
 
@@ -112,6 +124,9 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
             })),
           },
         },
+        include: {
+          ingredients: true,
+        },
       });
 
       // TODO: figure out if there is more efficient way to do the above
@@ -129,18 +144,31 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
   }
 }
 
-export const parseIngredients = (amounts: string[], names: string[]): IIngredient[] => {
-  // TODO: update this error with other ingredient properties
-  if (amounts?.length !== names?.length) throw new ApiError('Each ingredient must have an amount and a name.', HttpStatus.INVALID_ARG, 'ingredients', {amounts, names});
+export const parseIngredients = (
+  amounts: string[], 
+  names: string[], 
+  types: IngredientType[],
+  unitsOfMeasure: IngredientUnitOfMeasure[]
+): IIngredient[] => {
+  const data = {amounts, names, types, unitsOfMeasure};
+
+  const max = Math.max((amounts?.length || 0), (names?.length || 0), (types?.length || 0));
+
+  if (max === 0) throw new ApiError('A recipe must have at least 1 ingredient.', HttpStatus.INVALID_ARG, 'ingredients', data);
+  if (!amounts?.length || amounts.length < max) throw new ApiError('Each ingredient must have an amount.', HttpStatus.INVALID_ARG, 'ingredients', data);
+  if (!names?.length || names.length < max) throw new ApiError('Each ingredient must have a name.', HttpStatus.INVALID_ARG, 'ingredients', data);
+  if (!types?.length || types.length < max) throw new ApiError('Each ingredient must have a type.', HttpStatus.INVALID_ARG, 'ingredients', data);
 
   const ingredients: IIngredient[] = [];
 
-  console.log('>>>>> amounts: ', amounts);
-
   for (let i = 0; i < amounts.length; i++) {
+    const unit = i < unitsOfMeasure.length ? unitsOfMeasure[i] : undefined;
+
     ingredients.push({
       amount: parseFloat(amounts[i]),
       name: names[i],
+      type: types[i],
+      unit,
     });
   }
 
