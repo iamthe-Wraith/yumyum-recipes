@@ -2,10 +2,16 @@
   import type { ColorKind } from '$types';
 
   export let kind: ColorKind | 'transparent' = 'primary';
+  export let type: 'button' | 'submit' = 'submit';
   export let ariaLabel: string | null = null;
 </script>
 
-<button on:click class={kind} aria-label={ariaLabel}>
+<button
+  on:click
+  {type}
+  class={kind}
+  aria-label={ariaLabel}
+>
   <slot />
 </button>
 
@@ -16,11 +22,19 @@
     border-radius: 0.25rem;
     border: none;
     cursor: pointer;
+    transition: .2s ease-in-out background, .2s ease-in-out box-shadow;
   }
 
   .primary {
     background: var(--primary-500);
     color: var(--neutral-900);
+    box-shadow: inset 5px 0 15px 0 var(--primary-300);
+
+    &:hover,
+    &:focus {
+      background: var(--primary-400);
+      box-shadow: inset 5px 0 15px 0 var(--primary-200);
+    }
   }
 
   .secondary {

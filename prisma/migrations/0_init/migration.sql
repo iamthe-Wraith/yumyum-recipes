@@ -1,12 +1,79 @@
+-- CreateEnum
+CREATE TYPE "IngredientUnitOfMeasure" AS ENUM ('PINCH', 'TEASPOON', 'TABLESPOON', 'CUP', 'PINT', 'QUART', 'GALLON', 'POUND', 'MILLILITER', 'LITER', 'GRAM', 'OUNCE', 'FLUID_OUNCE', 'KILOGRAM');
+
+-- CreateEnum
+CREATE TYPE "IngredientType" AS ENUM ('DRY', 'LIQUID');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "sessions" (
+    "id" SERIAL NOT NULL,
+    "token" TEXT NOT NULL,
+    "user_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "sessions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "recipes" (
+    "id" SERIAL NOT NULL,
+    "name" VARCHAR(50) NOT NULL,
+    "img" TEXT,
+    "owner_id" INTEGER NOT NULL,
+    "prep_time" TEXT NOT NULL,
+    "cook_time" TEXT NOT NULL,
+    "servings" INTEGER NOT NULL,
+    "steps" TEXT[],
+    "description" VARCHAR(300) NOT NULL DEFAULT '',
+    "is_public" BOOLEAN NOT NULL DEFAULT false,
+    "notes" TEXT NOT NULL DEFAULT '',
+    "orig_recipe_id" INTEGER,
+    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "recipes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ingredients" (
+    "id" SERIAL NOT NULL,
+    "recipe_id" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "unit" "IngredientUnitOfMeasure" NOT NULL,
+    "kelevens" DOUBLE PRECISION NOT NULL,
+    "type" "IngredientType" NOT NULL,
+
+    CONSTRAINT "ingredients_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "sessions_token_key" ON "sessions"("token");
+
+-- AddForeignKey
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "recipes" ADD CONSTRAINT "recipes_owner_id_fkey" FOREIGN KEY ("owner_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "recipes" ADD CONSTRAINT "recipes_orig_recipe_id_fkey" FOREIGN KEY ("orig_recipe_id") REFERENCES "recipes"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ingredients" ADD CONSTRAINT "ingredients_recipe_id_fkey" FOREIGN KEY ("recipe_id") REFERENCES "recipes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

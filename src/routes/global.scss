@@ -40,7 +40,16 @@ body {
   --tertiary-800: #c3a8fc;
   --tertiary-900: #d2c5fc;
 
+  --danger-100: #310303;
+  --danger-200: #540707;
+  --danger-300: #740b0b;
+  --danger-400: #951212;
   --danger-500: #b91c1c;
+  --danger-600: #ca2b2b;
+  --danger-700: #d83e3e;
+  --danger-800: #e45555;
+  --danger-900: #f27272;
+
   --warning-500: #b97420;
 
   --header-font: 'Bebas Neue', cursive;
@@ -60,6 +69,11 @@ body {
   font-family: var(--body-font);
   color: var(--neutral-900);
   box-sizing: border-box;
+
+  &::selection {
+    background: var(--primary-500);
+    color: var(--neutral-900);
+  }
 }
 
 h1,
@@ -105,8 +119,12 @@ p {
 
 a,
 button,
-input {
+input,
+textarea,
+select,
+.focusable {
   outline: none;
+  font-size: 1rem;
 
   &:focus-visible {
     outline: 1px dashed var(--primary-500);
