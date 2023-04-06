@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ErrorText from "./ErrorText.svelte";
+  import ErrorText from "./ErrorText.svelte";
 
   export let error = '';
   export let label = '';

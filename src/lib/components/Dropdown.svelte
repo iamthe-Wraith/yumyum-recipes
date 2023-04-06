@@ -10,10 +10,10 @@
    * https://dev.to/emmabostian/creating-a-custom-accessible-drop-down-3gmo
   */
 
-	import { onMount } from "svelte";
-	import { noop } from "$lib/helpers/noop";
-	import type { IDropdownOption } from "$types/dropdown";
-	import ErrorText from "./ErrorText.svelte";
+  import { onMount } from "svelte";
+  import { noop } from "$lib/helpers/noop";
+  import type { IDropdownOption } from "$types/dropdown";
+  import ErrorText from "./ErrorText.svelte";
 
   export let id: string;
   export let name: string;

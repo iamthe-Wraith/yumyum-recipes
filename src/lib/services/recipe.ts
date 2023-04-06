@@ -97,9 +97,6 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
           type,
           unit,
         }) => {
-          log('unit: ', unit);
-          log('type: ', type);
-
           const unitOfMeasure = type === IngredientType.COUNT
             ? UnitsOfMeasure.find((uom) => uom.type === IngredientType.COUNT)
             : UnitsOfMeasure.find((uom) => uom.name === unit && uom.type === type);
@@ -140,8 +137,6 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
           ingredients: true,
         },
       });
-
-      // TODO: figure out if there is more efficient way to do the above
 
       return recipe;
     });

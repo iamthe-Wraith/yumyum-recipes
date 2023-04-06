@@ -1,19 +1,19 @@
 <script lang="ts">
-	import { IngredientType } from "@prisma/client";
+  import { IngredientType } from "@prisma/client";
   import { enhance } from "$app/forms";
-	import Button from "$lib/components/Button.svelte";
-	import Checkbox from "$lib/components/Checkbox.svelte";
-	import Dropdown from "$lib/components/Dropdown.svelte";
-	import ErrorText from "$lib/components/ErrorText.svelte";
-	import IconButton from "$lib/components/IconButton.svelte";
-	import InputField from "$lib/components/InputField.svelte";
-	import TextArea from "$lib/components/TextArea.svelte";
-	import { IngredientTypes, UnitsOfMeasure, type IIngredientTypes } from "$lib/constants/ingredients";
-	import { isErrorStatus } from "$lib/helpers/response";
-	import XIcon from "$lib/icons/XIcon.svelte";
-	import type { IDropdownOption } from "$types/dropdown";
+  import Button from "$lib/components/Button.svelte";
+  import Checkbox from "$lib/components/Checkbox.svelte";
+  import Dropdown from "$lib/components/Dropdown.svelte";
+  import ErrorText from "$lib/components/ErrorText.svelte";
+  import IconButton from "$lib/components/IconButton.svelte";
+  import InputField from "$lib/components/InputField.svelte";
+  import TextArea from "$lib/components/TextArea.svelte";
+  import { IngredientTypes, UnitsOfMeasure, type IIngredientTypes } from "$lib/constants/ingredients";
+  import { isErrorStatus } from "$lib/helpers/response";
+  import XIcon from "$lib/icons/XIcon.svelte";
+  import type { IDropdownOption } from "$types/dropdown";
   import type { ActionData } from "./$types";
-	import { log } from "$lib/services/log";
+	import ErrorBanner from "$lib/components/ErrorBanner.svelte";
   
   export let form: ActionData;
 
@@ -68,7 +68,9 @@
 </script>
 
 <noscript>
-  <p>Javascript is required to add recipes. Please enable Javascript and try again.</p>
+  <ErrorBanner
+    error="This page may not work correctly because you currently have Javascript disabled. We do our best to support this, but some features will not work without Javascript. To resolve, enable Javascript and refresh the page."
+  />
 </noscript>
 
 <div class="add-recipe-container">

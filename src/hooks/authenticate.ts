@@ -1,4 +1,3 @@
-import { prisma } from '$lib/db/client';
 import { isExpired, isValidToken, readToken } from '$lib/services/jwt';
 import { log } from '$lib/services/log';
 import { getSession } from '$lib/services/session';

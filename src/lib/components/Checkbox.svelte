@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Check from "$lib/icons/Check.svelte";
+  import Check from "$lib/icons/Check.svelte";
 
   export let id: string;
   export let name: string;
