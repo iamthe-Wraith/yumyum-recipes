@@ -44,7 +44,12 @@ export const actions = {
     }
 
     try {
-      const url = await uploadImage(data.image as File, locals.user.id, data.name);
+      let url = 'https://s3.us-east-2.wasabisys.com/yumyum/default_recipe_image.png';
+
+      if (!!(data.image as File).name && (data.image as File).name !== 'undefined') {
+        url = await uploadImage(data.image as File, locals.user.id, data.name);
+      }
+      
       data.image = url;
     } catch (err) {
       const error = err instanceof ApiError

@@ -6,6 +6,11 @@ import { IngredientType, IngredientUnitOfMeasure, type users } from "@prisma/cli
 import { z } from "zod";
 import { log } from "./log";
 
+export interface IGetRecipeOptions {
+  sort?: 'asc' | 'desc';
+  includePublic?: boolean;
+}
+
 const recipeSchema = z.object({
   name: z.string({
     required_error: "Recipe name is required.",
@@ -151,6 +156,31 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
     }
   }
 }
+
+export const getRecipes = async (requestor: users, options?: IGetRecipeOptions) => {
+  const where: Record<string, string | number | boolean> = {
+    ownerId: requestor.id,
+  };
+
+  if (typeof options?.includePublic === 'boolean') where.isPublic = options.includePublic;
+
+  return prisma.recipes.findMany({
+    where,
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      img: true,
+      prepTime: true,
+      cookTime: true,
+      servings: true,
+      isPublic: true,
+    },
+    orderBy: {
+      name: options?.sort || 'asc',
+    }
+  })
+};
 
 export const parseIngredients = (
   amounts: string[], 
