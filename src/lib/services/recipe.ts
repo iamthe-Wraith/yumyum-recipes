@@ -68,7 +68,7 @@ const recipeSchema = z.object({
     .transform((val) => val === "true")
 });
 
-export type INewRecipeData = z.infer<typeof recipeSchema>;
+export type INewRecipeData = z.infer<typeof recipeSchema> & { image: File | string};
 
 export interface IIngredient {
   amount: number;
@@ -85,6 +85,7 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
       let recipe = await tx.recipes.create({
         data: {
           ...parsed.data,
+          img: data.image as string,
           ownerId: requestor.id,
           ingredients: undefined,
         },

@@ -13,8 +13,12 @@
   import XIcon from "$lib/icons/XIcon.svelte";
   import type { IDropdownOption } from "$types/dropdown";
   import type { ActionData } from "./$types";
-	import ErrorBanner from "$lib/components/ErrorBanner.svelte";
+  import ErrorBanner from "$lib/components/ErrorBanner.svelte";
   
+  interface IFile extends File {
+    path: string;
+  }
+
   export let form: ActionData;
 
   let ingredients = 1;
@@ -22,6 +26,8 @@
   let amounts = [1];
   let ingredientTypes: IIngredientTypes[] = [IngredientTypes[0]];
   let unitsOfMeasureOptions: IDropdownOption[][] = [];
+  let file: IFile;
+  let preview: HTMLImageElement;
 
   $: if (isErrorStatus(form?.status)) {
     window.scrollTo(0, 0);
@@ -46,6 +52,22 @@
   const onAmountChange = (i: number) => (e: Event) => {
     const target = e.target as HTMLInputElement;
     amounts[i] = Number(target.value);
+  };
+
+  const onImageUploadChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      preview.src = e.target?.result as string;
+      preview.alt = file.name;
+    };
+
+    if (target.files) {
+      file = target.files[0] as IFile
+      reader.readAsDataURL(target?.files[0]);
+    };
   };
 
   const onIngredientTypeChange = (i: number) => (option: IDropdownOption) => {
@@ -76,22 +98,53 @@
 <div class="add-recipe-container">
   <h1>Add New Recipe</h1>
   <form method="POST" use:enhance>
-    <InputField
-      label="Name"
-      id="name"
-      name="name"
-      value={form?.data?.name || ''}
-      error={isErrorStatus(form?.status) && form?.field === 'name' ? form.message : ''}
-    />
+    <div class="primary-data-container">
+      <div class="image-upload-container">
+        <span class="image-upload-label">Photo</span>
 
-    <TextArea
-      label="Description"
-      description="Add a short description of the recipe to let others know what it's like."
-      id="description"
-      name="description"
-      value={form?.data?.description || ''}
-      error={isErrorStatus(form?.status) && form?.field === 'description' ? form.message : ''}
-    />
+        <div class="image-preview">
+          <input
+            type="file"
+            id="image-upload" 
+            name="image" 
+            accept="image/*"
+            class="focusable"
+            on:change={onImageUploadChange}
+          />
+
+          {#if !file}
+            <span class="image-upload-text focusable-child">
+              Upload Image
+            </span>
+          {/if}
+
+          <img
+            src={form?.data?.image || ''}
+            alt={ (file && form?.data?.name) ? `Image of ${form.data.name}` : '' }
+            bind:this={preview}
+          />
+        </div>
+      </div>
+
+      <div class="name-desc-container">
+        <InputField
+          label="Name"
+          id="name"
+          name="name"
+          value={form?.data?.name || ''}
+          error={isErrorStatus(form?.status) && form?.field === 'name' ? form.message : ''}
+        />
+
+        <TextArea
+          label="Description"
+          description="Add a short description of the recipe to let others know what it's like."
+          id="description"
+          name="description"
+          value={form?.data?.description || ''}
+          error={isErrorStatus(form?.status) && form?.field === 'description' ? form.message : ''}
+        />
+      </div>
+    </div>
 
     <fieldset>
       <legend>info</legend>
@@ -294,6 +347,112 @@
     @media (max-width: 450px) {
       grid-template-columns: repeat(1, 1fr);
       grid-gap: 0;
+    }
+  }
+
+  .primary-data-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+
+    .image-upload-label {
+      display: block;
+      margin-bottom: 0.25rem;
+      opacity: 0;
+    }
+
+    .image-upload-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      width: 100%;
+      margin: 1rem 0 3rem;
+
+      .image-preview {
+        position: relative;
+        width: 12rem;
+        height: 12rem;
+        min-height: 12rem;
+        margin: 0 auto;
+        border-radius: 0.25rem;
+        object-fit: cover;
+        overflow: hidden;
+
+        input {
+          position: absolute;
+          top: 0;
+          left: 0;
+          display: block;
+          width: 100%;
+          height: 100%;
+          opacity: 0;
+          z-index: 5
+        }
+        
+        .image-upload-text {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          padding: 0.5rem 1rem;
+          background: var(--primary-500);
+          color: var(--neutral-900);
+          border-radius: 0.25rem;
+          background: var(--primary-500);
+          transform: translate(-50%, -50%);
+          text-align: center;
+          white-space: nowrap;
+          transition: background-color 0.25s ease-in-out;
+        }
+
+        input:hover ~ .image-upload-text {
+          background: var(--primary-300);
+        }
+
+        img {
+          position: relative;
+          display: block;
+          width: 100%;
+          max-width: 100%;
+          margin: 0 auto;
+          border-radius: 0.25rem;
+          z-index: 3;
+        }
+      }
+
+      --button-width: 100%;
+    }
+
+    @media (min-width: 450px) {
+      flex-direction: row-reverse;
+
+      & > *:last-child {
+        flex-grow: 1;
+      }
+
+      &:not(:last-child) {
+        margin-bottom: 0;
+      }
+
+      & > .name-desc-container {
+        margin-right: 1rem;
+      }
+
+      .image-upload-container {
+        width: 12rem;
+        margin: 0;
+
+        .image-preview {
+          img {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+          }
+        }
+      }
     }
   }
 

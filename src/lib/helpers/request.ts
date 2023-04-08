@@ -7,7 +7,7 @@ export const parseFormData = async <T extends object>(request: Request) => {
 
   for(const [key, value] of entries) {
     if (value instanceof File) {
-      body[key] = value;
+      body[key] = value.valueOf() as File;
     } else if (key.includes('[]')) {
       const newKey = key.replace('[]', '');
 
