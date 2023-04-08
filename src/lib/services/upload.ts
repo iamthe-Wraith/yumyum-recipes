@@ -7,6 +7,8 @@ import { ApiError } from '$lib/error';
 
 export const uploadImage = async (image: File, requestorId: number, name?: string) => {
   try {
+    if (!requestorId) throw new ApiError('You must be signed in to upload an image.', 401);
+
     const s3Endpoint = new Aws.Endpoint(S3_ENDPOINT);
     const s3 = new S3({
       endpoint: s3Endpoint,
@@ -25,14 +27,14 @@ export const uploadImage = async (image: File, requestorId: number, name?: strin
     let parsedName = ''
     
     if (name?.trim()) {
-      parsedName = name.trim()
-      parsedName = parsedName.split(' ').join('_');
-      parsedName = parsedName.toLowerCase();
+      parsedName = name.trim().toLowerCase();
 
       const parts = parsedName.match(regex);
       if (parts?.length) {
         parsedName = parts.join('');
       }
+
+      parsedName = parsedName.split(' ').join('_');
     }
 
     const params = {

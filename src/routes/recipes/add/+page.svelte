@@ -326,7 +326,7 @@
 <style lang="scss">
   .add-recipe-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 70rem;
     margin: 0 auto;
     padding: 1rem;
   }
