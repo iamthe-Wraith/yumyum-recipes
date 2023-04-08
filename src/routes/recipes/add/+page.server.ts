@@ -5,6 +5,7 @@ import { log } from '$lib/services/log';
 import { parseFormData } from '$lib/helpers/request';
 import { createRecipe, parseIngredients, type INewRecipeData } from '$lib/services/recipe';
 import type { recipes } from '@prisma/client';
+import { uploadImage } from '$lib/services/upload';
 
 export const actions = {
   default: async ({ request, locals }) => {
@@ -38,6 +39,19 @@ export const actions = {
         : new ApiError('There was an error creating your recipe. Please try again later.', 500);
 
       log('Error parsing ingredients: ', err);
+      
+      return fail(error.status, (error as ApiError).toJSON());
+    }
+
+    try {
+      const url = await uploadImage(data.image as File, locals.user.id, data.name);
+      data.image = url;
+    } catch (err) {
+      const error = err instanceof ApiError
+        ? new ApiError(err.message, err.status, err.field, data)
+        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+
+      log('Error uploading recipe image: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }

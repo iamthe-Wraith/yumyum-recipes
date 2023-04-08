@@ -126,7 +126,8 @@ select,
   outline: none;
   font-size: 1rem;
 
-  &:focus-visible {
+  &:focus-visible,
+  &:focus-visible ~ .focusable-child {
     outline: 1px dashed var(--primary-500);
     outline-offset: 2px;
   }

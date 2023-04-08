@@ -36,7 +36,7 @@
     display: flex;
     flex-direction: column;
     width: var(--textarea-width, 100%);
-    margin-bottom: 1rem;
+    margin-bottom: var(--text-area-margin-bottom, 1rem);
   }
 
   label {

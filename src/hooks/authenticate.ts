@@ -21,7 +21,7 @@ export const authenticate = (async ({ event, resolve }) => {
         event.locals = { ...event.locals, user: data.user }
       }
     } catch (err) {
-      log('[-] authentication error: ', err);
+      log('Authentication error: ', err);
     }
   }
 
