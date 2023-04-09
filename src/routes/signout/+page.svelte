@@ -1,22 +1,25 @@
 <script lang="ts">
 	import LinkButton from "$lib/components/LinkButton.svelte";
-import { user } from "$lib/stores/user";
+	import Page from "$lib/components/Page.svelte";
+  import { user } from "$lib/stores/user";
 
   user.reset();
 </script>
 
-<div class="signout-container">
-  <h1>You have been signed out.</h1>
-  <p>We hope to see you again soon!</p>
-
-  <LinkButton href="/signup">
-    Sign Up!
-  </LinkButton>
-
-  <a href="/signin">
-    Already have an account?
-  </a>
-</div>
+<Page>
+  <div class="signout-container">
+    <h1>You have been signed out.</h1>
+    <p>We hope to see you again soon!</p>
+  
+    <LinkButton href="/signup">
+      Sign Up!
+    </LinkButton>
+  
+    <a href="/signin">
+      Already have an account?
+    </a>
+  </div>
+</Page>
 
 <style lang="scss">
   .signout-container {

@@ -9,6 +9,6 @@
   svg {
     width: var(--icon-size, 2rem);
     height: var(--icon-size, 2rem);
-    stroke: var(--stroke-color, --neutral-300);
+    stroke: var(--icon-color, --neutral-300);
   }
 </style>

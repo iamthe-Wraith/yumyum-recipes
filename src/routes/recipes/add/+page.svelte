@@ -14,6 +14,7 @@
   import type { IDropdownOption } from "$types/dropdown";
   import type { ActionData } from "./$types";
   import ErrorBanner from "$lib/components/ErrorBanner.svelte";
+	import Page from "$lib/components/Page.svelte";
   
   interface IFile extends File {
     path: string;
@@ -95,240 +96,241 @@
   />
 </noscript>
 
-<div class="add-recipe-container">
-  <h1>Add New Recipe</h1>
-  <form method="POST" use:enhance>
-    <div class="primary-data-container">
-      <div class="image-upload-container">
-        <span class="image-upload-label">Photo</span>
-
-        <div class="image-preview">
-          <input
-            type="file"
-            id="image-upload" 
-            name="image" 
-            accept="image/*"
-            class="focusable"
-            on:change={onImageUploadChange}
+<Page>
+  <div class="add-recipe-container">
+    <h1>Add New Recipe</h1>
+    <form method="POST" use:enhance>
+      <div class="primary-data-container">
+        <div class="image-upload-container">
+          <span class="image-upload-label">Photo</span>
+  
+          <div class="image-preview">
+            <input
+              type="file"
+              id="image-upload" 
+              name="image" 
+              accept="image/*"
+              class="focusable"
+              on:change={onImageUploadChange}
+            />
+  
+            {#if !file}
+              <span class="image-upload-text focusable-child">
+                Upload Image
+              </span>
+            {/if}
+  
+            <img
+              src={form?.data?.image || ''}
+              alt={ (file && form?.data?.name) ? `Image of ${form.data.name}` : '' }
+              bind:this={preview}
+            />
+          </div>
+        </div>
+  
+        <div class="name-desc-container">
+          <InputField
+            label="Name"
+            id="name"
+            name="name"
+            value={form?.data?.name || ''}
+            error={isErrorStatus(form?.status) && form?.field === 'name' ? form.message : ''}
           />
-
-          {#if !file}
-            <span class="image-upload-text focusable-child">
-              Upload Image
-            </span>
-          {/if}
-
-          <img
-            src={form?.data?.image || ''}
-            alt={ (file && form?.data?.name) ? `Image of ${form.data.name}` : '' }
-            bind:this={preview}
+  
+          <TextArea
+            label="Description"
+            description="Add a short description of the recipe to let others know what it's like."
+            id="description"
+            name="description"
+            value={form?.data?.description || ''}
+            error={isErrorStatus(form?.status) && form?.field === 'description' ? form.message : ''}
           />
         </div>
       </div>
-
-      <div class="name-desc-container">
-        <InputField
-          label="Name"
-          id="name"
-          name="name"
-          value={form?.data?.name || ''}
-          error={isErrorStatus(form?.status) && form?.field === 'name' ? form.message : ''}
-        />
-
-        <TextArea
-          label="Description"
-          description="Add a short description of the recipe to let others know what it's like."
-          id="description"
-          name="description"
-          value={form?.data?.description || ''}
-          error={isErrorStatus(form?.status) && form?.field === 'description' ? form.message : ''}
-        />
-      </div>
-    </div>
-
-    <fieldset>
-      <legend>info</legend>
-      <div class="row row-3">
-        <InputField
-          label="Prep Time"
-          id="prepTime"
-          name="prepTime"
-          placeholder="1 hour 30 minutes"
-          value={form?.data?.prepTime || ''}
-          error={isErrorStatus(form?.status) && form?.field === 'prepTime' ? form.message : ''}
-        />
   
-        <InputField
-          label="Cook Time"
-          id="cookTime"
-          name="cookTime"
-          placeholder="45 minutes"
-          value={form?.data?.cookTime || ''}
-          error={isErrorStatus(form?.status) && form?.field === 'cookTime' ? form.message : ''}
-        />
-  
-        <InputField
-          label="Servings"
-          id="servings"
-          name="servings"
-          type="number"
-          placeholder="3"
-          value={form?.data?.servings || ''}
-          error={isErrorStatus(form?.status) && form?.field === 'servings' ? form.message : ''}
-        />
-      </div>
-    </fieldset>
-
-    <div>
       <fieldset>
-        <legend>Ingredients</legend>
-        {#each {length: ingredients} as _, i}
-          <div class="ingredient-row">
-            <div class="ingredient-row-inputs {ingredientTypes[i].name === IngredientType.COUNT ? 'partial-row' : 'full-row'}">
-              <div>
-                <Dropdown
-                  id="ingredient-{i}-type"
-                  name="ingredients[].type"
-                  label="Type"
-                  onChange={onIngredientTypeChange(i)}
-                  options={IngredientTypes.map((type) => ({
-                    value: type.name,
-                    label: type.name,
-                    selected: type.name === ingredientTypes[i].name,
-                  }))}
-                />
-              </div>
-
-              <div>
-                <InputField
-                  id="ingredient-{i}-amount"
-                  name="ingredients[].amount"
-                  value={form?.data?.ingredients?.[i]?.amount ?? ''}
-                  type="number"
-                  step={0.01}
-                  label="Amount"
-                  on:change={onAmountChange(i)}
-                />
-              </div>
-
-              {#if unitsOfMeasureOptions[i].length}
+        <legend>info</legend>
+        <div class="row row-3">
+          <InputField
+            label="Prep Time"
+            id="prepTime"
+            name="prepTime"
+            placeholder="1 hour 30 minutes"
+            value={form?.data?.prepTime || ''}
+            error={isErrorStatus(form?.status) && form?.field === 'prepTime' ? form.message : ''}
+          />
+    
+          <InputField
+            label="Cook Time"
+            id="cookTime"
+            name="cookTime"
+            placeholder="45 minutes"
+            value={form?.data?.cookTime || ''}
+            error={isErrorStatus(form?.status) && form?.field === 'cookTime' ? form.message : ''}
+          />
+    
+          <InputField
+            label="Servings"
+            id="servings"
+            name="servings"
+            type="number"
+            placeholder="3"
+            value={form?.data?.servings || ''}
+            error={isErrorStatus(form?.status) && form?.field === 'servings' ? form.message : ''}
+          />
+        </div>
+      </fieldset>
+  
+      <div>
+        <fieldset>
+          <legend>Ingredients</legend>
+          {#each {length: ingredients} as _, i}
+            <div class="ingredient-row">
+              <div class="ingredient-row-inputs {ingredientTypes[i].name === IngredientType.COUNT ? 'partial-row' : 'full-row'}">
                 <div>
                   <Dropdown
-                    id="ingredient-{i}-unit"
-                    name="ingredients[].unit"
-                    label="Unit"
-                    options={unitsOfMeasureOptions[i]}
+                    id="ingredient-{i}-type"
+                    name="ingredients[].type"
+                    label="Type"
+                    onChange={onIngredientTypeChange(i)}
+                    options={IngredientTypes.map((type) => ({
+                      value: type.name,
+                      label: type.name,
+                      selected: type.name === ingredientTypes[i].name,
+                    }))}
                   />
                 </div>
-              {/if}
-
-              <div>
-                <InputField
-                  id="ingredient-{i}-name"
-                  name="ingredients[].name"
-                  value={form?.data?.ingredients?.[i]?.name ?? ''}
-                  label="Name"
-                />
-              </div>
-
-              {#if i === ingredients - 1 && ingredients > 1}
+  
                 <div>
+                  <InputField
+                    id="ingredient-{i}-amount"
+                    name="ingredients[].amount"
+                    value={form?.data?.ingredients?.[i]?.amount ?? ''}
+                    type="number"
+                    step={0.01}
+                    label="Amount"
+                    on:change={onAmountChange(i)}
+                  />
+                </div>
+  
+                {#if unitsOfMeasureOptions[i].length}
+                  <div>
+                    <Dropdown
+                      id="ingredient-{i}-unit"
+                      name="ingredients[].unit"
+                      label="Unit"
+                      options={unitsOfMeasureOptions[i]}
+                    />
+                  </div>
+                {/if}
+  
+                <div>
+                  <InputField
+                    id="ingredient-{i}-name"
+                    name="ingredients[].name"
+                    value={form?.data?.ingredients?.[i]?.name ?? ''}
+                    label="Name"
+                  />
+                </div>
+  
+                {#if i === ingredients - 1 && ingredients > 1}
+                  <div>
+                    <IconButton
+                      kind="danger"
+                      type="button"
+                      on:click={() => ingredients--}
+                    >
+                      <XIcon />
+                    </IconButton>
+                  </div>
+                {/if}
+  
+                {#if !unitsOfMeasureOptions[i].length}
+                  <input
+                    type="hidden" 
+                    name="ingredients[].unit" 
+                    value=""
+                  />
+                {/if}
+              </div>
+              {#if isErrorStatus(form?.status) && form?.message && (form?.field === `ingredients.${i}.type` || form?.field === `ingredients.${i}.amount` || form?.field === `ingredients.${i}.unit` || form?.field === `ingredients.${i}.name`)}
+                <div>
+                  <ErrorText>{form?.message}</ErrorText>
+                </div>
+              {/if}
+            </div>
+          {/each}
+  
+          <Button type="button" on:click={() => ingredients++}>+ Add Ingredient</Button>
+        </fieldset>
+      </div>
+  
+      <div>
+        <fieldset>
+          <legend>Steps</legend>
+          {#each {length: steps} as _, i}
+            <div class="step-row">
+              <div class="step-row-inputs">
+                <label for="step-{i}">{i + 1}.</label>
+                <InputField
+                  id="step-{i}"
+                  name="steps[]"
+                  value={form?.data?.steps?.[i] ?? ''}
+                />
+    
+                {#if i === steps - 1 && steps > 1}
                   <IconButton
                     kind="danger"
                     type="button"
-                    on:click={() => ingredients--}
+                    on:click={() => steps--}
                   >
                     <XIcon />
                   </IconButton>
+                {/if}
+              </div>
+    
+              {#if isErrorStatus(form?.status) && form?.field === `steps.${i}`}
+                <div>
+                  <ErrorText>{form?.message}</ErrorText>
                 </div>
               {/if}
-
-              {#if !unitsOfMeasureOptions[i].length}
-                <input
-                  type="hidden" 
-                  name="ingredients[].unit" 
-                  value=""
-                />
-              {/if}
             </div>
-            {#if isErrorStatus(form?.status) && form?.message && (form?.field === `ingredients.${i}.type` || form?.field === `ingredients.${i}.amount` || form?.field === `ingredients.${i}.unit` || form?.field === `ingredients.${i}.name`)}
-              <div>
-                <ErrorText>{form?.message}</ErrorText>
-              </div>
-            {/if}
-          </div>
-        {/each}
-
-        <Button type="button" on:click={() => ingredients++}>+ Add Ingredient</Button>
-      </fieldset>
-    </div>
-
-    <div>
-      <fieldset>
-        <legend>Steps</legend>
-        {#each {length: steps} as _, i}
-          <div class="step-row">
-            <div class="step-row-inputs">
-              <label for="step-{i}">{i + 1}.</label>
-              <InputField
-                id="step-{i}"
-                name="steps[]"
-                value={form?.data?.steps?.[i] ?? ''}
-              />
+          {/each}
   
-              {#if i === steps - 1 && steps > 1}
-                <IconButton
-                  kind="danger"
-                  type="button"
-                  on:click={() => steps--}
-                >
-                  <XIcon />
-                </IconButton>
-              {/if}
-            </div>
+          <Button type="button" on:click={() => steps++}>+ Add Step</Button>
+        </fieldset>
+      </div>
   
-            {#if isErrorStatus(form?.status) && form?.field === `steps.${i}`}
-              <div>
-                <ErrorText>{form?.message}</ErrorText>
-              </div>
-            {/if}
-          </div>
-        {/each}
-
-        <Button type="button" on:click={() => steps++}>+ Add Step</Button>
-      </fieldset>
-    </div>
-
-    <TextArea
-      label="Notes"
-      description="These are notes just for you. They will not be shared with the public."
-      id="notes"
-      name="notes"
-      error={isErrorStatus(form?.status) && form?.field === 'notes' ? form.message : ''}
-    />
-
-    <div class="row row-2">
-      <Checkbox
-        id='isPublic'
-        name='isPublic'
-        value="true"
-        text="Make Public"
+      <TextArea
+        label="Notes"
+        description="These are notes just for you. They will not be shared with the public."
+        id="notes"
+        name="notes"
+        error={isErrorStatus(form?.status) && form?.field === 'notes' ? form.message : ''}
       />
-      <Button>Add Recipe</Button>
-    </div>
-
-    {#if isErrorStatus(form?.status) && !form?.field && form?.message}
-      <ErrorText>{form?.message}</ErrorText>
-    {/if}
-  </form>
-</div>
+  
+      <div class="row row-2">
+        <Checkbox
+          id='isPublic'
+          name='isPublic'
+          value="true"
+          text="Make Public"
+        />
+        <Button>Add Recipe</Button>
+      </div>
+  
+      {#if isErrorStatus(form?.status) && !form?.field && form?.message}
+        <ErrorText>{form?.message}</ErrorText>
+      {/if}
+    </form>
+  </div>
+</Page>
 
 <style lang="scss">
   .add-recipe-container {
     width: 100%;
     max-width: 70rem;
     margin: 0 auto;
-    padding: 1rem;
   }
 
   .row {
@@ -399,17 +401,18 @@
           left: 50%;
           padding: 0.5rem 1rem;
           background: var(--primary-500);
-          color: var(--neutral-900);
           border-radius: 0.25rem;
-          background: var(--primary-500);
+          color: var(--neutral-100);
+          box-shadow: inset 5px 0 15px 0 var(--primary-300);
           transform: translate(-50%, -50%);
           text-align: center;
           white-space: nowrap;
-          transition: background-color 0.25s ease-in-out;
+          transition: background-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
         }
 
         input:hover ~ .image-upload-text {
           background: var(--primary-300);
+          box-shadow: inset 5px 0 15px 0 var(--primary-200);
         }
 
         img {

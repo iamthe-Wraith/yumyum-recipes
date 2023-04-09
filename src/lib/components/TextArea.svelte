@@ -56,14 +56,14 @@
     padding: 0.5rem;
     border: 1px solid #000;
     border-radius: 0.25rem;
-    background: var(--neutral-200);
+    background: var(--neutral-300);
     color: var(--neutral-900);
-    border: 1px solid #000;
-    box-shadow: inset 10px 0 30px -10px var(--neutral-100);
+    border: 1px solid var(--neutral-500);
+    box-shadow: inset 10px 0 15px -15px var(--neutral-100);
     resize: none;
     
     &::placeholder {
-      color: var(--neutral-600);
+      color: var(--neutral-700);
     }
 
     &:focus {

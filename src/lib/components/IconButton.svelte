@@ -31,20 +31,20 @@
   }
 
   .primary {
-    --fill-color: var(--primary-500);
+    --icon-color: var(--primary-500);
 
     &:hover,
     &:focus {
-      --fill-color: var(--primary-300);
+      --icon-color: var(--primary-300);
     }
   }
 
   .secondary {
-    --fill-color: var(--secondary-500);
+    --icon-color: var(--secondary-500);
 
     &:hover,
     &:focus {
-      --fill-color: var(--secondary-300);
+      --icon-color: var(--secondary-300);
     }
 
     &:focus-visible {
@@ -53,11 +53,11 @@
   }
 
   .tertiary {
-    --fill-color: var(--tertiary-500);
+    --icon-color: var(--tertiary-500);
 
     &:hover,
     &:focus {
-      --fill-color: var(--tertiary-300);
+      --icon-color: var(--tertiary-300);
     }
 
     &:focus-visible {
@@ -66,11 +66,11 @@
   }
 
   .neutral {
-    --fill-color: var(--neutral-500);
+    --icon-color: var(--neutral-500);
 
     &:hover,
     &:focus {
-      --fill-color: var(--neutral-300);
+      --icon-color: var(--neutral-300);
     }
 
     &:focus-visible {
@@ -79,11 +79,11 @@
   }
 
   .danger {
-    --fill-color: var(--danger-500);
+    --icon-color: var(--danger-500);
 
     &:hover,
     &:focus {
-      --fill-color: var(--danger-300);
+      --icon-color: var(--danger-300);
     }
 
     &:focus-visible {
@@ -92,11 +92,11 @@
   }
 
   .warning {
-    --fill-color: var(--warning-500);
+    --icon-color: var(--warning-500);
 
     &:hover,
     &:focus {
-      --fill-color: var(--warning-300);
+      --icon-color: var(--warning-300);
     }
 
     &:focus-visible {

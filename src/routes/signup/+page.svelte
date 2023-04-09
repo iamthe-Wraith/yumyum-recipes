@@ -2,51 +2,54 @@
 	import { enhance } from "$app/forms";
 	import Button from "$lib/components/Button.svelte";
   import InputField from "$lib/components/InputField.svelte";
+	import Page from "$lib/components/Page.svelte";
   import { isErrorStatus } from "$lib/helpers/response";
 	import type { ActionData } from "./$types";
   
   export let form: ActionData;
 </script>
 
-<div class="signup-container">
-  <h1>Sign up</h1>
-  <form method="POST" use:enhance>
-    <InputField
-      label="Email"
-      type="email"
-      id="email"
-      name="email"
-      value={form?.data?.email ?? ''}
-      error={isErrorStatus(form?.status) && form?.field === 'email' ? form.message : ''}
-    />
-
-    <InputField
-      label="Password"
-      type="password"
-      id="password"
-      name="password"
-      value={form?.data?.password ?? ''}
-      error={isErrorStatus(form?.status) && form?.field === 'password' ? form.message : ''}
-    />
-
-    <InputField
-      label="Confirm Password"
-      type="password"
-      id="confirmedPassword"
-      name="confirmedPassword"
-      value={form?.data?.confirmedPassword ?? ''}
-      error={isErrorStatus(form?.status) && form?.field === 'confirmedPassword' ? form.message : ''}
-    />
-
-    <Button>Sign Up</Button>
-    <a href="/signin">Already have an account?</a>
-  </form>
-</div>
+<Page>
+  <div class="signup-container">
+    <h1>Sign up</h1>
+    <form method="POST" use:enhance>
+      <InputField
+        label="Email"
+        type="email"
+        id="email"
+        name="email"
+        value={form?.data?.email ?? ''}
+        error={isErrorStatus(form?.status) && form?.field === 'email' ? form.message : ''}
+      />
+  
+      <InputField
+        label="Password"
+        type="password"
+        id="password"
+        name="password"
+        value={form?.data?.password ?? ''}
+        error={isErrorStatus(form?.status) && form?.field === 'password' ? form.message : ''}
+      />
+  
+      <InputField
+        label="Confirm Password"
+        type="password"
+        id="confirmedPassword"
+        name="confirmedPassword"
+        value={form?.data?.confirmedPassword ?? ''}
+        error={isErrorStatus(form?.status) && form?.field === 'confirmedPassword' ? form.message : ''}
+      />
+  
+      <Button>Sign Up</Button>
+      <a href="/signin">Already have an account?</a>
+    </form>
+  </div>
+</Page>
 
 <style lang="scss">
   .signup-container {
     width: 100%;
-    padding: 3rem 1rem 1rem;
+    padding-top: 2rem;
   }
 
   h1 {

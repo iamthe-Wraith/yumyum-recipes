@@ -17,7 +17,6 @@
 
 <style lang="scss">
   button {
-    width: var(--button-width, auto);
     padding: 0.5rem 1rem;
     font-size: 1rem;
     border-radius: 0.25rem;
@@ -28,7 +27,7 @@
 
   .primary {
     background: var(--primary-500);
-    color: var(--neutral-900);
+    color: var(--neutral-100);
     box-shadow: inset 5px 0 15px 0 var(--primary-300);
 
     &:hover,
@@ -41,16 +40,34 @@
   .secondary {
     background: var(--secondary-500);
     color: var(--neutral-900);
+
+    &:hover,
+    &:focus {
+      background: var(--secondary-400);
+      box-shadow: inset 5px 0 15px 0 var(--secondary-200);
+    }
   }
 
   .tertiary {
     background: var(--tertiary-500);
-    color: var(--neutral-900);
+    color: var(--neutral-100);
+
+    &:hover,
+    &:focus {
+      background: var(--tertiary-400);
+      box-shadow: inset 5px 0 15px 0 var(--tertiary-200);
+    }
   }
 
   .neutral {
     background: var(--neutral-500);
     color: var(--neutral-900);
+
+    &:hover,
+    &:focus {
+      background: var(--neutral-400);
+      box-shadow: inset 5px 0 15px 0 var(--neutral-200);
+    }
   }
 
   .transparent {

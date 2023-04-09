@@ -252,7 +252,7 @@
 
     .signout {
       margin-top: 0;
-      padding-top: 0;
+      padding-top: 0.5rem;
       padding-left: 1.5rem;
       border-top: none;
       border-left: 1px solid var(--neutral-300);
