@@ -1,7 +1,7 @@
 import { UnitsOfMeasure, type IUnitOfMeasure } from "$lib/constants/ingredients";
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-export const getUnitOfMeasure = (uomName: string, amount?: number): IUnitOfMeasure | undefined => Object.values(UnitsOfMeasure).find(u => u.name === uomName);
+export const getUnitOfMeasure = (uomName: string): IUnitOfMeasure | undefined => Object.values(UnitsOfMeasure).find(u => u.name === uomName);
 
 export const getUnitOfMeasureAbbv = (uom: IUnitOfMeasure | string, amount?: number) => {
   let unitOfMeasure: IUnitOfMeasure;
@@ -9,7 +9,7 @@ export const getUnitOfMeasureAbbv = (uom: IUnitOfMeasure | string, amount?: numb
   if (typeof uom !== 'string') unitOfMeasure = uom;
 
   if (typeof uom === 'string') {
-    const u = getUnitOfMeasure(uom, amount);
+    const u = getUnitOfMeasure(uom);
     if (!u) return '';
     unitOfMeasure = u;
   } else {
