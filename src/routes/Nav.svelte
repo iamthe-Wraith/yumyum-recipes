@@ -2,7 +2,7 @@
   import { page } from '$app/stores';
 	import LinkButton from "$lib/components/LinkButton.svelte";
   import { authenticated } from "$lib/stores/authenticated";
-	import { onDestroy, onMount } from "svelte";
+	import { onMount } from "svelte";
 
   let checkbox: HTMLInputElement;
   let navOverlay: HTMLDivElement;
@@ -49,6 +49,7 @@
       <nav class={$authenticated ? 'authenticated' : 'unauthenticated center-col'}>
         {#if $authenticated}
           <a href="/dashboard">Dashboard</a>
+          <a href="/recipes">My Recipes</a>
           <a href="/signout" class="signout">Sign Out</a>
         {:else}
           <a href="/signin">Sign In</a>
@@ -185,6 +186,7 @@
       padding: .5rem 0;
       font-size: 1rem;
       text-decoration: none;
+      white-space: nowrap;
 
       &:hover,
       &:focus {
@@ -195,6 +197,8 @@
   }
 
   .signout {
+    margin-top: 1rem;
+    padding-top: 1rem;
     border-top: 1px solid var(--neutral-300);
 
     &:hover,
@@ -247,6 +251,8 @@
     }
 
     .signout {
+      margin-top: 0;
+      padding-top: 0;
       padding-left: 1.5rem;
       border-top: none;
       border-left: 1px solid var(--neutral-300);

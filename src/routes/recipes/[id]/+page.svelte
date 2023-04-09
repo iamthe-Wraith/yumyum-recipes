@@ -1,8 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
 	import Page from "$lib/components/Page.svelte";
-	import { pluralize } from '$lib/helpers/string';
-	import { getUnitOfMeasure, getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
+	import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
 
   export let data: PageData;
 </script>
