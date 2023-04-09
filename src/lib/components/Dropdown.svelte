@@ -197,8 +197,8 @@
     height: 100%;
     padding: 0.5rem;
     color: var(--neutral-900);
-    background: var(--neutral-200);
-    border: 1px solid #000;
+    background: var(--neutral-300);
+    border: 1px solid var(--neutral-500);
     border-radius: 0.25rem;
     box-shadow: inset 10px 0 15px -15px var(--neutral-100);
   }
@@ -232,9 +232,9 @@
     background: #000;
     font-size: 1rem;
     font-weight: 500;
-    background: var(--neutral-200);
+    background: var(--neutral-300);
     color: var(--neutral-900);
-    border: 1px solid #000;
+    border: 1px solid var(--neutral-500);
     border-radius: 0.25rem;
     box-shadow: inset 10px 0 15px -15px var(--neutral-100);
     cursor: pointer;

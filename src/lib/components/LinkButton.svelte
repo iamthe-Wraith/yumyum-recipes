@@ -33,12 +33,11 @@
 
   a.primary {
     background-color: var(--primary-500);
-    color: var(--neutral-900);
+    color: var(--neutral-100);
 
     &:hover,
     &:focus {
       background-color: var(--primary-300);
-      color: var(--neutral-700);
     }
   }
 

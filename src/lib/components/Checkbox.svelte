@@ -61,7 +61,7 @@
     box-shadow: inset 10px 0 15px -15px var(--neutral-100);
 
     --size: 2rem;
-    --stroke-color: var(--primary-500);
+    --icon-color: var(--primary-500);
   }
 
   input:hover ~ label span,

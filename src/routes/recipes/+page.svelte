@@ -1,9 +1,8 @@
 <script lang="ts">
 	import IconIndicator from "$lib/components/IconIndicator.svelte";
-import Page from "$lib/components/Page.svelte";
+  import Page from "$lib/components/Page.svelte";
 	import Eye from "$lib/icons/Eye.svelte";
 	import EyeOff from "$lib/icons/EyeOff.svelte";
-	import { log } from "$lib/services/log";
   import type { PageData } from './$types';
 
   export let data: PageData;
@@ -80,16 +79,29 @@ import Page from "$lib/components/Page.svelte";
     list-style: none;
   }
 
+  li:nth-child(3n+1) a,
+  li:nth-child(3n+3) a {
+    h2,
+    p,
+    span {
+      color: var(--neutral-100);
+    }
+
+    .row {
+      --icon-color: var(--neutral-100);
+    }
+  }
+
   li:nth-child(3n+1) a {
-    background: linear-gradient(90deg, var(--primary-100) 0%, var(--primary-400) 100%);
+    background: linear-gradient(90deg, var(--primary-500) 0%, var(--primary-500) 30%, var(--tertiary-300) 100%);
   }
 
   li:nth-child(3n+2) a {
-    background: linear-gradient(90deg, var(--secondary-100) 0%, var(--secondary-400) 100%);
+    background: linear-gradient(90deg, var(--secondary-100) 0%, var(--secondary-100) 30%, var(--primary-400) 100%);
   }
 
   li:nth-child(3n+3) a {
-    background: linear-gradient(90deg, var(--tertiary-100) 0%, var(--tertiary-400) 100%);
+    background: linear-gradient(90deg, var(--tertiary-500) 0%, var(--tertiary-500) 30%, var(--secondary-400) 100%);
   }
 
   li a {
@@ -185,7 +197,7 @@ import Page from "$lib/components/Page.svelte";
     align-items: flex-start;
     width: 100%;
 
-    --fill-color: var(--neutral-900);
+    --icon-color: var(--neutral-900);
   }
 
   .meta-container {

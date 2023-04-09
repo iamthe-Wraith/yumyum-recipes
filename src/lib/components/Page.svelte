@@ -2,7 +2,7 @@
   <slot />
 </div>
 
-<style lang="scss">
+<style>
   div {
     width: 100%;
     padding: 1rem;

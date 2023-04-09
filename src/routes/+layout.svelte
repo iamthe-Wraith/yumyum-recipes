@@ -24,7 +24,9 @@
 </header>
 
 <main>
-  <slot />
+  <div class='main-content-wrapper'>
+    <slot />
+  </div>
 </main>
 
 <footer class="flex-row-center">
@@ -46,8 +48,39 @@
   }
 
   main {
+    position: relative;
     min-height: calc(100vh - 50px);
-    padding: 85px 0;
+    padding: 85px 0 1rem;
+
+    &:before,
+    &:after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.15;
+      z-index: 0;
+    }
+
+    &:before {
+      background: radial-gradient(ellipse at top right, var(--secondary-500) 0, transparent 55%),
+                  radial-gradient(ellipse at top right, var(--secondary-300) 0, transparent 65%);
+      background-blend-mode: multiply;
+    }
+
+    &:after {
+      background: radial-gradient(ellipse at bottom left, var(--primary-500) 0, transparent 55%),
+                  radial-gradient(ellipse at bottom left, var(--primary-300) 0, transparent 65%);
+      background-blend-mode: multiply;
+    }
+
+    .main-content-wrapper {
+      position: relative;
+      width: 100%;
+      z-index: 1;
+    }
   }
 
   footer {

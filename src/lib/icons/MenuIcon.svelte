@@ -22,6 +22,6 @@
   svg {
     width: var(--icon-size, 2rem);
     height: var(--icon-size, 2rem);
-    fill: var(--fill-color, --neutral-300);
+    fill: var(--icon-color, --neutral-300);
   }
 </style>
