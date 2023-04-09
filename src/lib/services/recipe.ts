@@ -157,6 +157,38 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
   }
 }
 
+export const getRecipe = async (id: string | number, requestor: users) => {
+  const recipeId = parseInt(id.toString(), 10);
+
+  if (isNaN(recipeId)) throw new ApiError('Invalid recipe ID.', HttpStatus.INVALID_ARG);
+
+  const where: Record<string, string | number | boolean>[] = [
+    {
+      ownerId: requestor.id,
+      id: recipeId,
+    },
+    {
+      isPublic: true,
+      id: recipeId,
+    }
+  ]
+
+  const recipe = await prisma.recipes.findFirst({
+    where: {
+      OR: where,
+    },
+    include: {
+      ingredients: true,
+    },
+  });
+
+  if (recipe) {
+    return recipe;
+  } else {
+    throw new ApiError('Recipe not found.', HttpStatus.NOT_FOUND);
+  }
+};
+
 export const getRecipes = async (requestor: users, options?: IGetRecipeOptions) => {
   const where: Record<string, string | number | boolean> = {
     ownerId: requestor.id,

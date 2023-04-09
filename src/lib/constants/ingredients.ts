@@ -7,7 +7,7 @@ export interface IIngredientTypes {
 export interface IUnitOfMeasure {
   name?: IngredientUnitOfMeasure;
   abbv: string;
-  type: IngredientType[];
+  type: IngredientType;
   kelevens: number;
 }
 
@@ -17,7 +17,7 @@ export const IngredientTypes = [
   { name: IngredientType.WEIGHT },
 ]
 
-export const UnitsOfMeasure = [
+export const UnitsOfMeasure: IUnitOfMeasure[] = [
   {
     name: undefined,
     abbv: '--',
