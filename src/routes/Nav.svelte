@@ -50,6 +50,7 @@
         {#if $authenticated}
           <a href="/dashboard">Dashboard</a>
           <a href="/recipes">My Recipes</a>
+          <a href="/recipes/add">Add Recipe</a>
           <a href="/signout" class="signout">Sign Out</a>
         {:else}
           <a href="/signin">Sign In</a>
