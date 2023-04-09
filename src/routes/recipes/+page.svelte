@@ -1,5 +1,6 @@
 <script lang="ts">
 	import IconIndicator from "$lib/components/IconIndicator.svelte";
+	import LinkButton from "$lib/components/LinkButton.svelte";
   import Page from "$lib/components/Page.svelte";
 	import Eye from "$lib/icons/Eye.svelte";
 	import EyeOff from "$lib/icons/EyeOff.svelte";
@@ -10,6 +11,13 @@
 
 <Page>
   <h1>Recipes</h1>
+
+  <div class="controls-container">
+    <div class="filter-container">
+      filter
+    </div>
+    <LinkButton href="/recipes/add">Add Recipe</LinkButton>
+  </div>
 
   {#if data.recipes?.length}
     <ul>
@@ -70,9 +78,19 @@
 </Page>
 
 <style lang="scss">
+  .controls-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 70rem;
+    margin: 0 auto 1rem;
+
+    --link-button-margin: 0;
+  }
+
   ul {
     display: block;
-    margin: 2rem auto;
+    margin: 0 auto;
     padding: 0;
     width: 100%;
     max-width: 70rem;
