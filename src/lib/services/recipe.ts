@@ -2,7 +2,7 @@ import { HttpStatus } from "$lib/constants/error";
 import { UnitsOfMeasure } from "$lib/constants/ingredients";
 import { prisma } from "$lib/db/client";
 import { ApiError } from "$lib/error";
-import { IngredientType, IngredientUnitOfMeasure, type ingredients, type recipes, type users } from "@prisma/client";
+import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from "@prisma/client";
 import { z } from "zod";
 import { log } from "./log";
 
@@ -20,7 +20,9 @@ const recipeSchema = z.object({
     .max(50, { message: "Recipe name must be less than 50 characters." }),
   description: z.string({
     invalid_type_error: "Password must be a string.",
-  }),
+  })
+    .min(1, { message: "Recipe name must be at least 1 character." })
+    .max(300, { message: "Recipe name must be less than 50 characters." }),
   prepTime: z.string({
     invalid_type_error: "Prep time must be a string.",
   })
