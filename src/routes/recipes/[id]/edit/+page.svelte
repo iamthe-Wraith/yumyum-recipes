@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { ingredients, recipes } from "@prisma/client";
+  import type { ingredients, recipes } from "@prisma/client";
   import { isErrorStatus } from "$lib/helpers/response";
   import type { ActionData, PageData } from "./$types";
-	import Page from "$lib/components/Page.svelte";
-	import RecipeForm from "../../RecipeForm.svelte";
+  import Page from "$lib/components/Page.svelte";
+  import RecipeForm from "../../RecipeForm.svelte";
 
   export let form: ActionData;
   export let data: PageData;
