@@ -78,13 +78,16 @@
   }
 
   span {
+    display: block;
+    width: var(--textarea-width, 100%);
+    height: var(--textarea-height, 5rem);
     padding: 1px;
     border-radius: 0.25rem;
   }
 
   textarea {
-    width: var(--textarea-width, 100%);
-    height: var(--textarea-height, 5rem);
+    width: 100%;
+    height: 100%;
     padding: 0.5rem;
     background: var(--neutral-300);
     color: var(--neutral-900);
