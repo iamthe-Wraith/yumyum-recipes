@@ -1,9 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { ApiError } from '$lib/error';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { log } from '$lib/services/log';
 import { parseFormData } from '$lib/helpers/request';
-import { createRecipe, parseIngredients, type IRecipeData } from '$lib/services/recipe';
+import { createRecipe, parseIngredients, type IRecipeData, getRecipe, updateRecipe } from '$lib/services/recipe';
 import type { recipes } from '@prisma/client';
 import { uploadImage } from '$lib/services/upload';
 
@@ -11,7 +11,7 @@ export const actions = {
   default: async ({ request, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
     
-    let recipe: recipes | null = null;
+    const recipe: recipes | null = null;
     let data: IRecipeData;
 
     try {
@@ -19,7 +19,7 @@ export const actions = {
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err
-        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+        : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
       log('Error parsing recipe form data: ', err);
       
@@ -36,7 +36,7 @@ export const actions = {
     } catch (err) {
       const error = err instanceof ApiError
         ? new ApiError(err.message, err.status, err.field, data)
-        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+        : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
       log('Error parsing ingredients: ', err);
       
@@ -44,17 +44,13 @@ export const actions = {
     }
 
     try {
-      let url = 'https://s3.us-east-2.wasabisys.com/yumyum/default_recipe_image.png';
-
       if (!!(data.image as File).name && (data.image as File).name !== 'undefined') {
-        url = await uploadImage(data.image as File, locals.user.id, data.name);
+        data.image = await uploadImage(data.image as File, locals.user.id, data.name);
       }
-      
-      data.image = url;
     } catch (err) {
       const error = err instanceof ApiError
         ? new ApiError(err.message, err.status, err.field, data)
-        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+        : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
       log('Error uploading recipe image: ', err);
       
@@ -62,17 +58,37 @@ export const actions = {
     }
 
     try {
-      recipe = await createRecipe(data, locals.user);
+      await updateRecipe({
+        ...data,
+        image: data.image as string,      
+      }, locals.user);
     } catch (err) {
       const error = err instanceof ApiError
       ? new ApiError(err.message, err.status, err.field, data)
-        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+        : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
-      log('Error creating recipe: ', err);
+      log('Error updating recipe: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
 
-    throw redirect(303, `/recipes${recipe?.id ? `?recipe=${recipe.id}` : ''}`);
+    throw redirect(303, `/recipes/${data.id}`);
   }
 } satisfies Actions;
+
+export const load = (async ({ locals, params }) => {
+  if (!locals.user) throw redirect(303, '/signin');
+  
+  try {
+    const recipe = await getRecipe(params.id, locals.user);
+    return { recipe };
+  } catch (err) {
+    const error = err instanceof ApiError
+      ? err
+      : new ApiError('There was an error retrieving your recipe. Please try again later.', 500);
+
+    log('Error getting recipe: ', err);
+
+    throw error;
+  }
+}) satisfies PageServerLoad;

@@ -16,7 +16,7 @@
         </div>
       </div>
 
-      <img src={data.recipe.img} alt="Image of {data.recipe.name}" />
+      <img src={data.recipe.image} alt="Image of {data.recipe.name}" />
 
       <h1>{data.recipe.name}</h1>
       <p>{data.recipe.description}</p>

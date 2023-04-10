@@ -2,7 +2,7 @@ import { HttpStatus } from "$lib/constants/error";
 import { UnitsOfMeasure } from "$lib/constants/ingredients";
 import { prisma } from "$lib/db/client";
 import { ApiError } from "$lib/error";
-import { IngredientType, IngredientUnitOfMeasure, type users } from "@prisma/client";
+import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from "@prisma/client";
 import { z } from "zod";
 import { log } from "./log";
 
@@ -73,7 +73,7 @@ const recipeSchema = z.object({
     .transform((val) => val === "true")
 });
 
-export type INewRecipeData = z.infer<typeof recipeSchema> & { image: File | string};
+export type IRecipeData = z.infer<typeof recipeSchema> & { id?: number, image: File | string};
 
 export interface IIngredient {
   amount: number;
@@ -82,7 +82,7 @@ export interface IIngredient {
   unit?: IngredientUnitOfMeasure;
 }
 
-export const createRecipe = async (data: INewRecipeData, requestor: users) => {
+export const createRecipe = async (data: IRecipeData, requestor: users) => {
   try {
     const parsed = validateRecipeData(data);
 
@@ -90,7 +90,7 @@ export const createRecipe = async (data: INewRecipeData, requestor: users) => {
       let recipe = await tx.recipes.create({
         data: {
           ...parsed.data,
-          img: data.image as string,
+          image: data.image as string,
           ownerId: requestor.id,
           ingredients: undefined,
         },
@@ -202,7 +202,7 @@ export const getRecipes = async (requestor: users, options?: IGetRecipeOptions) 
       id: true,
       name: true,
       description: true,
-      img: true,
+      image: true,
       prepTime: true,
       cookTime: true,
       servings: true,
@@ -247,7 +247,105 @@ export const parseIngredients = (
   return ingredients;
 }
 
-export const validateRecipeData = (data: INewRecipeData) => {
+export const updateRecipe = async (data: IRecipeData & { image: string }, requestor: users) => {
+  try {
+    const parsed = validateRecipeData(data);
+
+    let recipeId: number;
+
+    if (data.id) {
+      recipeId = parseInt(data.id?.toString(), 10);
+      if (isNaN(recipeId)) throw new ApiError('Invalid recipe ID.', HttpStatus.INVALID_ARG);
+    } else {
+      throw new ApiError('Invalid recipe ID.', HttpStatus.INVALID_ARG);
+    }
+
+    const dataToUpdate: Partial<recipes> = {
+      name: parsed.data.name,
+      description: parsed.data.description,
+      prepTime: parsed.data.prepTime,
+      cookTime: parsed.data.cookTime,
+      servings: parsed.data.servings,
+      isPublic: parsed.data.isPublic,
+      steps: parsed.data.steps,
+      notes: parsed.data.notes,
+    }
+
+    if (data.image) dataToUpdate.image = data.image as string;
+
+    return await prisma.$transaction(async (tx) => {
+      let recipe = await tx.recipes.findFirst({ where: { id: recipeId } });
+
+      if (!recipe) throw new ApiError('Recipe not found.', HttpStatus.NOT_FOUND);
+      if (recipe.ownerId !== requestor.id) throw new ApiError('You do not have permission to update this recipe.', HttpStatus.UNAUTHORIZED);
+
+      recipe = await tx.recipes.update({
+        where: { id: recipeId },
+        data: dataToUpdate,
+      });
+
+      // await tx.ingredients.createMany({
+      //   data: parsed.data.ingredients.map(({
+      //     name,
+      //     amount,
+      //     type,
+      //     unit,
+      //   }) => {
+      //     const unitOfMeasure = type === IngredientType.COUNT
+      //       ? UnitsOfMeasure.find((uom) => uom.type === IngredientType.COUNT)
+      //       : UnitsOfMeasure.find((uom) => uom.name === unit && uom.type === type);
+
+      //     if (!unitOfMeasure) throw new ApiError(`Invalid unit of measure for ingredient type ${type}.`, HttpStatus.INVALID_ARG, 'type', parsed.data);
+
+      //     const kelevens = unitOfMeasure.kelevens * amount;
+
+      //     return {
+      //       recipeId: recipe.id,
+      //       name,
+      //       amount,
+      //       unit: unit as IngredientUnitOfMeasure,
+      //       kelevens,
+      //       type: type as IngredientType,
+      //     };
+      //   }),
+      // });
+
+      // const ingredients = await tx.ingredients.findMany({
+      //   where: {
+      //     recipeId: recipe.id,
+      //   },
+      // })
+
+      // recipe = await tx.recipes.update({
+      //   where: {
+      //     id: recipe.id,
+      //   },
+      //   data: {
+      //     ingredients: {
+      //       connect: ingredients.map((ingredient) => ({
+      //         id: ingredient.id,
+      //       })),
+      //     },
+      //   },
+      //   include: {
+      //     ingredients: true,
+      //   },
+      // });
+
+      return recipe;
+    });
+  } catch (err) {
+    if (err instanceof ApiError) {
+      throw err;
+    } else {
+      log('Error creating recipe: ', err);
+
+      throw new ApiError('There was an error creating your recipe. Please try again later.', HttpStatus.SERVER, undefined, data);
+    }
+  }
+}
+
+export const validateRecipeData = (data: IRecipeData) => {
   const parsed = recipeSchema.safeParse(data);
 
   if (!parsed.success) {

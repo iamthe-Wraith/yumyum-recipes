@@ -15,8 +15,6 @@ export const load = (async ({ locals, params }) => {
       ? err
       : new ApiError('There was an error creating your recipe. Please try again later.', 500);
 
-    log('Error getting recipe: ', err);
-
     throw error;
   }
 }) satisfies PageServerLoad;

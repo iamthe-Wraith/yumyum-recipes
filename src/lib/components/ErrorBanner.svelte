@@ -13,7 +13,8 @@
     display: flex;
     flex-direction: column;
     width: var(--textarea-width, 100%);
-    margin-bottom: 1rem;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
     background: var(--danger-500);
   }
 
