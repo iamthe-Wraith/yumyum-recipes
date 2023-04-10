@@ -6,6 +6,7 @@
   export let value: string = '';
   export let checked = false;
   export let text: string;
+  export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 </script>
 
 <div class="checkbox-container">
@@ -17,11 +18,13 @@
     bind:checked
   />
 
-  <label for={id}>
+  <label for={id} class={appearance}>
     <span>
-      {#if checked}
-        <Check />
-      {/if}
+      <span>
+        {#if checked}
+          <Check />
+        {/if}
+      </span>
     </span>
     <p>{text}</p>
   </label>
@@ -47,6 +50,18 @@
     display: flex;
     align-items: center;
     cursor: pointer;
+
+    &.primary-tertiary > span {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--tertiary-300) 100%);
+    }
+    
+    &.secondary-primary > span {
+      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--primary-400) 100%);
+    }
+    
+    &.tertiary-secondary > span {
+      background: linear-gradient(135deg, var(--tertiary-500) 0%, var(--secondary-400) 100%);
+    }
   }
 
   label > span {
@@ -56,16 +71,30 @@
     width: 1.5rem;
     height: 1.5rem;
     margin-right: 0.5rem;
+    padding: 1px;
     border-radius: 0.2rem;
-    background: var(--neutral-200);
     box-shadow: inset 10px 0 15px -15px var(--neutral-100);
-
-    --size: 2rem;
-    --icon-color: var(--primary-500);
   }
 
-  input:hover ~ label span,
-  input:focus ~ label span {
+  label > span > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100%;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0.2rem;
+    background: var(--neutral-200);
+
+    --size: 2rem;
+    --icon-color: var(--neutral-900);
+  }
+
+  input:hover ~ label > span,
+  input:focus ~ label > span {
     outline: 1px dashed var(--primary-500);
     outline-offset: 2px;
   }
