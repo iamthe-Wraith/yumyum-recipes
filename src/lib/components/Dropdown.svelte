@@ -117,7 +117,7 @@
   <label for={id} id="dropdown-label" bind:this={dropdownLabel}>{label}</label>
 
   <noscript>
-    <span>
+    <span class="no-script {appearance}">
       <select
         id={`${id}-noscript`}
         name={name}
@@ -217,39 +217,30 @@
     margin-bottom: var(--dropdown-margin-bottom, 1rem);
     margin-left: var(--dropdown-margin-left, 0);
 
-    & > span {
+    span.no-script {
+      display: block;
+      width: 100%;
+      height: 100%; 
       padding: 1px;
       border-radius: 0.25rem;
     }
 
-    &.primary-tertiary > span,
+    span.primary-tertiary,
     &.primary-tertiary .dropdown-selected,
     &.primary-tertiary .dropdown-list-container {
       background: linear-gradient(135deg, var(--primary-500) 0%, var(--tertiary-300) 100%);
-
-      textarea:focus {
-        border-right: 4px solid var(--tertiary-300);
-      }
     }
     
-    &.secondary-primary > span,
+    span.secondary-primary,
     &.secondary-primary .dropdown-selected,
     &.secondary-primary .dropdown-list-container {
       background: linear-gradient(135deg, var(--secondary-500) 0%, var(--primary-400) 100%);
-
-      textarea:focus {
-        border-right: 4px solid var(--primary-400);
-      }
     }
     
-    &.tertiary-secondary > span,
+    span.tertiary-secondary,
     &.tertiary-secondary .dropdown-selected,
     &.tertiary-secondary .dropdown-list-container {
       background: linear-gradient(135deg, var(--tertiary-500) 0%, var(--secondary-400) 100%);
-
-      textarea:focus {
-        border-right: 4px solid var(--secondary-400);
-      }
     }
   }
 
