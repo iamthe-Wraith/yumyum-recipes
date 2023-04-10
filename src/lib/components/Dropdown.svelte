@@ -21,6 +21,7 @@
   export let onChange: (option: IDropdownOption) => void = noop;
   export let options: IDropdownOption[];
   export let error = ''
+  export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 
   let selected: IDropdownOption = options.find((option) => option.selected) || options[0];
   let highlighted: number | null = null;
@@ -112,23 +113,25 @@
   }
 </script>
 
-<div class="dropdown-container">
+<div class="dropdown-container {appearance}">
   <label for={id} id="dropdown-label" bind:this={dropdownLabel}>{label}</label>
 
   <noscript>
-    <select
-      id={`${id}-noscript`}
-      name={name}
-    >
-      {#each options as option}
-        <option
-          value={option.value}
-          selected={option.selected}
-        >
-          {option.label}
-        </option>
-      {/each}
-    </select>
+    <span>
+      <select
+        id={`${id}-noscript`}
+        name={name}
+      >
+        {#each options as option}
+          <option
+            value={option.value}
+            selected={option.selected}
+          >
+            {option.label}
+          </option>
+        {/each}
+      </select>
+    </span>
   </noscript>
 
   <ul class="dropdown disabled" id={id}>
@@ -141,20 +144,22 @@
       on:click={onTriggerEngaged}
       on:keydown={onTriggerEngaged}
     >
-      {selected.label}
+      <span>
+        {selected.label}
+
+        <svg
+          class="dropdown-arrow" 
+          width="10" 
+          height="5" 
+          viewBox="0 0 10 5" 
+          fill-rule="evenodd"
+          bind:this={dropdownArrow}
+        >
+          <title>Open drop down</title>
+          <path d="M10 0L5 5 0 0z"></path>
+        </svg>
+      </span>
     </li>
-  
-    <svg
-      class="dropdown-arrow" 
-      width="10" 
-      height="5" 
-      viewBox="0 0 10 5" 
-      fill-rule="evenodd"
-      bind:this={dropdownArrow}
-    >
-      <title>Open drop down</title>
-      <path d="M10 0L5 5 0 0z"></path>
-    </svg>
   
     <li
       aria-expanded="false"
@@ -198,7 +203,7 @@
     padding: 0.5rem;
     color: var(--neutral-900);
     background: var(--neutral-300);
-    border: 1px solid var(--neutral-500);
+    border: none;
     border-radius: 0.25rem;
     box-shadow: inset 10px 0 15px -15px var(--neutral-100);
   }
@@ -211,6 +216,41 @@
     margin-right: var(--dropdown-margin-right, 0);
     margin-bottom: var(--dropdown-margin-bottom, 1rem);
     margin-left: var(--dropdown-margin-left, 0);
+
+    & > span {
+      padding: 1px;
+      border-radius: 0.25rem;
+    }
+
+    &.primary-tertiary > span,
+    &.primary-tertiary .dropdown-selected,
+    &.primary-tertiary .dropdown-list-container {
+      background: linear-gradient(135deg, var(--primary-500) 0%, var(--tertiary-300) 100%);
+
+      textarea:focus {
+        border-right: 4px solid var(--tertiary-300);
+      }
+    }
+    
+    &.secondary-primary > span,
+    &.secondary-primary .dropdown-selected,
+    &.secondary-primary .dropdown-list-container {
+      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--primary-400) 100%);
+
+      textarea:focus {
+        border-right: 4px solid var(--primary-400);
+      }
+    }
+    
+    &.tertiary-secondary > span,
+    &.tertiary-secondary .dropdown-selected,
+    &.tertiary-secondary .dropdown-list-container {
+      background: linear-gradient(135deg, var(--tertiary-500) 0%, var(--secondary-400) 100%);
+
+      textarea:focus {
+        border-right: 4px solid var(--secondary-400);
+      }
+    }
   }
 
   .dropdown {
@@ -228,17 +268,25 @@
   .dropdown-selected {
     width: 100%;
     height: 100%;
-    padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+    padding: 1px;
     background: #000;
     font-size: 1rem;
     font-weight: 500;
-    background: var(--neutral-300);
     color: var(--neutral-900);
-    border: 1px solid var(--neutral-500);
+    border: none;
     border-radius: 0.25rem;
-    box-shadow: inset 10px 0 15px -15px var(--neutral-100);
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+
+    span {
+      display: block;
+      width: 100%;
+      height: 100%;
+      padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+      background: var(--neutral-300);
+      border-radius: 0.25rem;
+      box-shadow: inset 10px 0 15px -15px var(--neutral-100);
+    }
   }
 
   .dropdown-arrow {
@@ -262,10 +310,8 @@
     left: 0;
     display: none;
     width: 100%;
-    padding: 0;
+    padding: 1px;
     margin: 0;
-    background: #000;
-    border: 1px solid var(--neutral-500);
     border-radius: 0.25rem;
     overflow: hidden;
     z-index: 10;
@@ -276,6 +322,8 @@
   }
   
   .dropdown-list {
+    background: var(--neutral-300);
+    border-radius: 0.25rem;
     list-style: none;
     overflow: auto;
   }
@@ -287,7 +335,7 @@
 
     &:hover,
     &:focus {
-      background: var(--neutral-300);
+      background: var(--neutral-200);
     }
 
     &:hover {
