@@ -20,6 +20,7 @@
         name="email"
         value={form?.data?.email ?? ''}
         error={isErrorStatus(form?.status) && form?.field === 'email' ? form.message : ''}
+        appearance="secondary-primary"
       />
   
       <InputField
@@ -29,6 +30,7 @@
         name="password"
         value={form?.data?.password ?? ''}
         error={isErrorStatus(form?.status) && form?.field === 'password' ? form.message : ''}
+        appearance="secondary-primary"
       />
   
       <Button>Sign In</Button>

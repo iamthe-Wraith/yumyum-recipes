@@ -22,6 +22,7 @@
   export let error: string | null = null;
   export let errorField: string | undefined = undefined;
   export let recipe: recipes & { ingredients: ingredients[] } | null = null;
+  export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 
   let ingredients = recipe?.ingredients?.length || 1;
   let steps = recipe?.steps?.length || 1;
@@ -137,6 +138,7 @@
         name="name"
         value={recipe?.name || ''}
         error={fieldError('name')}
+        {appearance}
       />
 
       <TextArea
@@ -146,6 +148,7 @@
         name="description"
         value={recipe?.description || ''}
         error={fieldError('description')}
+        {appearance}
       />
     </div>
   </div>
@@ -160,6 +163,7 @@
         placeholder="1 hour 30 minutes"
         value={recipe?.prepTime || ''}
         error={fieldError('prepTime')}
+        {appearance}
       />
 
       <InputField
@@ -169,6 +173,7 @@
         placeholder="45 minutes"
         value={recipe?.cookTime || ''}
         error={fieldError('cookTime')}
+        {appearance}
       />
 
       <InputField
@@ -179,6 +184,7 @@
         placeholder="3"
         value={recipe?.servings?.toString() || ''}
         error={fieldError('servings')}
+        {appearance}
       />
     </div>
   </fieldset>
@@ -194,6 +200,7 @@
                 id="ingredient-{i}-type"
                 name="ingredients[].type"
                 label="Type"
+                {appearance}
                 onChange={onIngredientTypeChange(i)}
                 options={IngredientTypes.map((type) => ({
                   value: type.name,
@@ -211,6 +218,7 @@
                 type="number"
                 step={0.01}
                 label="Amount"
+                {appearance}
                 on:change={onAmountChange(i)}
               />
             </div>
@@ -222,6 +230,7 @@
                   name="ingredients[].unit"
                   label="Unit"
                   options={unitsOfMeasureOptions[i]}
+                  {appearance}
                 />
               </div>
             {/if}
@@ -232,6 +241,7 @@
                 name="ingredients[].name"
                 value={recipe?.ingredients?.[i]?.name ?? ''}
                 label="Name"
+                {appearance}
               />
             </div>
 
@@ -278,6 +288,7 @@
               id="step-{i}"
               name="steps[]"
               value={recipe?.steps?.[i] ?? ''}
+              {appearance}
             />
 
             {#if i === steps - 1 && steps > 1}
@@ -309,6 +320,7 @@
     id="notes"
     name="notes"
     error={fieldError('notes')}
+    {appearance}
   />
 
   <div class="row row-2">
@@ -317,6 +329,7 @@
       name='isPublic'
       value="true"
       text="Make Public"
+      {appearance}
     />
     <Button>Add Recipe</Button>
   </div>
