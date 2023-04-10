@@ -23,6 +23,8 @@
   div {
     position: relative;
 
+    --icon-size: 1.5rem;
+
     @media (hover:hover), (pointer:fine) {
       &:hover {
         span {
