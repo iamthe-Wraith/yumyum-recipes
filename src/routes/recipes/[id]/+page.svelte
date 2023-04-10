@@ -9,7 +9,14 @@
 <Page>
   <article>
     <section>
-      <img src={data.recipe.img} alt="Image of {data.recipe.name}" />
+      <div class="options-container">
+        <a class="back-to-recipes" href="/recipes">Back to Recipes</a>
+        <div>
+          <a href="/recipes/{data.recipe.id}/edit">Edit</a>
+        </div>
+      </div>
+
+      <img src={data.recipe.image} alt="Image of {data.recipe.name}" />
 
       <h1>{data.recipe.name}</h1>
       <p>{data.recipe.description}</p>
@@ -76,11 +83,56 @@
     }
   }
 
+  .options-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+
+    div {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    a {
+      text-decoration: none;
+
+      &:hover {
+        color: var(--primary-500);
+        text-decoration: underline;
+      }
+    }
+
+    .back-to-recipes {
+      position: relative;
+
+      &:before {
+        content: ' ';
+        position: absolute;
+        top: 50%;
+        right: calc(100% + 0.5rem);
+        width: 0.5rem;
+        height: 0.5rem;
+        border-top: 1px solid var(--primary-500);
+        border-left: 1px solid var(--primary-500);
+        transform: translateY(-50%) rotate(-45deg);
+        transition: 0.25s ease-in-out;
+      }
+
+      &:hover:before,
+      &:focus-visible:before {
+        right: calc(100% + 1rem);
+        transition: 0.25s ease-in-out;
+      }
+    }
+  }
+
   img {
     display: block;
     width: 100%;
     max-width: 20rem;
     margin: 0 auto 2rem;
+    border-radius: 0.5rem;
 
     @media (min-width: 768px) {
       max-width: 30rem;

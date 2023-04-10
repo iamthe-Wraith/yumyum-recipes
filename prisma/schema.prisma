@@ -29,7 +29,7 @@ model sessions {
 model recipes {
   id             Int              @id @default(autoincrement())
   name           String           @db.VarChar(50)
-  img            String?
+  image          String?
   ownerId        Int              @map("owner_id")
   owner          users            @relation(fields: [ownerId], references: [id])
   prepTime       String           @map("prep_time")

@@ -12,20 +12,20 @@
 <Page>
   <h1>Recipes</h1>
 
-  <div class="controls-container">
-    <div class="filter-container">
-      filter
-    </div>
-    <LinkButton href="/recipes/add">Add Recipe</LinkButton>
-  </div>
-
   {#if data.recipes?.length}
+    <div class="controls-container">
+      <div class="filter-container">
+        filter
+      </div>
+      <LinkButton href="/recipes/add">Add Recipe</LinkButton>
+    </div>
+
     <ul>
       {#each data.recipes as recipe}
         <li>
           <a href="/recipes/{recipe.id}">              
             <div class="recipe-image-container">
-              <img src={recipe.img} alt="Image of {recipe.name}" />
+              <img src={recipe.image} alt="Image of {recipe.name}" />
             </div>
             <div class="recipe-info-container">
               <div class="row">
@@ -71,8 +71,9 @@
       {/each}
     </ul>
   {:else}
-    <div>
+    <div class="no-recipes">
       <p>No recipes found</p>
+      <LinkButton href="/recipes/add">Add Recipe</LinkButton>
     </div>
   {/if}
 </Page>
@@ -221,5 +222,18 @@
   .meta-container {
     display: flex;
     align-items: center;
+  }
+
+  .no-recipes {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 3rem auto 0;
+
+    p {
+      margin-bottom: 1rem;
+    }
   }
 </style>
