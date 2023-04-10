@@ -2,7 +2,7 @@ import { HttpStatus } from "$lib/constants/error";
 import { UnitsOfMeasure } from "$lib/constants/ingredients";
 import { prisma } from "$lib/db/client";
 import { ApiError } from "$lib/error";
-import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from "@prisma/client";
+import { IngredientType, IngredientUnitOfMeasure, type ingredients, type recipes, type users } from "@prisma/client";
 import { z } from "zod";
 import { log } from "./log";
 
@@ -36,6 +36,10 @@ const recipeSchema = z.object({
     }).positive().min(1, { message: "Servings must be at least 1." })
   ),
   ingredients: z.object({
+    id: z.number({
+      invalid_type_error: "Ingredient IDs must be a number.",
+    })
+      .optional(),
     amount: z.number({
       required_error: "Each ingredient must specify an amount.",
       invalid_type_error: "Ingredient amounts must be a number.",
@@ -271,12 +275,12 @@ export const updateRecipe = async (data: IRecipeData & { image: string }, reques
       notes: parsed.data.notes,
     }
 
-    if (data.image) dataToUpdate.image = data.image as string;
+    if (typeof data.image === 'string') dataToUpdate.image = data.image as string;
 
     return await prisma.$transaction(async (tx) => {
       let recipe = await tx.recipes.findFirst({ where: { id: recipeId } });
 
-      if (!recipe) throw new ApiError('Recipe not found.', HttpStatus.NOT_FOUND);
+      if (!recipe || recipe === null) throw new ApiError('Recipe not found.', HttpStatus.NOT_FOUND);
       if (recipe.ownerId !== requestor.id) throw new ApiError('You do not have permission to update this recipe.', HttpStatus.UNAUTHORIZED);
 
       recipe = await tx.recipes.update({
@@ -284,53 +288,59 @@ export const updateRecipe = async (data: IRecipeData & { image: string }, reques
         data: dataToUpdate,
       });
 
-      // await tx.ingredients.createMany({
-      //   data: parsed.data.ingredients.map(({
-      //     name,
-      //     amount,
-      //     type,
-      //     unit,
-      //   }) => {
-      //     const unitOfMeasure = type === IngredientType.COUNT
-      //       ? UnitsOfMeasure.find((uom) => uom.type === IngredientType.COUNT)
-      //       : UnitsOfMeasure.find((uom) => uom.name === unit && uom.type === type);
+      await tx.ingredients.deleteMany({
+        where: {
+          recipeId: recipe.id,
+        },
+      });
 
-      //     if (!unitOfMeasure) throw new ApiError(`Invalid unit of measure for ingredient type ${type}.`, HttpStatus.INVALID_ARG, 'type', parsed.data);
+      await tx.ingredients.createMany({
+        data: parsed.data.ingredients.map(({
+          name,
+          amount,
+          type,
+          unit,
+        }) => {
+          const unitOfMeasure = type === IngredientType.COUNT
+            ? UnitsOfMeasure.find((uom) => uom.type === IngredientType.COUNT)
+            : UnitsOfMeasure.find((uom) => uom.name === unit && uom.type === type);
 
-      //     const kelevens = unitOfMeasure.kelevens * amount;
+          if (!unitOfMeasure) throw new ApiError(`Invalid unit of measure for ingredient type ${type}.`, HttpStatus.INVALID_ARG, 'type', parsed.data);
 
-      //     return {
-      //       recipeId: recipe.id,
-      //       name,
-      //       amount,
-      //       unit: unit as IngredientUnitOfMeasure,
-      //       kelevens,
-      //       type: type as IngredientType,
-      //     };
-      //   }),
-      // });
+          const kelevens = unitOfMeasure.kelevens * amount;
 
-      // const ingredients = await tx.ingredients.findMany({
-      //   where: {
-      //     recipeId: recipe.id,
-      //   },
-      // })
+          return {
+            recipeId,
+            name,
+            amount,
+            unit: unit as IngredientUnitOfMeasure,
+            kelevens,
+            type: type as IngredientType,
+          };
+        }),
+      });
 
-      // recipe = await tx.recipes.update({
-      //   where: {
-      //     id: recipe.id,
-      //   },
-      //   data: {
-      //     ingredients: {
-      //       connect: ingredients.map((ingredient) => ({
-      //         id: ingredient.id,
-      //       })),
-      //     },
-      //   },
-      //   include: {
-      //     ingredients: true,
-      //   },
-      // });
+      const ingredients = await tx.ingredients.findMany({
+        where: {
+          recipeId: recipe.id,
+        },
+      })
+
+      recipe = await tx.recipes.update({
+        where: {
+          id: recipe.id,
+        },
+        data: {
+          ingredients: {
+            connect: ingredients.map((ingredient) => ({
+              id: ingredient.id,
+            })),
+          },
+        },
+        include: {
+          ingredients: true,
+        },
+      });
 
       return recipe;
     });
@@ -338,9 +348,9 @@ export const updateRecipe = async (data: IRecipeData & { image: string }, reques
     if (err instanceof ApiError) {
       throw err;
     } else {
-      log('Error creating recipe: ', err);
+      log('Error updating recipe: ', err);
 
-      throw new ApiError('There was an error creating your recipe. Please try again later.', HttpStatus.SERVER, undefined, data);
+      throw new ApiError('There was an error updating your recipe. Please try again later.', HttpStatus.SERVER, undefined, data);
     }
   }
 }

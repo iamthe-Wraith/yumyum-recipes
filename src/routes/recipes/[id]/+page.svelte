@@ -87,6 +87,7 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.5rem;
+    padding: 0 1rem;
 
     div {
       display: flex;
