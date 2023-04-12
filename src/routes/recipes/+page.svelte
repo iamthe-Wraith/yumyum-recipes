@@ -17,7 +17,9 @@
       <div class="filter-container">
         filter
       </div>
-      <LinkButton href="/recipes/add">Add Recipe</LinkButton>
+      <div>
+        <LinkButton href="/recipes/add">Add Recipe</LinkButton>
+      </div>
     </div>
 
     <ul>

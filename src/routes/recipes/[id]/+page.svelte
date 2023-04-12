@@ -1,9 +1,13 @@
 <script lang="ts">
+    import { Modals, closeModal, openModal, modals } from 'svelte-modals'
   import type { PageData } from './$types';
 	import Page from "$lib/components/Page.svelte";
 	import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
+	import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
 
   export let data: PageData;
+
+  let deleting = false;
 </script>
 
 <Page>
@@ -13,6 +17,7 @@
         <a class="back-to-recipes" href="/recipes">Back to Recipes</a>
         <div>
           <a href="/recipes/{data.recipe.id}/edit">Edit</a>
+          <button type="button" on:click={() => deleting = true}>Delete</button>
         </div>
       </div>
 
@@ -65,6 +70,18 @@
         </ol>
       </section>
     </div>
+
+    <ConfirmationModal
+      isOpen={deleting}
+      title="Delete Recipe?"
+      message="Are you sure you want to delete this recipe?"
+      appearance="secondary-primary"
+      on:close={() => deleting = false}
+      on:confirm={() => {
+        deleting = false;
+        console.log('delete recipe');
+      }}
+    />
   </article>
 </Page>
 
@@ -92,6 +109,10 @@
     div {
       display: flex;
       justify-content: flex-end;
+
+      & > *:not(:last-child) {
+        margin-right: 1rem;
+      }
     }
 
     a {
@@ -123,6 +144,21 @@
       &:focus-visible:before {
         right: calc(100% + 1rem);
         transition: 0.25s ease-in-out;
+      }
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: var(--neutral-900);
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+
+      &:hover,
+      &:focus-visible {
+        color: var(--danger-500);
+        text-decoration: underline;
       }
     }
   }

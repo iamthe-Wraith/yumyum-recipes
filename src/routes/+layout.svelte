@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { user } from '$lib/stores/user';
-	import type { LayoutData } from './$types';
+  import Modals from '$lib/components/modals/Modals.svelte';
+  import { user } from '$lib/stores/user';
+  import type { LayoutData } from './$types';
   import './global.scss';
-	import Logo from './Logo.svelte';
-	import Nav from './Nav.svelte';
+  import Logo from './Logo.svelte';
+  import Nav from './Nav.svelte';
 
   export let data: LayoutData;
 
@@ -27,6 +28,8 @@
   <div class='main-content-wrapper'>
     <slot />
   </div>
+
+  <Modals />
 </main>
 
 <footer class="flex-row-center">
