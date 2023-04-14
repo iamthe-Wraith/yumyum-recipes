@@ -1,13 +1,18 @@
 <script lang="ts">
-    import { Modals, closeModal, openModal, modals } from 'svelte-modals'
+  import { enhance } from "$app/forms";
   import type { PageData } from './$types';
-	import Page from "$lib/components/Page.svelte";
-	import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
-	import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
+  import Page from "$lib/components/Page.svelte";
+  import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
+  import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
+	import Button from "$lib/components/Button.svelte";
+	import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
+	import { AppError } from "$lib/stores/error";
 
   export let data: PageData;
 
+  let confirmDelete = false;
   let deleting = false;
+  let deletionError = '';
 </script>
 
 <Page>
@@ -17,7 +22,14 @@
         <a class="back-to-recipes" href="/recipes">Back to Recipes</a>
         <div>
           <a href="/recipes/{data.recipe.id}/edit">Edit</a>
-          <button type="button" on:click={() => deleting = true}>Delete</button>
+          <form
+            method="POST" 
+            action="?/delete"
+            on:submit|preventDefault={() => confirmDelete = true}
+          >
+            <input type="hidden" name="id" value={data.recipe.id} />
+            <button>Delete</button>
+          </form>
         </div>
       </div>
 
@@ -72,16 +84,44 @@
     </div>
 
     <ConfirmationModal
-      isOpen={deleting}
+      isOpen={confirmDelete}
       title="Delete Recipe?"
       message="Are you sure you want to delete this recipe?"
       appearance="secondary-primary"
-      on:close={() => deleting = false}
-      on:confirm={() => {
-        deleting = false;
-        console.log('delete recipe');
-      }}
-    />
+      processing={deleting}
+      on:close={() => confirmDelete = false}
+    >
+      <form
+        slot="confirm"
+        method="POST"
+        action="?/delete"
+        use:enhance={() => {
+          deleting = true;
+
+          return async ({ result, update }) => {
+            deleting = false;
+
+            if (result.type === 'failure') {
+              AppError.set({
+                message: result.data?.message || 'An error occurred while deleting the recipe. Please try again later.',
+                title: 'Error Deleting Recipe'
+              });
+            }
+
+            update();
+          }
+        }}
+      >
+        <input type="hidden" name="id" value={data.recipe.id} />
+        {#if deleting}
+          <div class="loading-wrapper">
+            <LoadingBasic />
+          </div>
+        {:else}
+          <Button>Delete</Button>
+        {/if}
+      </form>
+    </ConfirmationModal>
   </article>
 </Page>
 
@@ -351,5 +391,13 @@
         border-right: 1px solid var(--neutral-300);
       }
     }
+  }
+
+  .loading-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 5rem;
+    height: 2rem;
   }
 </style>

@@ -1,5 +1,5 @@
 import { isExpired, isValidToken, readToken } from '$lib/services/jwt';
-import { log } from '$lib/services/log';
+import { Logger } from '$lib/services/log';
 import { getSession } from '$lib/services/session';
 import type { Handle } from '@sveltejs/kit';
 
@@ -18,10 +18,10 @@ export const authenticate = (async ({ event, resolve }) => {
       const data = await getSession(session);
 
       if (data?.user) {
-        event.locals = { ...event.locals, user: data.user }
+        event.locals = { ...event.locals, user: data.user };
       }
     } catch (err) {
-      log('Authentication error: ', err);
+      Logger.error('Authentication error: ', err);
     }
   }
 

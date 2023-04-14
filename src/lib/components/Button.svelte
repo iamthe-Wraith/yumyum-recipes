@@ -74,6 +74,22 @@
     }
   }
 
+  .danger {
+    background: var(--danger-500);
+    color: var(--neutral-900);
+
+    &:hover,
+    &:focus {
+      background: var(--danger-400);
+      box-shadow: inset 5px 0 15px 0 var(--danger-200);
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline-color: var(--danger-500);
+    }
+  }
+
   .transparent {
     background: none;
     color: var(--primary-500);

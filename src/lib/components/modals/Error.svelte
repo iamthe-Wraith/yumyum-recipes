@@ -8,23 +8,7 @@
     DialogDescription,
   } from "@rgossiaux/svelte-headlessui";
 	import Button from "../Button.svelte";
-	import LoadingBasic from "../processing-anims/LoadingBasic.svelte";
-
-  export let isOpen = true;
-  export let title: string;
-  export let message: string;
-  export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
-  export let processing: boolean = false;
-
-  const dispatch = createEventDispatcher();
-
-  function onClose() {
-    dispatch('close');
-  }
-
-	function onConfirm() {
-		dispatch('confirm');
-	}
+	import { AppError } from "$lib/stores/error";
 
   const baseStyles = `
     position: fixed; 
@@ -50,37 +34,28 @@
   `;
 </script>
 
-{#if isOpen}
+{#if $AppError?.message}
   <div transition:fade>
     <Dialog
-      on:close={onClose}
-      open={isOpen} 
+      on:close={() => AppError.clear()}
+      open={!!$AppError?.message} 
       style={modalStyles}
       class="dialog"
       static
     >
       <DialogOverlay style={overlayStyles} />
 
-      <div class="modal-outer {appearance}">
+      <div class="modal-outer">
         <div class="modal">
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>{$AppError.title || 'Error'}</DialogTitle>
           
           <div class="message-container">
-            <DialogDescription>{message}</DialogDescription>
+            <DialogDescription>{$AppError.message}</DialogDescription>
           </div>
         
           <div class="buttons-container">
-            <slot name="confirm">
-              {#if processing}
-                <LoadingBasic />
-              {:else}
-                <Button on:click={onConfirm}>Confirm</Button>
-              {/if}
-            </slot>
-            <slot name="cancel">
-              {#if !processing}
-                <Button kind="transparent" on:click={onClose}>Cancel</Button>
-              {/if}
+            <slot name="okay">
+              <Button kind="danger" on:click={() => AppError.clear()}>Okay</Button>
             </slot>
           </div>
         </div>
@@ -94,25 +69,16 @@
     position: relative;
     padding: 0.5rem;
     border-radius: 0.5rem;
+    background: var(--danger-500);
     z-index: 10;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3), 0 0 15px 0 rgba(0, 0, 0, 0.2);
-
-    &.primary-tertiary {
-      background: linear-gradient(135deg, var(--primary-500) 0%, var(--tertiary-300) 100%);
-    }
-    
-    &.secondary-primary {
-      background: linear-gradient(135deg, var(--secondary-500) 0%, var(--primary-400) 100%);
-    }
-    
-    &.tertiary-secondary {
-      background: linear-gradient(135deg, var(--tertiary-500) 0%, var(--secondary-400) 100%);
-    }
   }
 
   .modal {
     display: flex;
     flex-direction: column;
+    min-width: 25rem;
+    max-width: 50rem;
     padding: 1rem;
     background: var(--neutral-100);
     border-radius: 0.5rem;

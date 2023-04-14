@@ -1,10 +1,10 @@
-import { HttpStatus } from "$lib/constants/error";
-import { UnitsOfMeasure } from "$lib/constants/ingredients";
-import { prisma } from "$lib/db/client";
-import { ApiError } from "$lib/error";
-import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from "@prisma/client";
-import { z } from "zod";
-import { log } from "./log";
+import { HttpStatus } from '$lib/constants/error';
+import { UnitsOfMeasure } from '$lib/constants/ingredients';
+import { prisma } from '$lib/db/client';
+import { ApiError } from '$lib/error';
+import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from '@prisma/client';
+import { z } from 'zod';
+import { Logger } from './log';
 
 export interface IGetRecipeOptions {
   sort?: 'asc' | 'desc';
@@ -13,70 +13,70 @@ export interface IGetRecipeOptions {
 
 const recipeSchema = z.object({
   name: z.string({
-    required_error: "Recipe name is required.",
-    invalid_type_error: "Recipe name must be a string.",
+    required_error: 'Recipe name is required.',
+    invalid_type_error: 'Recipe name must be a string.',
   })
-    .min(1, { message: "Recipe name must be at least 1 character." })
-    .max(50, { message: "Recipe name must be less than 50 characters." }),
+    .min(1, { message: 'Recipe name must be at least 1 character.' })
+    .max(50, { message: 'Recipe name must be less than 50 characters.' }),
   description: z.string({
-    invalid_type_error: "Password must be a string.",
+    invalid_type_error: 'Password must be a string.',
   })
-    .min(1, { message: "Recipe name must be at least 1 character." })
-    .max(300, { message: "Recipe name must be less than 50 characters." }),
+    .min(1, { message: 'Recipe name must be at least 1 character.' })
+    .max(300, { message: 'Recipe name must be less than 50 characters.' }),
   prepTime: z.string({
-    invalid_type_error: "Prep time must be a string.",
+    invalid_type_error: 'Prep time must be a string.',
   })
-    .regex(/min|hour/gm, { message: "Prep time must be in minutes and hours." }),
+    .regex(/min|hour/gm, { message: 'Prep time must be in minutes and hours.' }),
   cookTime: z.string({
-    invalid_type_error: "Cook time must be a string.",
+    invalid_type_error: 'Cook time must be a string.',
   })
-    .regex(/min|hour/gm, { message: "Cook time must be in minutes and hours." }),
+    .regex(/min|hour/gm, { message: 'Cook time must be in minutes and hours.' }),
   servings: z.preprocess(
     (x) => parseInt(z.string().parse(x), 10),
     z.number({
-      invalid_type_error: "Servings must be a number.",
-    }).positive().min(1, { message: "Servings must be at least 1." })
+      invalid_type_error: 'Servings must be a number.',
+    }).positive().min(1, { message: 'Servings must be at least 1.' })
   ),
   ingredients: z.object({
     id: z.number({
-      invalid_type_error: "Ingredient IDs must be a number.",
+      invalid_type_error: 'Ingredient IDs must be a number.',
     })
       .optional(),
     amount: z.number({
-      required_error: "Each ingredient must specify an amount.",
-      invalid_type_error: "Ingredient amounts must be a number.",
+      required_error: 'Each ingredient must specify an amount.',
+      invalid_type_error: 'Ingredient amounts must be a number.',
     })
-      .gt(0, { message: "Ingredient amounts must be greater than 0." }),
+      .gt(0, { message: 'Ingredient amounts must be greater than 0.' }),
     name: z.string({
-      required_error: "Each ingredient must have a name.",
-      invalid_type_error: "Ingredient names must be a string.",
+      required_error: 'Each ingredient must have a name.',
+      invalid_type_error: 'Ingredient names must be a string.',
     })
-      .min(1, { message: "Ingredient names must be at least 1 character." }),
+      .min(1, { message: 'Ingredient names must be at least 1 character.' }),
     type: z.enum(Object.values(IngredientType) as [string, ...string[]], {
-      required_error: "Each ingredient must specify a type.",
-      invalid_type_error: "Invalid ingredient type found.",
+      required_error: 'Each ingredient must specify a type.',
+      invalid_type_error: 'Invalid ingredient type found.',
     }),
     unit: z.enum(Object.values(IngredientUnitOfMeasure) as [string, ...string[]], {
-      invalid_type_error: "Invalid ingredient unit found.",
+      invalid_type_error: 'Invalid ingredient unit found.',
     })
       .optional(),
   })
     .array()
-    .min(1, { message: "Recipes must have at least 1 ingredient." }),
+    .min(1, { message: 'Recipes must have at least 1 ingredient.' }),
   steps: z.string()
-    .min(1, { message: "Recipes must have at least 1 step." })
+    .min(1, { message: 'Recipes must have at least 1 step.' })
     .array()
-    .min(1, { message: "Recipes must have at least 1 step." }),
+    .min(1, { message: 'Recipes must have at least 1 step.' }),
   notes: z.string({
-    invalid_type_error: "Notes must be a string.",
+    invalid_type_error: 'Notes must be a string.',
   })
-    .max(500, { message: "Recipe notes must be less than 500 characters." })
+    .max(500, { message: 'Recipe notes must be less than 500 characters.' })
     .optional(),
   isPublic: z.string({
-    invalid_type_error: "isPublic must be a string.",
+    invalid_type_error: 'isPublic must be a string.',
   })
-    .default("false")
-    .transform((val) => val === "true")
+    .default('false')
+    .transform((val) => val === 'true')
 });
 
 export type IRecipeData = z.infer<typeof recipeSchema> & { id?: number, image: File | string};
@@ -132,7 +132,7 @@ export const createRecipe = async (data: IRecipeData, requestor: users) => {
         where: {
           recipeId: recipe.id,
         },
-      })
+      });
 
       recipe = await tx.recipes.update({
         where: {
@@ -156,12 +156,31 @@ export const createRecipe = async (data: IRecipeData, requestor: users) => {
     if (err instanceof ApiError) {
       throw err;
     } else {
-      log('Error creating recipe: ', err);
+      Logger.error('Error creating recipe: ', err);
 
       throw new ApiError('There was an error creating your recipe. Please try again later.', HttpStatus.SERVER, undefined, data);
     }
   }
-}
+};
+
+export const deleteRecipe = async (id: number, requestor: users) => {
+  return await prisma.$transaction(async (tx) => {
+    const recipe = await tx.recipes.findFirst({
+      where: { id },
+    });
+
+    if (!recipe) throw new ApiError('Recipe not found.', HttpStatus.NOT_FOUND);
+    if (recipe.ownerId !== requestor.id) throw new ApiError('You do not have permission to delete this recipe.', HttpStatus.UNAUTHORIZED);
+
+    await tx.ingredients.deleteMany({
+      where: { recipeId: id },
+    });
+
+    await tx.recipes.delete({
+      where: { id },
+    });
+  });
+};
 
 export const getRecipe = async (id: string | number, requestor: users) => {
   const recipeId = parseInt(id.toString(), 10);
@@ -177,7 +196,7 @@ export const getRecipe = async (id: string | number, requestor: users) => {
       isPublic: true,
       id: recipeId,
     }
-  ]
+  ];
 
   const recipe = await prisma.recipes.findFirst({
     where: {
@@ -217,7 +236,7 @@ export const getRecipes = async (requestor: users, options?: IGetRecipeOptions) 
     orderBy: {
       name: options?.sort || 'asc',
     }
-  })
+  });
 };
 
 export const parseIngredients = (
@@ -251,7 +270,7 @@ export const parseIngredients = (
   }
 
   return ingredients;
-}
+};
 
 export const updateRecipe = async (data: IRecipeData & { image: string }, requestor: users) => {
   try {
@@ -275,7 +294,7 @@ export const updateRecipe = async (data: IRecipeData & { image: string }, reques
       isPublic: parsed.data.isPublic,
       steps: parsed.data.steps,
       notes: parsed.data.notes,
-    }
+    };
 
     if (typeof data.image === 'string') dataToUpdate.image = data.image as string;
 
@@ -326,7 +345,7 @@ export const updateRecipe = async (data: IRecipeData & { image: string }, reques
         where: {
           recipeId: recipe.id,
         },
-      })
+      });
 
       recipe = await tx.recipes.update({
         where: {
@@ -350,12 +369,12 @@ export const updateRecipe = async (data: IRecipeData & { image: string }, reques
     if (err instanceof ApiError) {
       throw err;
     } else {
-      log('Error updating recipe: ', err);
+      Logger.error('Error updating recipe: ', err);
 
       throw new ApiError('There was an error updating your recipe. Please try again later.', HttpStatus.SERVER, undefined, data);
     }
   }
-}
+};
 
 export const validateRecipeData = (data: IRecipeData) => {
   const parsed = recipeSchema.safeParse(data);
@@ -366,4 +385,4 @@ export const validateRecipeData = (data: IRecipeData) => {
   }
 
   return parsed;
-}
+};

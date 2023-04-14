@@ -1,12 +1,29 @@
 <script lang="ts">
-	import IconIndicator from "$lib/components/IconIndicator.svelte";
-	import LinkButton from "$lib/components/LinkButton.svelte";
+  import { page } from '$app/stores';
+  import IconIndicator from "$lib/components/IconIndicator.svelte";
+  import LinkButton from "$lib/components/LinkButton.svelte";
   import Page from "$lib/components/Page.svelte";
-	import Eye from "$lib/icons/Eye.svelte";
-	import EyeOff from "$lib/icons/EyeOff.svelte";
+  import Eye from "$lib/icons/Eye.svelte";
+  import EyeOff from "$lib/icons/EyeOff.svelte";
+	import { onMount } from "svelte";
   import type { PageData } from './$types';
+  import { Toast } from '$lib/stores/toast';
+	import { goto } from '$app/navigation';
+	import Button from '$lib/components/Button.svelte';
 
   export let data: PageData;
+
+  onMount(() => {
+    if ($page.url.searchParams.get('deleted') === 'true') {
+      Toast.add({ message: 'Recipe deleted' });
+      goto('/recipes', { replaceState: true });
+    }
+
+    if ($page.url.searchParams.get('recipe') !== null) {
+      Toast.add({ message: 'Recipe created!' });
+      goto('/recipes', { replaceState: true });
+    }
+  })
 </script>
 
 <Page>

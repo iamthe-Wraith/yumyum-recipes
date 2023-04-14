@@ -1,8 +1,8 @@
 import Aws from 'aws-sdk';
 import S3 from 'aws-sdk/clients/s3';
 
-import { S3_ENDPOINT, S3_BUCKET, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY } from '$env/static/private'
-import { log } from './log';
+import { S3_ENDPOINT, S3_BUCKET, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY } from '$env/static/private';
+import { Logger } from './log';
 import { ApiError } from '$lib/error';
 
 export const uploadImage = async (image: File, requestorId: number, name?: string) => {
@@ -24,7 +24,7 @@ export const uploadImage = async (image: File, requestorId: number, name?: strin
     const id = requestorId || 'yum';
     const timestamp = new Date().getTime();
 
-    let parsedName = ''
+    let parsedName = '';
     
     if (name?.trim()) {
       parsedName = name.trim().toLowerCase();
@@ -48,7 +48,7 @@ export const uploadImage = async (image: File, requestorId: number, name?: strin
     const url = await new Promise<string>((resolve, reject) => {
       s3.upload(params, async (error: Error, data: Aws.S3.ManagedUpload.SendData) => {
         if (error) {
-          log('Error uploading image to S3: ', error);
+          Logger.error('Error uploading image to S3: ', error);
           reject(new ApiError('An error occurred while attempting to upload your image. Please try again later.', 500));
         }
 
@@ -60,6 +60,6 @@ export const uploadImage = async (image: File, requestorId: number, name?: strin
   } catch (err: any) {
     throw err instanceof ApiError
       ? err
-      : new ApiError('An error occurred while attempting to upload your image. Please try again later.', 500)
+      : new ApiError('An error occurred while attempting to upload your image. Please try again later.', 500);
   } 
 };
