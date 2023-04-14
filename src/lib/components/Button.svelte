@@ -17,6 +17,10 @@
 
 <style lang="scss">
   button {
+    margin-top: var(--button-margin-top, 0);
+    margin-right: var(--button-margin-right, 0);
+    margin-bottom: var(--button-margin-bottom, 0);
+    margin-left: var(--button-margin-left, 0);
     padding: 0.5rem 1rem;
     font-size: 1rem;
     border-radius: 0.25rem;
@@ -67,6 +71,22 @@
     &:focus {
       background: var(--neutral-400);
       box-shadow: inset 5px 0 15px 0 var(--neutral-200);
+    }
+  }
+
+  .danger {
+    background: var(--danger-500);
+    color: var(--neutral-900);
+
+    &:hover,
+    &:focus {
+      background: var(--danger-400);
+      box-shadow: inset 5px 0 15px 0 var(--danger-200);
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline-color: var(--danger-500);
     }
   }
 

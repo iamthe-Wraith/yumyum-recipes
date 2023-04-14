@@ -5,7 +5,7 @@ import { authenticateUser, type INewUserData } from '$lib/services/user';
 import type { Actions, PageServerLoad } from './$types';
 import { signSessionJWT } from '$lib/services/jwt';
 import { SESSION_TOKEN_DURATION } from '$lib/constants/auth';
-import { log } from '$lib/services/log';
+import { Logger } from '$lib/services/log';
 
 export const actions = {
   default: async ({ request, cookies, locals }) => {
@@ -24,7 +24,7 @@ export const actions = {
         ? err
         : new ApiError('Error authenticating user.', 500);
 
-      log('Error authenticating user: ', err);
+      Logger.error('Error authenticating user: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }

@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { user } from '$lib/stores/user';
-	import type { LayoutData } from './$types';
+  import Error from '$lib/components/modals/Error.svelte';
+	import Toast from '$lib/components/modals/Toast.svelte';
+import { user } from '$lib/stores/user';
+  import type { LayoutData } from './$types';
   import './global.scss';
-	import Logo from './Logo.svelte';
-	import Nav from './Nav.svelte';
+  import Logo from './Logo.svelte';
+  import Nav from './Nav.svelte';
 
   export let data: LayoutData;
 
@@ -18,6 +20,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Shadows+Into+Light&display=swap" rel="stylesheet">
 </svelte:head>
 
+<Toast />
+
 <header class="flex-row-center">
   <Logo />
   <Nav />
@@ -27,6 +31,8 @@
   <div class='main-content-wrapper'>
     <slot />
   </div>
+
+  <Error />
 </main>
 
 <footer class="flex-row-center">

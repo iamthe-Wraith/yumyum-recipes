@@ -1,9 +1,18 @@
 <script lang="ts">
+  import { enhance } from "$app/forms";
   import type { PageData } from './$types';
-	import Page from "$lib/components/Page.svelte";
-	import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
+  import Page from "$lib/components/Page.svelte";
+  import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
+  import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
+	import Button from "$lib/components/Button.svelte";
+	import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
+	import { AppError } from "$lib/stores/error";
 
   export let data: PageData;
+
+  let confirmDelete = false;
+  let deleting = false;
+  let deletionError = '';
 </script>
 
 <Page>
@@ -13,6 +22,14 @@
         <a class="back-to-recipes" href="/recipes">Back to Recipes</a>
         <div>
           <a href="/recipes/{data.recipe.id}/edit">Edit</a>
+          <form
+            method="POST" 
+            action="?/delete"
+            on:submit|preventDefault={() => confirmDelete = true}
+          >
+            <input type="hidden" name="id" value={data.recipe.id} />
+            <button>Delete</button>
+          </form>
         </div>
       </div>
 
@@ -65,6 +82,46 @@
         </ol>
       </section>
     </div>
+
+    <ConfirmationModal
+      isOpen={confirmDelete}
+      title="Delete Recipe?"
+      message="Are you sure you want to delete this recipe?"
+      appearance="secondary-primary"
+      processing={deleting}
+      on:close={() => confirmDelete = false}
+    >
+      <form
+        slot="confirm"
+        method="POST"
+        action="?/delete"
+        use:enhance={() => {
+          deleting = true;
+
+          return async ({ result, update }) => {
+            deleting = false;
+
+            if (result.type === 'failure') {
+              AppError.set({
+                message: result.data?.message || 'An error occurred while deleting the recipe. Please try again later.',
+                title: 'Error Deleting Recipe'
+              });
+            }
+
+            update();
+          }
+        }}
+      >
+        <input type="hidden" name="id" value={data.recipe.id} />
+        {#if deleting}
+          <div class="loading-wrapper">
+            <LoadingBasic />
+          </div>
+        {:else}
+          <Button>Delete</Button>
+        {/if}
+      </form>
+    </ConfirmationModal>
   </article>
 </Page>
 
@@ -92,6 +149,10 @@
     div {
       display: flex;
       justify-content: flex-end;
+
+      & > *:not(:last-child) {
+        margin-right: 1rem;
+      }
     }
 
     a {
@@ -123,6 +184,21 @@
       &:focus-visible:before {
         right: calc(100% + 1rem);
         transition: 0.25s ease-in-out;
+      }
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: var(--neutral-900);
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+
+      &:hover,
+      &:focus-visible {
+        color: var(--danger-500);
+        text-decoration: underline;
       }
     }
   }
@@ -315,5 +391,13 @@
         border-right: 1px solid var(--neutral-300);
       }
     }
+  }
+
+  .loading-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 5rem;
+    height: 2rem;
   }
 </style>

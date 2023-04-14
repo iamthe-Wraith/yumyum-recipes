@@ -1,17 +1,15 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { ApiError } from '$lib/error';
 import type { Actions, PageServerLoad } from './$types';
-import { log } from '$lib/services/log';
 import { parseFormData } from '$lib/helpers/request';
-import { createRecipe, parseIngredients, type IRecipeData, getRecipe, updateRecipe } from '$lib/services/recipe';
-import type { recipes } from '@prisma/client';
+import { parseIngredients, type IRecipeData, getRecipe, updateRecipe } from '$lib/services/recipe';
 import { uploadImage } from '$lib/services/upload';
+import { Logger } from '$lib/services/log';
 
 export const actions = {
   default: async ({ request, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
     
-    const recipe: recipes | null = null;
     let data: IRecipeData;
 
     try {
@@ -21,7 +19,7 @@ export const actions = {
         ? err
         : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
-      log('Error parsing recipe form data: ', err);
+      Logger.error('Error parsing recipe form data: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -38,7 +36,7 @@ export const actions = {
         ? new ApiError(err.message, err.status, err.field, data)
         : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
-      log('Error parsing ingredients: ', err);
+      Logger.error('Error parsing ingredients: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -52,7 +50,7 @@ export const actions = {
         ? new ApiError(err.message, err.status, err.field, data)
         : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
-      log('Error uploading recipe image: ', err);
+      Logger.error('Error uploading recipe image: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -64,10 +62,10 @@ export const actions = {
       }, locals.user);
     } catch (err) {
       const error = err instanceof ApiError
-      ? new ApiError(err.message, err.status, err.field, data)
+        ? new ApiError(err.message, err.status, err.field, data)
         : new ApiError('There was an error updating your recipe. Please try again later.', 500);
 
-      log('Error updating recipe: ', err);
+      Logger.error('Error updating recipe: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -87,7 +85,7 @@ export const load = (async ({ locals, params }) => {
       ? err
       : new ApiError('There was an error retrieving your recipe. Please try again later.', 500);
 
-    log('Error getting recipe: ', err);
+    Logger.error('Error getting recipe: ', err);
 
     throw error;
   }

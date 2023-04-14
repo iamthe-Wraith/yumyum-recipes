@@ -1,11 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { ApiError } from '$lib/error';
 import type { Actions } from './$types';
-import { log } from '$lib/services/log';
 import { parseFormData } from '$lib/helpers/request';
 import { createRecipe, parseIngredients, type IRecipeData } from '$lib/services/recipe';
 import type { recipes } from '@prisma/client';
 import { uploadImage } from '$lib/services/upload';
+import { Logger } from '$lib/services/log';
 
 export const actions = {
   default: async ({ request, locals }) => {
@@ -21,7 +21,7 @@ export const actions = {
         ? err
         : new ApiError('There was an error creating your recipe. Please try again later.', 500);
 
-      log('Error parsing recipe form data: ', err);
+      Logger.error('Error parsing recipe form data: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -38,7 +38,7 @@ export const actions = {
         ? new ApiError(err.message, err.status, err.field, data)
         : new ApiError('There was an error creating your recipe. Please try again later.', 500);
 
-      log('Error parsing ingredients: ', err);
+      Logger.error('Error parsing ingredients: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -56,7 +56,7 @@ export const actions = {
         ? new ApiError(err.message, err.status, err.field, data)
         : new ApiError('There was an error creating your recipe. Please try again later.', 500);
 
-      log('Error uploading recipe image: ', err);
+      Logger.error('Error uploading recipe image: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -65,10 +65,10 @@ export const actions = {
       recipe = await createRecipe(data, locals.user);
     } catch (err) {
       const error = err instanceof ApiError
-      ? new ApiError(err.message, err.status, err.field, data)
+        ? new ApiError(err.message, err.status, err.field, data)
         : new ApiError('There was an error creating your recipe. Please try again later.', 500);
 
-      log('Error creating recipe: ', err);
+      Logger.error('Error creating recipe: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
