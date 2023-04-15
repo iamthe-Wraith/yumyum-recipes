@@ -1,14 +1,13 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
-	import { fade } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import {
     Dialog,
     DialogOverlay,
     DialogTitle,
     DialogDescription,
   } from "@rgossiaux/svelte-headlessui";
-	import Button from "../Button.svelte";
-	import { AppError } from "$lib/stores/error";
+  import Button from "../Button.svelte";
+  import { AppError } from "$lib/stores/error";
 
   const baseStyles = `
     position: fixed; 

@@ -4,9 +4,9 @@
   import Page from "$lib/components/Page.svelte";
   import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
   import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
-	import Button from "$lib/components/Button.svelte";
-	import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
-	import { AppError } from "$lib/stores/error";
+  import Button from "$lib/components/Button.svelte";
+  import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
+  import { AppError } from "$lib/stores/error";
 
   export let data: PageData;
 

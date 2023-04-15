@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { fly } from "svelte/transition";
-	import { Toast } from "$lib/stores/toast";
-	import IconButton from "../IconButton.svelte";
-	import XIcon from "$lib/icons/XIcon.svelte";
+  import { fly } from "svelte/transition";
+  import { Toast } from "$lib/stores/toast";
+  import IconButton from "../IconButton.svelte";
+  import XIcon from "$lib/icons/XIcon.svelte";
 </script>
 
 {#if !!$Toast.length}
