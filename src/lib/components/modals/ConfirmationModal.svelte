@@ -1,14 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-	import { fade } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import {
     Dialog,
     DialogOverlay,
     DialogTitle,
     DialogDescription,
   } from "@rgossiaux/svelte-headlessui";
-	import Button from "../Button.svelte";
-	import LoadingBasic from "../processing-anims/LoadingBasic.svelte";
+  import Button from "../Button.svelte";
+  import LoadingBasic from "../processing-anims/LoadingBasic.svelte";
 
   export let isOpen = true;
   export let title: string;
@@ -22,9 +22,9 @@
     dispatch('close');
   }
 
-	function onConfirm() {
-		dispatch('confirm');
-	}
+  function onConfirm() {
+    dispatch('confirm');
+  }
 
   const baseStyles = `
     position: fixed; 
