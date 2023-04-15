@@ -1,6 +1,7 @@
 import { error } from '@sveltejs/kit';
- 
-/** @type {import('./$types').PageLoad} */
-export function load() {
+import { wrapServerLoadWithSentry } from '@sentry/sveltekit';
+import type { PageServerLoad } from './$types';
+
+export const load = wrapServerLoadWithSentry(async () => {
   throw error(404, 'Not Found');
-}
+}) satisfies PageServerLoad;

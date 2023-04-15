@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { wrapServerLoadWithSentry } from '@sentry/sveltekit';
 import { ApiError } from '$lib/error';
 import { parseFormData } from '$lib/helpers/request';
 import { authenticateUser, type INewUserData } from '$lib/services/user';
@@ -33,7 +34,7 @@ export const actions = {
   }
 } satisfies Actions;
 
-export const load = (async ({ locals }) => {
+export const load = wrapServerLoadWithSentry(async ({ locals }) => {
   if (locals.user) throw redirect(303, '/dashboard');
 
   return {};
