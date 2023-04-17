@@ -1,10 +1,9 @@
-import { prisma } from "$lib/db/client";
-import { isValidToken, readToken } from "$lib/services/jwt";
-import { user } from "$lib/stores/user";
-import { redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import { wrapServerLoadWithSentry } from '@sentry/sveltekit';
+import { prisma } from '$lib/db/client';
+import { isValidToken, readToken } from '$lib/services/jwt';
+import type { PageServerLoad } from './$types';
 
-export const load = (async ({ locals, cookies }) => {
+export const load = wrapServerLoadWithSentry(async ({ locals, cookies }) => {
   delete locals.user;
   const sessionToken = cookies.get('session');
   
@@ -18,7 +17,7 @@ export const load = (async ({ locals, cookies }) => {
         where: {
           token: sessionToken,
         }
-      })
+      });
     }
   }
 }) satisfies PageServerLoad;

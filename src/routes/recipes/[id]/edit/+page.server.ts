@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { wrapServerLoadWithSentry } from '@sentry/sveltekit';
 import { ApiError } from '$lib/error';
 import type { Actions, PageServerLoad } from './$types';
 import { parseFormData } from '$lib/helpers/request';
@@ -74,7 +75,7 @@ export const actions = {
   }
 } satisfies Actions;
 
-export const load = (async ({ locals, params }) => {
+export const load = wrapServerLoadWithSentry(async ({ locals, params }) => {
   if (!locals.user) throw redirect(303, '/signin');
   
   try {
