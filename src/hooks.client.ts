@@ -1,9 +1,10 @@
 import * as Sentry from '@sentry/sveltekit';
-import { PUBLIC_SENTRY_DSN } from '$env/static/public';
+import { PUBLIC_SENTRY_DSN, PUBLIC_APP_ENV } from '$env/static/public';
 import type { HandleClientError } from '@sveltejs/kit';
 
 Sentry.init({
   dsn: PUBLIC_SENTRY_DSN,
+  environment: PUBLIC_APP_ENV,
   tracesSampleRate: 1.0,
   // For instance, initialize Session Replay:
   replaysSessionSampleRate: 0.1,
