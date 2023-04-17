@@ -1,4 +1,4 @@
-import { UnitsOfMeasure, type IUnitOfMeasure } from "$lib/constants/ingredients";
+import { UnitsOfMeasure, type IUnitOfMeasure } from '$lib/constants/ingredients';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 export const getUnitOfMeasure = (uomName: string): IUnitOfMeasure | undefined => Object.values(UnitsOfMeasure).find(u => u.name === uomName);
@@ -25,4 +25,4 @@ export const getUnitOfMeasureAbbv = (uom: IUnitOfMeasure | string, amount?: numb
     case 'lb': return 'lbs';
     default: return unitOfMeasure.abbv;
   }
-}
+};

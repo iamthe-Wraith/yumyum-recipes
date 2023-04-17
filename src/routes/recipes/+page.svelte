@@ -1,17 +1,19 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { enhance } from "$app/forms";
   import IconIndicator from "$lib/components/IconIndicator.svelte";
   import LinkButton from "$lib/components/LinkButton.svelte";
   import Page from "$lib/components/Page.svelte";
   import Eye from "$lib/icons/Eye.svelte";
   import EyeOff from "$lib/icons/EyeOff.svelte";
 	import { onMount } from "svelte";
-  import type { PageData } from './$types';
+  import type { ActionData, PageData } from './$types';
   import { Toast } from '$lib/stores/toast';
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/Button.svelte';
 
   export let data: PageData;
+  export let form: ActionData;
 
   onMount(() => {
     if ($page.url.searchParams.get('deleted') === 'true') {
@@ -35,6 +37,26 @@
         filter
       </div>
       <div>
+        {#if data?.mealPlan || form?.mealPlan}
+          <form method="POST" action="?/createGroceryList" use:enhance>
+            <Button type="submit" kind="secondary">Create Grocery List from Meal Plan</Button>
+          </form>
+        {:else}
+          <form method="POST" action="?/createMealPlan" use:enhance={() => {
+            return ({ result, update }) => {
+              if (result.type === 'success') {
+                Toast.add({ message: 'Meal plan created! Start adding meals to your plan!' });
+              } else if (result.type === 'error') {
+                Toast.add({ message: 'There was an error creating your meal plan. Please try again.', type: 'error' });
+              }
+
+              update();
+            }
+          }}>
+            <Button type="submit" kind="secondary">Create Meal Plan</Button>
+          </form>
+        {/if}
+
         <LinkButton href="/recipes/add">Add Recipe</LinkButton>
       </div>
     </div>
@@ -47,42 +69,50 @@
               <img src={recipe.image} alt="Image of {recipe.name}" />
             </div>
             <div class="recipe-info-container">
-              <div class="row">
-                <h2>{recipe.name}</h2>
-                <div class="meta-container">
-                  {#if recipe.isPublic}
-                    <IconIndicator
-                      id="public" 
-                      label="Is visible to the public."
-                      align="right"
-                    >
-                      <Eye />
-                    </IconIndicator>
-                  {:else}
-                  <IconIndicator
-                    id="public" 
-                    label="Is not visible to the public."
-                    align="right"
-                  >
-                    <EyeOff />
-                  </IconIndicator>
-                  {/if}
+              <div>
+                <div class="row">
+                  <h2>{recipe.name}</h2>
+                  <div class="meta-container">
+                    {#if recipe.isPublic}
+                      <IconIndicator
+                        id="public" 
+                        label="Is visible to the public."
+                        align="right"
+                      >
+                        <Eye />
+                      </IconIndicator>
+                    {:else}
+                      <IconIndicator
+                        id="public" 
+                        label="Is not visible to the public."
+                        align="right"
+                      >
+                        <EyeOff />
+                      </IconIndicator>
+                    {/if}
+                  </div>
+                </div>
+                <p>{recipe.description}</p>
+                <div class="cooking-info">
+                  <div>
+                    <span>Prep Time: </span>
+                    <span>{recipe.prepTime}</span>
+                  </div>
+                  <div>
+                    <span>Cook Time: </span>
+                    <span>{recipe.cookTime}</span>
+                  </div>
+                  <div>
+                    <span>Servings: </span>
+                    <span>{recipe.servings}</span>
+                  </div>
                 </div>
               </div>
-              <p>{recipe.description}</p>
-              <div class="cooking-info">
-                <div>
-                  <span>Prep Time: </span>
-                  <span>{recipe.prepTime}</span>
-                </div>
-                <div>
-                  <span>Cook Time: </span>
-                  <span>{recipe.cookTime}</span>
-                </div>
-                <div>
-                  <span>Servings: </span>
-                  <span>{recipe.servings}</span>
-                </div>
+
+              <div class="row controls-container">
+                {#if data?.mealPlan || form?.mealPlan}
+                  <div>TODO: Add to Meal Plan</div>
+                {/if}
               </div>
             </div>
           </a>
@@ -103,9 +133,17 @@
     justify-content: space-between;
     align-items: center;
     max-width: 70rem;
-    margin: 0 auto 1rem;
+    margin: 1rem auto;
 
-    --link-button-margin: 0;
+    div {
+      display: flex;
+      align-items: center;
+
+      --link-button-margin-right: 0;
+      --link-button-margin-left: 0.5rem;
+      --button-margin-right: 0;
+      --button-margin-left: 0.5rem;
+    }
   }
 
   ul {
@@ -182,6 +220,7 @@
   .recipe-info-container {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     flex-grow: 1;
     margin-top: 0.5rem;
     padding: 0.5rem 1rem;
@@ -222,6 +261,11 @@
       h2 {
         text-align: left;
       }
+    }
+
+    .controls-container {
+      display: flex;
+      justify-content: flex-end;
     }
   }
 

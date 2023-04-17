@@ -5,6 +5,7 @@ import type { Actions, PageServerLoad } from './$types';
 import { ApiError } from '$lib/error';
 import { parseFormData } from '$lib/helpers/request';
 import { Logger } from '$lib/services/log';
+import { getMealPlan } from '$lib/services/meal_plans';
 
 export const actions = {
   delete: async ({ request, locals }) => {
@@ -35,8 +36,11 @@ export const load = wrapServerLoadWithSentry(async ({ locals, params }) => {
   if (!locals.user) throw redirect(303, '/signin');
   
   try {
-    const recipe = await getRecipe(params.id, locals.user);
-    return { recipe };
+    const [recipe, mealPlan] = await Promise.all([
+      getRecipe(params.id, locals.user),
+      getMealPlan({ status: 'ACTIVE' }, locals.user),
+    ]);
+    return { recipe, mealPlan };
   } catch (err) {
     const error = err instanceof ApiError
       ? err

@@ -2,7 +2,7 @@
   import { enhance } from "$app/forms";
   import type { PageData } from './$types';
   import Page from "$lib/components/Page.svelte";
-  import { getUnitOfMeasureAbbv } from '$lib/helpers/unitsOfMeasure';
+  import { getUnitOfMeasureAbbv } from '$lib/helpers/units_of_measure';
   import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
   import Button from "$lib/components/Button.svelte";
   import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
@@ -22,6 +22,7 @@
         <a class="back-to-recipes" href="/recipes">Back to Recipes</a>
         <div>
           <a href="/recipes/{data.recipe.id}/edit">Edit</a>
+
           <form
             method="POST" 
             action="?/delete"
@@ -30,6 +31,11 @@
             <input type="hidden" name="id" value={data.recipe.id} />
             <button>Delete</button>
           </form>
+
+          {#if data?.mealPlan}
+            <!-- TODO: replace this with form -->
+            <div>TODO: Add to Meal Plan</div>
+          {/if}
         </div>
       </div>
 
@@ -146,7 +152,7 @@
     margin-bottom: 1.5rem;
     padding: 0 1rem;
 
-    div {
+    & > div {
       display: flex;
       justify-content: flex-end;
 
