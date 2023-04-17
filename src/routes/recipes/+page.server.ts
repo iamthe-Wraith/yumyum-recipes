@@ -19,9 +19,9 @@ export const actions = {
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err
-        : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+        : new ApiError('There was an error creating your meal plan. Please try again later.', 500);
 
-      Logger.error('Error parsing recipe form data: ', err);
+      Logger.error('Error parsing meal plan form data: ', err);
       
       return fail(error.status, (error as ApiError).toJSON());
     }
@@ -81,7 +81,7 @@ export const load = wrapServerLoadWithSentry(async ({ locals }) => {
   } catch (err) {
     const error = err instanceof ApiError
       ? new ApiError(err.message, err.status, err.field)
-      : new ApiError('There was an error creating your recipe. Please try again later.', 500);
+      : new ApiError('An error has occurred.', 500);
 
     Logger.error('Error getting recipes: ', err);
     
