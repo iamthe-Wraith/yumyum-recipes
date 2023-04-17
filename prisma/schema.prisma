@@ -13,6 +13,7 @@ model users {
   password     String
   sessions     sessions[]
   recipes      recipes[]
+  mealPlans    meal_plans[]
   createdAt    DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt    DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
@@ -62,6 +63,8 @@ model ingredients {
 model meal_plans {
   id            Int             @id @default(autoincrement())
   name          String          @db.VarChar(50)
+  ownerId       Int             @map("owner_id")
+  owner         users           @relation(fields: [ownerId], references: [id])
   recipes       recipes[]
   status        MealPlanStatus
   createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
