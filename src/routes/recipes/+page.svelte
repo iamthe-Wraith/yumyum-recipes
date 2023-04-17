@@ -42,7 +42,17 @@
             <Button type="submit" kind="secondary">Create Grocery List from Meal Plan</Button>
           </form>
         {:else}
-          <form method="POST" action="?/createMealPlan" use:enhance>
+          <form method="POST" action="?/createMealPlan" use:enhance={() => {
+            return ({ result, update }) => {
+              if (result.type === 'success') {
+                Toast.add({ message: 'Meal plan created! Start adding meals to your plan!' });
+              } else if (result.type === 'error') {
+                Toast.add({ message: 'There was an error creating your meal plan. Please try again.', type: 'error' });
+              }
+
+              update();
+            }
+          }}>
             <Button type="submit" kind="secondary">Create Meal Plan</Button>
           </form>
         {/if}
