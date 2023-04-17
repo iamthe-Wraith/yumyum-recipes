@@ -37,6 +37,7 @@ model recipes {
   servings       Int
   steps          String[]
   ingredients    ingredients[]
+  mealPlans      meal_plans[]
   description    String           @default("") @db.VarChar(300)
   isPublic       Boolean          @default(false) @map("is_public")
   notes          String           @default("")
@@ -56,6 +57,15 @@ model ingredients {
   unit          IngredientUnitOfMeasure?
   kelevens      Float
   type          IngredientType
+}
+
+model meal_plans {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(50)
+  recipes       recipes[]
+  status        MealPlanStatus
+  createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
 
 enum IngredientUnitOfMeasure {
@@ -79,4 +89,9 @@ enum IngredientType {
   VOLUME
   WEIGHT
   COUNT
+}
+
+enum MealPlanStatus {
+  ACTIVE
+  INACTIVE
 }
