@@ -7,12 +7,21 @@
   import Button from "$lib/components/Button.svelte";
   import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
   import { AppError } from "$lib/stores/error";
+	import { Toast } from "$lib/stores/toast";
+	import { mealPlan } from "$lib/stores/meal_plan";
 
   export let data: PageData;
 
   let confirmDelete = false;
   let deleting = false;
-  let deletionError = '';
+  let isPlanningMeal = !!data?.mealPlan;
+  let recipeIsInMealPlan = isInMealPlan(data.recipe.id);
+  $: recipeIsInMealPlan = isInMealPlan(data.recipe.id);
+
+  function isInMealPlan(recipeId: number) {
+    if (!$mealPlan?.id) return false;
+    return $mealPlan?.recipes?.some(recipe => recipe.id === recipeId);
+  }
 </script>
 
 <Page>
@@ -32,9 +41,28 @@
             <button>Delete</button>
           </form>
 
-          {#if data?.mealPlan}
-            <!-- TODO: replace this with form -->
-            <div>TODO: Add to Meal Plan</div>
+          {#if isPlanningMeal}
+            {#if recipeIsInMealPlan}
+              <div>remove from meal plan</div>
+            {:else}
+              <form method="POST" action="/recipes?/addMealToPlan" use:enhance={() => {
+                return ({ result, update }) => {
+                  if (result.type === 'success') {
+                    recipeIsInMealPlan = true;
+                    Toast.add({ message: 'Recipe added to meal plan!' });
+                  } else if (result.type === 'failure') {
+                    Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
+                  }
+
+                  update();
+                }
+              }}>
+                <input type="hidden" name="recipe" value={data.recipe.id} />
+                <Button type="submit">
+                  Add to Meal Plan
+                </Button>
+              </form>
+            {/if}
           {/if}
         </div>
       </div>
@@ -149,12 +177,14 @@
   .options-container {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
     padding: 0 1rem;
 
     & > div {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
 
       & > *:not(:last-child) {
         margin-right: 1rem;

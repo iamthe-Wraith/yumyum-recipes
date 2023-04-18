@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
 	import LinkButton from "$lib/components/LinkButton.svelte";
   import { authenticated } from "$lib/stores/authenticated";
+	import { mealPlan } from '$lib/stores/meal_plan';
 	import { onMount } from "svelte";
 
   let checkbox: HTMLInputElement;
@@ -13,7 +14,7 @@
   }
 
   $: $page.route && close();
-
+  
   const onResize = () => {
     close();
     clearTimeout(noTransitionTimer);
@@ -37,31 +38,54 @@
   });
 </script>
 
-<div class="nav-toggle-container">
-  <input type="checkbox" id="nav-checkbox" class="nav-checkbox" bind:this={checkbox} />
+<div class="nav-container-outer">
+  {#if $mealPlan?.id}
+    <div class="meal-plan m-meal-plan">
+      <a href="/meal-plans/{$mealPlan.id}">
+        <span class="meal-plan-label">Meal Plan</span>
+        <span class="meal-plan-recipes-count">{$mealPlan.recipes.length}</span>
+      </a>
+    </div>
+  {/if}
 
-  <label for="nav-checkbox" class="nav-toggle" aria-label="navigation toggle">
-    <span class="nav-toggle-line" />
-  </label>
+  <div class="nav-toggle-container">
+    <input type="checkbox" id="nav-checkbox" class="nav-checkbox" bind:this={checkbox} />
 
-  <div class="nav-overlay" bind:this={navOverlay}>
-    <div class="nav-container">
-      <nav class={$authenticated ? 'authenticated' : 'unauthenticated center-col'}>
-        {#if $authenticated}
-          <a href="/dashboard">Dashboard</a>
-          <a href="/recipes">My Recipes</a>
-          <a href="/recipes/add">Add Recipe</a>
-          <a href="/signout" class="signout">Sign Out</a>
-        {:else}
-          <a href="/signin">Sign In</a>
-          <LinkButton href="/signup">Sign Up</LinkButton>
-        {/if}
-      </nav>
+    <label for="nav-checkbox" class="nav-toggle" aria-label="navigation toggle">
+      <span class="nav-toggle-line" />
+    </label>
+
+    <div class="nav-overlay" bind:this={navOverlay}>
+      <div class="nav-container">
+        <nav class={$authenticated ? 'authenticated' : 'unauthenticated center-col'}>
+          {#if $authenticated}
+            <a href="/dashboard">Dashboard</a>
+            <a href="/recipes">My Recipes</a>
+            <a href="/signout" class="signout">Sign Out</a>
+            {#if $mealPlan?.id}
+              <div class="meal-plan dt-meal-plan">
+                <a href="/meal-plans/{$mealPlan.id}">
+                  <span class="meal-plan-label">Meal Plan</span>
+                  <span class="meal-plan-recipes-count">{$mealPlan.recipes.length}</span>
+                </a>
+              </div>
+            {/if}
+          {:else}
+            <a href="/signin">Sign In</a>
+            <LinkButton href="/signup">Sign Up</LinkButton>
+          {/if}
+        </nav>
+      </div>
     </div>
   </div>
 </div>
 
 <style lang="scss">
+  .nav-container-outer {
+    display: flex;
+    align-items: center;
+  }
+
   .nav-toggle-container {
     position: relative;
     width: 2rem;
@@ -159,9 +183,8 @@
 
   .nav-container {
     width: 70vw;
-    max-width: 300px;
     height: 100%;
-    padding: 1rem;
+    padding: 0 1rem;
     background: var(--neutral-100);
     border-left: 1px solid var(--primary-500);
     text-align: left;
@@ -208,6 +231,39 @@
     }
   }
 
+  .meal-plan {
+    margin-right: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--primary-100);
+    border-radius: 0.5rem;
+
+    &.m-meal-plan {
+      display: block;
+    }
+
+    &.dt-meal-plan {
+      display: none;
+    }
+
+    a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      text-decoration: none;
+    }
+
+    .meal-plan-label {
+      font-size: 0.6rem;
+      white-space: nowrap;
+    }
+
+    .meal-plan-recipes-count {
+      font-size: 1.25rem;
+      color: var(--primary-500);
+    }
+  }
+
   @media (min-width: 768px) {
     .nav-toggle-container {
       width: 100%;
@@ -231,6 +287,7 @@
       .nav-container {
         display: flex;
         justify-content: flex-end;
+        padding-right: 0;
         border-left: none;
         background: none;
 
@@ -257,6 +314,18 @@
       padding-left: 1.5rem;
       border-top: none;
       border-left: 1px solid var(--neutral-300);
+    }
+
+    .meal-plan {
+      margin-right: 0;
+
+      &.m-meal-plan {
+        display: none;
+      }
+
+      &.dt-meal-plan {
+        display: block;
+      }
     }
   }
 </style>
