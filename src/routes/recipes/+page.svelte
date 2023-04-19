@@ -6,14 +6,18 @@
   import Page from "$lib/components/Page.svelte";
   import Eye from "$lib/icons/Eye.svelte";
   import EyeOff from "$lib/icons/EyeOff.svelte";
-	import { onMount } from "svelte";
+  import { onMount } from "svelte";
   import type { ActionData, PageData } from './$types';
   import { Toast } from '$lib/stores/toast';
-	import { goto } from '$app/navigation';
-	import Button from '$lib/components/Button.svelte';
+  import { goto } from '$app/navigation';
+  import Button from '$lib/components/Button.svelte';
+  import type { IMealPlan } from '$types/models';
+  import { mealPlan } from '$lib/stores/meal_plan';
 
   export let data: PageData;
   export let form: ActionData;
+
+  $: if (form?.mealPlan) mealPlan.set(form.mealPlan as IMealPlan);
 
   onMount(() => {
     if ($page.url.searchParams.get('deleted') === 'true') {
@@ -26,6 +30,11 @@
       goto('/recipes', { replaceState: true });
     }
   })
+
+  function isInMealPlan(recipeId: number) {
+    if (!$mealPlan?.recipes?.length) return false;
+    return $mealPlan?.recipes?.some(recipe => recipe.id === recipeId);
+  }
 </script>
 
 <Page>
@@ -37,11 +46,7 @@
         filter
       </div>
       <div>
-        {#if data?.mealPlan || form?.mealPlan}
-          <form method="POST" action="?/createGroceryList" use:enhance>
-            <Button type="submit" kind="secondary">Create Grocery List from Meal Plan</Button>
-          </form>
-        {:else}
+        {#if !$mealPlan}
           <form method="POST" action="?/createMealPlan" use:enhance={() => {
             return ({ result, update }) => {
               if (result.type === 'success') {
@@ -108,14 +113,48 @@
                   </div>
                 </div>
               </div>
-
-              <div class="row controls-container">
-                {#if data?.mealPlan || form?.mealPlan}
-                  <div>TODO: Add to Meal Plan</div>
-                {/if}
-              </div>
             </div>
           </a>
+
+          {#if $mealPlan}
+            <div class="row recipe-controls-container">
+              {#if isInMealPlan(recipe.id)}
+                <form method="POST" action="?/removeFromMealPlan" use:enhance={({ data }) => {
+                  return ({ result, update }) => {
+                    if (result.type === 'success') {
+                      Toast.add({ message: 'Recipe removed from meal plan.' });
+                    } else if (result.type === 'failure') {
+                      Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
+                    }
+
+                    update();
+                  }
+                }}>
+                  <input type="hidden" name="recipe" value={recipe.id} />
+                  <Button type="submit" kind="transparent">
+                    Remove from Meal Plan
+                  </Button>
+                </form>
+              {:else}
+                <form method="POST" action="?/addMealToPlan" use:enhance={() => {
+                  return ({ result, update }) => {
+                    if (result.type === 'success') {
+                      Toast.add({ message: 'Recipe added to meal plan!' });
+                    } else if (result.type === 'failure') {
+                      Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
+                    }
+
+                    update();
+                  }
+                }}>
+                  <input type="hidden" name="recipe" value={recipe.id} />
+                  <Button type="submit">
+                    Add to Meal Plan
+                  </Button>
+                </form>
+              {/if}
+            </div>
+          {/if}
         </li>
       {/each}
     </ul>
@@ -155,35 +194,41 @@
     list-style: none;
   }
 
-  li:nth-child(3n+1) a {
-    background: linear-gradient(90deg, var(--primary-500) 0%, var(--tertiary-300) 100%);
-  }
+  li {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: transform .25s ease-in-out;
 
-  li:nth-child(3n+2) a {
-    background: linear-gradient(90deg, var(--secondary-100) 0%, var(--primary-400) 100%);
-  }
+    &:nth-child(3n+1) {
+      background: linear-gradient(90deg, var(--primary-500) 0%, var(--tertiary-300) 100%);
+    }
 
-  li:nth-child(3n+3) a {
-    background: linear-gradient(90deg, var(--tertiary-500) 0%, var(--secondary-400) 100%);
+    &:nth-child(3n+2) {
+      background: linear-gradient(90deg, var(--secondary-100) 0%, var(--primary-400) 100%);
+    }
+
+    &:nth-child(3n+3) {
+      background: linear-gradient(90deg, var(--tertiary-500) 0%, var(--secondary-400) 100%);
+    }
+
+    @media (min-width: 768px) {
+      &:hover,
+      &:has(*:hover),
+      &:has(*:focus-visible) {
+        transform: scale(1.02);
+        transition: transform .25s ease-in-out;
+      }
+    }
   }
 
   li a {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
     text-decoration: none;
-    transition: transform .25s ease-in-out;
 
     @media (min-width: 768px) {
       flex-direction: row;
-
-      &:hover,
-      &:focus-visible {
-        transform: scale(1.02);
-        transition: transform .25s ease-in-out;
-      }
     }
   }
 
@@ -262,11 +307,6 @@
         text-align: left;
       }
     }
-
-    .controls-container {
-      display: flex;
-      justify-content: flex-end;
-    }
   }
 
   .row {
@@ -276,6 +316,19 @@
     width: 100%;
 
     --icon-color: var(--neutral-900);
+  }
+
+  .recipe-controls-container {
+    display: flex;
+    justify-content: flex-end;
+    min-width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--neutral-100);
+    border-radius: 0.5rem;
+
+    --button-margin-right: 0;
+    --button-margin-bottom: 0;
   }
 
   .meta-container {

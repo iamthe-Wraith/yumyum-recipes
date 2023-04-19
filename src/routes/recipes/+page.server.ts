@@ -5,10 +5,40 @@ import { getRecipes } from '$lib/services/recipe';
 import type { PageServerLoad } from './$types';
 import { ApiError } from '$lib/error';
 import { MealPlanStatus } from '@prisma/client';
-import { createMealPlan, getMealPlan, type IMealPlanData } from '$lib/services/meal_plans';
+import { addMealToPlan, createMealPlan, getMealPlan, removeFromMealPlan, type IMealPlanData, type IUpdateMealPlanData } from '$lib/services/meal_plans';
 import { parseFormData } from '$lib/helpers/request';
 
 export const actions = {
+  addMealToPlan: async ({ request, locals }) => {
+    if (!locals.user) throw redirect(303, '/signin');
+
+    let data: IUpdateMealPlanData;
+
+    try {
+      data = await parseFormData<IUpdateMealPlanData>(request);
+    } catch (err: any) {
+      const error = err instanceof ApiError
+        ? err
+        : new ApiError('There was an error adding this meal to your meal plan. Please try again later.', 500);
+
+      Logger.error('Error parsing meal plan form data: ', err);
+      
+      return fail(error.status, (error as ApiError).toJSON());
+    }
+
+    try {
+      const mealPlan = await addMealToPlan(data, locals.user);
+      return { mealPlan };
+    } catch (err) {
+      const error = err instanceof ApiError
+        ? new ApiError(err.message, err.status)
+        : new ApiError('There was an error adding this meal to your meal plan. Please try again later.', 500);
+
+      Logger.error('Error adding meal to plan: ', err);
+      
+      return fail(error.status, error.toJSON());
+    }
+  },
   createMealPlan: async ({ request, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
 
@@ -66,18 +96,47 @@ export const actions = {
       
       return fail(error.status, (error as ApiError).toJSON());
     }
-  }
+  },
+  removeFromMealPlan: async ({ request, locals }) => {
+    if (!locals.user) throw redirect(303, '/signin');
+
+    let data: IUpdateMealPlanData;
+
+    try {
+      data = await parseFormData<IUpdateMealPlanData>(request);
+    } catch (err: any) {
+      const error = err instanceof ApiError
+        ? err
+        : new ApiError('There was an error removing this meal from your meal plan. Please try again later.', 500);
+
+      Logger.error('Error parsing meal plan form data: ', err);
+      
+      return fail(error.status, (error as ApiError).toJSON());
+    }
+
+    try {
+      const mealPlan = await removeFromMealPlan(data, locals.user);
+      return { mealPlan };
+    } catch (err) {
+      const error = err instanceof ApiError
+        ? new ApiError(err.message, err.status)
+        : new ApiError('There was an error removing this meal from your meal plan. Please try again later.', 500);
+
+      Logger.error('Error removing meal to plan: ', err);
+      
+      return fail(error.status, error.toJSON());
+    }
+  },
 } satisfies Actions;
 
 export const load = wrapServerLoadWithSentry(async ({ locals }) => {
   if (!locals.user) throw redirect(303, '/signin');
   
   try {
-    const [recipes, mealPlan] = await Promise.all([
+    const [recipes] = await Promise.all([
       getRecipes(locals.user),
-      getMealPlan({ status: MealPlanStatus.ACTIVE }, locals.user)
     ]);
-    return { recipes, mealPlan };
+    return { recipes };
   } catch (err) {
     const error = err instanceof ApiError
       ? new ApiError(err.message, err.status, err.field)

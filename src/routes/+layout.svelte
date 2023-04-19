@@ -1,7 +1,8 @@
 <script lang="ts">
   import Error from '$lib/components/modals/Error.svelte';
-	import Toast from '$lib/components/modals/Toast.svelte';
-import { user } from '$lib/stores/user';
+  import Toast from '$lib/components/modals/Toast.svelte';
+  import { mealPlan } from '$lib/stores/meal_plan';
+  import { user } from '$lib/stores/user';
   import type { LayoutData } from './$types';
   import './global.scss';
   import Logo from './Logo.svelte';
@@ -9,9 +10,8 @@ import { user } from '$lib/stores/user';
 
   export let data: LayoutData;
 
-  $: if (data?.user) {
-    user.set(data.user);
-  }
+  $: if (data?.user) user.set(data.user);
+  $: if (data?.mealPlan) mealPlan.set(data.mealPlan);
 </script>
 
 <svelte:head>
