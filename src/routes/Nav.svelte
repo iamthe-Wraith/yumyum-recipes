@@ -42,7 +42,7 @@
   {#if $mealPlan?.id}
     <div class="meal-plan m-meal-plan">
       <a href="/meal-plans/{$mealPlan.id}">
-        <span class="meal-plan-label">Meal Plan</span>
+        <span class="meal-plan-label">Meals Planned</span>
         <span class="meal-plan-recipes-count">{$mealPlan.recipes.length}</span>
       </a>
     </div>
@@ -65,7 +65,7 @@
             {#if $mealPlan?.id}
               <div class="meal-plan dt-meal-plan">
                 <a href="/meal-plans/{$mealPlan.id}">
-                  <span class="meal-plan-label">Meal Plan</span>
+                  <span class="meal-plan-label">Meals Planned</span>
                   <span class="meal-plan-recipes-count">{$mealPlan.recipes.length}</span>
                 </a>
               </div>

@@ -96,6 +96,13 @@ export const getMealPlans = async (query: Record<string, any> = {}, requestor: u
   where: {
     ...query,
     ownerId: requestor.id
+  },
+  include: {
+    _count: {
+      select: {
+        recipes: true,
+      }
+    }
   }
 });
 
