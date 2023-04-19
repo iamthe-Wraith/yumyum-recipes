@@ -17,8 +17,7 @@
   export let data: PageData;
   export let form: ActionData;
 
-  let isPlanningMeal = !!form?.mealPlan || !!$mealPlan;
-  $: isPlanningMeal = !!form?.mealPlan || !!$mealPlan;
+  $: if (form?.mealPlan) mealPlan.set(form.mealPlan as IMealPlan);
 
   onMount(() => {
     if ($page.url.searchParams.get('deleted') === 'true') {
@@ -33,10 +32,8 @@
   })
 
   function isInMealPlan(recipeId: number) {
-    const recipes = (form?.mealPlan as IMealPlan)?.recipes || $mealPlan?.recipes;
-    if (!recipes?.length) return false;
-
-    return recipes?.some(recipe => recipe.id === recipeId);
+    if (!$mealPlan?.recipes?.length) return false;
+    return $mealPlan?.recipes?.some(recipe => recipe.id === recipeId);
   }
 </script>
 
@@ -119,10 +116,25 @@
             </div>
           </a>
 
-          <div class="row recipe-controls-container">
-            {#if isPlanningMeal}
+          {#if $mealPlan}
+            <div class="row recipe-controls-container">
               {#if isInMealPlan(recipe.id)}
-                <div>remove from meal plan</div>
+                <form method="POST" action="?/removeFromMealPlan" use:enhance={({ data }) => {
+                  return ({ result, update }) => {
+                    if (result.type === 'success') {
+                      Toast.add({ message: 'Recipe removed from meal plan.' });
+                    } else if (result.type === 'failure') {
+                      Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
+                    }
+
+                    update();
+                  }
+                }}>
+                  <input type="hidden" name="recipe" value={recipe.id} />
+                  <Button type="submit" kind="transparent">
+                    Remove from Meal Plan
+                  </Button>
+                </form>
               {:else}
                 <form method="POST" action="?/addMealToPlan" use:enhance={() => {
                   return ({ result, update }) => {
@@ -141,8 +153,8 @@
                   </Button>
                 </form>
               {/if}
-            {/if}
-          </div>
+            </div>
+          {/if}
         </li>
       {/each}
     </ul>

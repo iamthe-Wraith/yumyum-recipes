@@ -99,6 +99,33 @@ export const getMealPlans = async (query: Record<string, any> = {}, requestor: u
   }
 });
 
+export const removeFromMealPlan = async (data: IUpdateMealPlanData, requestor: users) => {
+  const parsed = validateMealDataToAddToPlan(data);
+
+  let mealPlan = await getMealPlan({ status: MealPlanStatus.ACTIVE }, requestor);
+  if (!mealPlan) throw new ApiError('There are no active meal plans to remove this meal from.', 400);
+
+  if (!mealPlan.recipes.some(recipe => recipe.id === parsed.data.recipe)) throw new ApiError('This recipe is not in your meal plan.', 400);
+
+  mealPlan = await prisma.meal_plans.update({
+    where: {
+      id: mealPlan.id,
+    },
+    data: {
+      recipes: {
+        disconnect: {
+          id: parsed.data.recipe,
+        },
+      },
+    },
+    include: {
+      recipes: true,
+    },
+  });
+
+  return mealPlan;
+};
+
 export const validateMealPlanData = (data: IMealPlanData) => {
   const parsed = mealPlanSchema.safeParse(data);
 
