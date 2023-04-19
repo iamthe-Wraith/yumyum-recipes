@@ -7,8 +7,8 @@
   import Button from "$lib/components/Button.svelte";
   import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
   import { AppError } from "$lib/stores/error";
-	import { Toast } from "$lib/stores/toast";
-	import { mealPlan } from "$lib/stores/meal_plan";
+  import { Toast } from "$lib/stores/toast";
+  import { mealPlan } from "$lib/stores/meal_plan";
 
   export let data: PageData;
 

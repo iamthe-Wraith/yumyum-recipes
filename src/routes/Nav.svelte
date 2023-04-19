@@ -1,9 +1,9 @@
 <script lang="ts">
   import { page } from '$app/stores';
-	import LinkButton from "$lib/components/LinkButton.svelte";
+  import LinkButton from "$lib/components/LinkButton.svelte";
   import { authenticated } from "$lib/stores/authenticated";
-	import { mealPlan } from '$lib/stores/meal_plan';
-	import { onMount } from "svelte";
+  import { mealPlan } from '$lib/stores/meal_plan';
+  import { onMount } from "svelte";
 
   let checkbox: HTMLInputElement;
   let navOverlay: HTMLDivElement;

@@ -6,13 +6,13 @@
   import Page from "$lib/components/Page.svelte";
   import Eye from "$lib/icons/Eye.svelte";
   import EyeOff from "$lib/icons/EyeOff.svelte";
-	import { onMount } from "svelte";
+  import { onMount } from "svelte";
   import type { ActionData, PageData } from './$types';
   import { Toast } from '$lib/stores/toast';
-	import { goto } from '$app/navigation';
-	import Button from '$lib/components/Button.svelte';
-	import type { IMealPlan } from '$types/models';
-	import { mealPlan } from '$lib/stores/meal_plan';
+  import { goto } from '$app/navigation';
+  import Button from '$lib/components/Button.svelte';
+  import type { IMealPlan } from '$types/models';
+  import { mealPlan } from '$lib/stores/meal_plan';
 
   export let data: PageData;
   export let form: ActionData;
@@ -46,7 +46,7 @@
         filter
       </div>
       <div>
-        {#if !$mealPlan && !form?.mealPlan}
+        {#if !$mealPlan}
           <form method="POST" action="?/createMealPlan" use:enhance={() => {
             return ({ result, update }) => {
               if (result.type === 'success') {
