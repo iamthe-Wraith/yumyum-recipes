@@ -41,7 +41,7 @@
 <div class="nav-container-outer">
   {#if $mealPlan?.id}
     <div class="meal-plan m-meal-plan">
-      <a href="/meal-plans/{$mealPlan.id}">
+      <a href="/mealplans/{$mealPlan.id}">
         <span class="meal-plan-label">Meals Planned</span>
         <span class="meal-plan-recipes-count">{$mealPlan.recipes.length}</span>
       </a>
@@ -61,10 +61,11 @@
           {#if $authenticated}
             <a href="/dashboard">Dashboard</a>
             <a href="/recipes">My Recipes</a>
+            <a href="/mealplans">My Meal Plans</a>
             <a href="/signout" class="signout">Sign Out</a>
             {#if $mealPlan?.id}
               <div class="meal-plan dt-meal-plan">
-                <a href="/meal-plans/{$mealPlan.id}">
+                <a href="/mealplans/{$mealPlan.id}">
                   <span class="meal-plan-label">Meals Planned</span>
                   <span class="meal-plan-recipes-count">{$mealPlan.recipes.length}</span>
                 </a>

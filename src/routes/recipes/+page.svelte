@@ -46,7 +46,7 @@
       </div>
       <div>
         {#if !$mealPlan}
-          <form method="POST" action="/meal-plans?/createMealPlan" use:enhance={() => {
+          <form method="POST" action="/mealplans?/createMealPlan" use:enhance={() => {
             return ({ result, update }) => {
               if (result.type === 'success') {
                 Toast.add({ message: 'Meal plan created! Start adding meals to your plan!' });
@@ -118,7 +118,7 @@
           {#if $mealPlan}
             <div class="row recipe-controls-container">
               {#if isInMealPlan(recipe.id)}
-                <form method="POST" action="/meal-plans?/removeFromMealPlan" use:enhance={({ data }) => {
+                <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
                   return ({ result, update }) => {
                     if (result.type === 'success') {
                       Toast.add({ message: 'Recipe removed from meal plan.' });
@@ -135,7 +135,7 @@
                   </Button>
                 </form>
               {:else}
-                <form method="POST" action="/meal-plans?/addMealToPlan" use:enhance={() => {
+                <form method="POST" action="/mealplans?/addMealToPlan" use:enhance={() => {
                   return ({ result, update }) => {
                     if (result.type === 'success') {
                       Toast.add({ message: 'Recipe added to meal plan!' });

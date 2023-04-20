@@ -12,7 +12,7 @@
 <Page>
   <h1>Meal Plans</h1>
   <div class="list-container">
-    {#if data.mealPlans.length === 0}
+    {#if !data?.mealPlans?.length}
       <div class="no-meal-plans">
         <p>You don't have any meal plans yet. Create one to get started!</p>
         <form method="POST" action="/recipes?/createMealPlan" use:enhance={() => {
@@ -33,7 +33,7 @@
       {#each data.mealPlans as mealPlan}
         <div class="meal-plan-container">
           <div class="meal-plan-container-inner">
-            <a href="/meal-plans/{mealPlan.id}" class='meal-plan-info'>
+            <a href="/mealplans/{mealPlan.id}" class='meal-plan-info'>
               <div>
                 <h2>{mealPlan.name}</h2>
                 <p class="last-updated">last updated: {dayjs(mealPlan.updatedAt).format('DD MMM, YYYY')}</p>
@@ -54,6 +54,8 @@
 
 <style lang="scss">
   .list-container {
+    max-width: 1000px;
+    margin: 0 auto;
     padding-top: 1rem;
   }
 
