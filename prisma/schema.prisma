@@ -14,6 +14,7 @@ model users {
   sessions     sessions[]
   recipes      recipes[]
   mealPlans    meal_plans[]
+  meals        meals[]
   createdAt    DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt    DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
@@ -38,7 +39,7 @@ model recipes {
   servings       Int
   steps          String[]
   ingredients    ingredients[]
-  mealPlans      meal_plans[]
+  meals          meals[]
   description    String           @default("") @db.VarChar(300)
   isPublic       Boolean          @default(false) @map("is_public")
   notes          String           @default("")
@@ -65,8 +66,20 @@ model meal_plans {
   name          String          @db.VarChar(50)
   ownerId       Int             @map("owner_id")
   owner         users           @relation(fields: [ownerId], references: [id])
-  recipes       recipes[]
+  meals         meals[]
   status        MealPlanStatus
+  createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
+}
+
+model meals {
+  id            Int             @id @default(autoincrement())
+  ownerId       Int             @map("owner_id")
+  owner         users           @relation(fields: [ownerId], references: [id])
+  recipes       recipes[]
+  mealPlanId    Int             @map("meal_plan_id")
+  mealPlan      meal_plans      @relation(fields: [mealPlanId], references: [id])
+  serving       Int
   createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
