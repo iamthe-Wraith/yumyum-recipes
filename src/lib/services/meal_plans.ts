@@ -24,45 +24,78 @@ const mealToAddToPlanSchema = z.object({
   ),
 });
 
+const mealToRemoveFromPlanSchema = z.object({
+  meal: z.preprocess(
+    (x) => parseInt(z.string().parse(x), 10),
+    z.number({
+      invalid_type_error: 'Meal ID must be a number.',
+    }).positive().min(1, { message: 'Invalid meal ID found.' })
+  ),
+});
+
 export type IMealPlanData = z.infer<typeof mealPlanSchema> & { id?: number };
 
-export interface IUpdateMealPlanData {
+export interface IAddMealPlanData {
   recipe: number;
 }
 
-export const addMealToPlan = async (data: IUpdateMealPlanData, requestor: users) => {
+export interface IRemoveMealPlanData {
+  meal: number;
+}
+
+export const addMealToPlan = async (data: IAddMealPlanData, requestor: users) => {
   const parsed = validateMealDataToAddToPlan(data);
 
   let mealPlan = await getMealPlan({ status: MealPlanStatus.ACTIVE }, requestor);
   if (!mealPlan) throw new ApiError('There are no active meal plans to add this meal to. Please create a meal plan and try again.', 400);
 
-  if (mealPlan.recipes.some(recipe => recipe.id === parsed.data.recipe)) throw new ApiError('This recipe is already in your meal plan.', 400);
+  if (mealPlan.meals.some(meal => meal.recipe.id === parsed.data.recipe)) throw new ApiError('This recipe is already in your meal plan.', 400);
   
-  const recipe = await prisma.recipes.findFirst({
-    where: {
-      id: parsed.data.recipe,
-    },
-  });
+  return await prisma.$transaction(async (tx) => {
+    const recipe = await tx.recipes.findFirst({
+      where: {
+        id: parsed.data.recipe,
+      },
+    });
 
-  if (!recipe) throw new ApiError('This recipe does not exist.', 404);
+    if (!recipe) throw new ApiError('This recipe does not exist.', 404);
 
-  mealPlan = await prisma.meal_plans.update({
-    where: {
-      id: mealPlan.id,
-    },
-    data: {
-      recipes: {
-        connect: {
-          id: recipe.id,
+    const meal = await tx.meals.create({
+      data: {
+        ownerId: requestor.id,
+        recipeId: recipe.id,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        mealPlanId: mealPlan!.id,
+        serving: recipe.servings, // TODO: update this with the user's input. if no input, fallback to user's default. if default not set, then fallback to recipe serving size.
+      },
+      include: {
+        recipe: true,
+      },
+    });
+
+    mealPlan = await tx.meal_plans.update({
+      where: {
+        id: mealPlan?.id,
+      },
+      data: {
+        meals: {
+          connect: {
+            id: meal.id,
+          },
         },
       },
-    },
-    include: {
-      recipes: true,
-    },
+      include: {
+        meals: {
+          include: {
+            recipe: true,
+          }
+        },
+      },
+    });
+
+    return mealPlan;
   });
 
-  return mealPlan;
 };
 
 export const createMealPlan = async (data: IMealPlanData, requestor: users) => {
@@ -75,7 +108,11 @@ export const createMealPlan = async (data: IMealPlanData, requestor: users) => {
       status: MealPlanStatus.ACTIVE,
     },
     include: {
-      recipes: true,
+      meals: {
+        include: {
+          recipe: true,
+        }
+      },
     },
   });
 
@@ -88,7 +125,11 @@ export const getMealPlan = async (query: Record<string, any>, requestor: users) 
     ownerId: requestor.id
   },
   include: {
-    recipes: true,
+    meals: {
+      include: {
+        recipe: true,
+      }
+    },
   }
 });
 
@@ -100,37 +141,31 @@ export const getMealPlans = async (query: Record<string, any> = {}, requestor: u
   include: {
     _count: {
       select: {
-        recipes: true,
+        meals: true,
       }
     }
   }
 });
 
-export const removeFromMealPlan = async (data: IUpdateMealPlanData, requestor: users) => {
-  const parsed = validateMealDataToAddToPlan(data);
+export const removeFromMealPlan = async (data: IRemoveMealPlanData, requestor: users) => {
+  const parsed = validateMealDataToRemoveFromPlan(data);
 
   let mealPlan = await getMealPlan({ status: MealPlanStatus.ACTIVE }, requestor);
   if (!mealPlan) throw new ApiError('There are no active meal plans to remove this meal from.', 400);
 
-  if (!mealPlan.recipes.some(recipe => recipe.id === parsed.data.recipe)) throw new ApiError('This recipe is not in your meal plan.', 400);
+  if (!mealPlan.meals.some(meal => meal.id === parsed.data.meal)) throw new ApiError('This recipe is not in your meal plan.', 400);
 
-  mealPlan = await prisma.meal_plans.update({
-    where: {
-      id: mealPlan.id,
-    },
-    data: {
-      recipes: {
-        disconnect: {
-          id: parsed.data.recipe,
-        },
+  return await prisma.$transaction(async (tx) => {
+    await tx.meals.delete({
+      where: {
+        id: parsed.data.meal,
       },
-    },
-    include: {
-      recipes: true,
-    },
-  });
+    });
 
-  return mealPlan;
+    mealPlan = await getMealPlan({ status: MealPlanStatus.ACTIVE }, requestor);
+  
+    return mealPlan;
+  });
 };
 
 export const validateMealPlanData = (data: IMealPlanData) => {
@@ -144,8 +179,19 @@ export const validateMealPlanData = (data: IMealPlanData) => {
   return parsed;
 };
 
-export const validateMealDataToAddToPlan = (data: IUpdateMealPlanData) => {
+export const validateMealDataToAddToPlan = (data: IAddMealPlanData) => {
   const parsed = mealToAddToPlanSchema.safeParse(data);
+
+  if (!parsed.success) {
+    const error = parsed.error.issues[0];
+    throw new ApiError(error.message, HttpStatus.INVALID_ARG, error.path.join('.'), data);
+  }
+
+  return parsed;
+};
+
+export const validateMealDataToRemoveFromPlan = (data: IRemoveMealPlanData) => {
+  const parsed = mealToRemoveFromPlanSchema.safeParse(data);
 
   if (!parsed.success) {
     const error = parsed.error.issues[0];

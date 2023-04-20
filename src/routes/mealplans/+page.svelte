@@ -42,7 +42,7 @@
               <div class='status m-status {mealPlan.status.toLowerCase()}'>{mealPlan.status.toLowerCase()}</div>
             </a>
             
-            <p class="meal-plan-recipes"><span>{mealPlan._count.recipes}</span> Recipe{mealPlan._count.recipes === 1 ? '' : 's'}</p>
+            <p class="meal-plan-recipes"><span>{mealPlan._count.meals}</span> Recipe{mealPlan._count.meals === 1 ? '' : 's'}</p>
   
             <div class='status dt-status {mealPlan.status.toLowerCase()}'>{mealPlan.status.toLowerCase()}</div>
           </div>

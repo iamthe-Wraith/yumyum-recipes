@@ -76,7 +76,8 @@ model meals {
   id            Int             @id @default(autoincrement())
   ownerId       Int             @map("owner_id")
   owner         users           @relation(fields: [ownerId], references: [id])
-  recipes       recipes[]
+  recipeId      Int             @map("recipe_id")
+  recipe        recipes         @relation(fields: [recipeId], references: [id])
   mealPlanId    Int             @map("meal_plan_id")
   mealPlan      meal_plans      @relation(fields: [mealPlanId], references: [id])
   serving       Int

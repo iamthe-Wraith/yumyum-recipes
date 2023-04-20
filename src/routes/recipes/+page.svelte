@@ -30,9 +30,9 @@
     }
   })
 
-  function isInMealPlan(recipeId: number) {
-    if (!$mealPlan?.recipes?.length) return false;
-    return $mealPlan?.recipes?.some(recipe => recipe.id === recipeId);
+  function isInMealPlan(id: number) {
+    if (!$mealPlan?.meals?.length) return false;
+    return $mealPlan?.meals?.some(meal => meal.recipeId === id);
   }
 </script>
 
@@ -129,7 +129,7 @@
                     update();
                   }
                 }}>
-                  <input type="hidden" name="recipe" value={recipe.id} />
+                  <input type="hidden" name="meal" value={$mealPlan.meals.find(meal => meal.recipeId === recipe.id)?.id} />
                   <Button type="submit" kind="transparent">
                     Remove from Meal Plan
                   </Button>

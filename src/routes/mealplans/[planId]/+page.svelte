@@ -18,7 +18,7 @@
   <p class="last-updated">last updated {dayjs(data.mealPlan?.updatedAt).format('DD MMM, YYYY')}</p>
 
   <ul class="list-container">
-    {#if data.mealPlan?.recipes?.length}
+    {#if data.mealPlan?.meals?.length}
       <div class="controls-container">
         <div class="filter-container">
           filter
@@ -28,18 +28,18 @@
         </div>
       </div>
 
-      {#each (data.mealPlan?.recipes || []) as recipe}
+      {#each (data.mealPlan?.meals || []) as meal}
         <li>
-          <a href="/recipes/{recipe.id}">              
+          <a href="/recipes/{meal.recipe.id}">              
             <div class="recipe-image-container">
-              <img src={recipe.image} alt="Image of {recipe.name}" />
+              <img src={meal.recipe.image} alt="Image of {meal.recipe.name}" />
             </div>
             <div class="recipe-info-container">
               <div>
                 <div class="row">
-                  <h2>{recipe.name}</h2>
+                  <h2>{meal.recipe.name}</h2>
                   <div class="meta-container">
-                    {#if recipe.isPublic}
+                    {#if meal.recipe.isPublic}
                       <IconIndicator
                         id="public" 
                         label="Is visible to the public."
@@ -58,45 +58,43 @@
                     {/if}
                   </div>
                 </div>
-                <p>{recipe.description}</p>
+                <p>{meal.recipe.description}</p>
                 <div class="cooking-info">
                   <div>
                     <span>Prep Time: </span>
-                    <span>{recipe.prepTime}</span>
+                    <span>{meal.recipe.prepTime}</span>
                   </div>
                   <div>
                     <span>Cook Time: </span>
-                    <span>{recipe.cookTime}</span>
+                    <span>{meal.recipe.cookTime}</span>
                   </div>
                   <div>
                     <span>Servings: </span>
-                    <span>{recipe.servings}</span>
+                    <span>{meal.recipe.servings}</span>
                   </div>
                 </div>
               </div>
             </div>
           </a>
 
-          {#if data.mealPlan}
-            <div class="row recipe-controls-container">
-              <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
-                return ({ result, update }) => {
-                  if (result.type === 'success') {
-                    Toast.add({ message: 'Recipe removed from meal plan.' });
-                  } else if (result.type === 'failure') {
-                    Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
-                  }
-
-                  update();
+          <div class="row recipe-controls-container">
+            <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
+              return ({ result, update }) => {
+                if (result.type === 'success') {
+                  Toast.add({ message: 'Recipe removed from meal plan.' });
+                } else if (result.type === 'failure') {
+                  Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
                 }
-              }}>
-                <input type="hidden" name="recipe" value={recipe.id} />
-                <Button type="submit" kind="transparent">
-                  Remove from Meal Plan
-                </Button>
-              </form>
-            </div>
-          {/if}
+
+                update();
+              }
+            }}>
+              <input type="hidden" name="meal" value={meal.id} />
+              <Button type="submit" kind="transparent">
+                Remove from Meal Plan
+              </Button>
+            </form>
+          </div>
         </li>
       {/each}
     {:else}
