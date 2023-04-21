@@ -71,14 +71,14 @@
     }
 
     &:before {
-      background: radial-gradient(ellipse at top right, var(--secondary-500) 0, transparent 55%),
-                  radial-gradient(ellipse at top right, var(--secondary-300) 0, transparent 65%);
+      background: radial-gradient(ellipse at top right, var(--secondary-500) 0, transparent 30%),
+                  radial-gradient(ellipse at top right, var(--secondary-300) 0, transparent 45%);
       background-blend-mode: multiply;
     }
 
     &:after {
-      background: radial-gradient(ellipse at bottom left, var(--primary-500) 0, transparent 55%),
-                  radial-gradient(ellipse at bottom left, var(--primary-300) 0, transparent 65%);
+      background: radial-gradient(ellipse at bottom left, var(--primary-500) 0, transparent 30%),
+                  radial-gradient(ellipse at bottom left, var(--primary-300) 0, transparent 45%);
       background-blend-mode: multiply;
     }
 

@@ -15,9 +15,8 @@
   import { mealPlan } from '$lib/stores/meal_plan';
 
   export let data: PageData;
-  export let form: ActionData;
 
-  $: if (form?.mealPlan) mealPlan.set(form.mealPlan as IMealPlan);
+  $: if ($page.form?.mealPlan) mealPlan.set($page.form.mealPlan as IMealPlan);
 
   onMount(() => {
     if ($page.url.searchParams.get('deleted') === 'true') {
@@ -31,9 +30,9 @@
     }
   })
 
-  function isInMealPlan(recipeId: number) {
-    if (!$mealPlan?.recipes?.length) return false;
-    return $mealPlan?.recipes?.some(recipe => recipe.id === recipeId);
+  function isInMealPlan(id: number) {
+    if (!$mealPlan?.meals?.length) return false;
+    return $mealPlan?.meals?.some(meal => meal.recipeId === id);
   }
 </script>
 
@@ -47,7 +46,7 @@
       </div>
       <div>
         {#if !$mealPlan}
-          <form method="POST" action="?/createMealPlan" use:enhance={() => {
+          <form method="POST" action="/mealplans?/createMealPlan" use:enhance={() => {
             return ({ result, update }) => {
               if (result.type === 'success') {
                 Toast.add({ message: 'Meal plan created! Start adding meals to your plan!' });
@@ -119,7 +118,7 @@
           {#if $mealPlan}
             <div class="row recipe-controls-container">
               {#if isInMealPlan(recipe.id)}
-                <form method="POST" action="?/removeFromMealPlan" use:enhance={({ data }) => {
+                <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
                   return ({ result, update }) => {
                     if (result.type === 'success') {
                       Toast.add({ message: 'Recipe removed from meal plan.' });
@@ -130,13 +129,13 @@
                     update();
                   }
                 }}>
-                  <input type="hidden" name="recipe" value={recipe.id} />
+                  <input type="hidden" name="meal" value={$mealPlan.meals.find(meal => meal.recipeId === recipe.id)?.id} />
                   <Button type="submit" kind="transparent">
                     Remove from Meal Plan
                   </Button>
                 </form>
               {:else}
-                <form method="POST" action="?/addMealToPlan" use:enhance={() => {
+                <form method="POST" action="/mealplans?/addMealToPlan" use:enhance={() => {
                   return ({ result, update }) => {
                     if (result.type === 'success') {
                       Toast.add({ message: 'Recipe added to meal plan!' });

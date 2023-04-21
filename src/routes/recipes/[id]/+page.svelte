@@ -18,9 +18,9 @@
   let recipeIsInMealPlan = isInMealPlan(data.recipe.id);
   $: recipeIsInMealPlan = isInMealPlan(data.recipe.id);
 
-  function isInMealPlan(recipeId: number) {
-    if (!$mealPlan?.id) return false;
-    return $mealPlan?.recipes?.some(recipe => recipe.id === recipeId);
+  function isInMealPlan(id: number) {
+    if (!$mealPlan?.meals?.length) return false;
+    return $mealPlan?.meals?.some(meal => meal.recipeId === id);
   }
 </script>
 
@@ -51,7 +51,7 @@
       <div class="meal-plan-controls">
         {#if isPlanningMeal}
           {#if recipeIsInMealPlan}
-            <form method="POST" action="/recipes?/removeFromMealPlan" use:enhance={({ data }) => {
+            <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
               return ({ result, update }) => {
                 if (result.type === 'success') {
                   Toast.add({ message: 'Recipe removed from meal plan.' });
@@ -62,13 +62,13 @@
                 update();
               }
             }}>
-              <input type="hidden" name="recipe" value={data.recipe.id} />
+              <input type="hidden" name="meal" value={($mealPlan?.meals || []).find(meal => meal.recipeId === data.recipe.id)?.id} />
               <Button type="submit" kind="transparent">
                 Remove from Meal Plan
               </Button>
             </form>
           {:else}
-            <form method="POST" action="/recipes?/addMealToPlan" use:enhance={() => {
+            <form method="POST" action="/mealplans?/addMealToPlan" use:enhance={() => {
               return ({ result, update }) => {
                 if (result.type === 'success') {
                   recipeIsInMealPlan = true;
@@ -154,7 +154,7 @@
             </Button>
           </form>
         {:else}
-          <form method="POST" action="/recipes?/addMealToPlan" use:enhance={() => {
+          <form method="POST" action="/mealplans?/addMealToPlan" use:enhance={() => {
             return ({ result, update }) => {
               if (result.type === 'success') {
                 recipeIsInMealPlan = true;
