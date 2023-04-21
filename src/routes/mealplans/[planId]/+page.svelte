@@ -9,6 +9,8 @@
 	import Button from '$lib/components/Button.svelte';
 	import { Toast } from "$lib/stores/toast";
 	import LinkButton from "$lib/components/LinkButton.svelte";
+	import IconButton from "$lib/components/IconButton.svelte";
+	import Trash from "$lib/icons/Trash.svelte";
 
   export let data: PageData;
 </script>
@@ -17,19 +19,40 @@
   <h1>{data.mealPlan?.name}</h1>
   <p class="last-updated">last updated {dayjs(data.mealPlan?.updatedAt).format('DD MMM, YYYY')}</p>
 
-  <ul class="list-container">
-    {#if data.mealPlan?.meals?.length}
-      <div class="controls-container">
-        <div class="filter-container">
-          filter
-        </div>
-        <div>
-          create grocery list...
-        </div>
-      </div>
+  {#if data.mealPlan?.meals?.length}
+  <div class="controls-container">
+    <div class="filter-container">
+      filter
+    </div>
+    <div>
+      create grocery list...
+    </div>
+  </div>
+  {/if}
 
+  <ul class="list-container {data.mealPlan?.meals?.length ? 'no-recipes' : ''}">
+    {#if data.mealPlan?.meals?.length}
       {#each (data.mealPlan?.meals || []) as meal}
         <li>
+          <div class='remove-container'>
+            <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
+              return ({ result, update }) => {
+                if (result.type === 'success') {
+                  Toast.add({ message: 'Recipe removed from meal plan.' });
+                } else if (result.type === 'failure') {
+                  Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
+                }
+
+                update();
+              }
+            }}>
+              <input type="hidden" name="meal" value={meal.id} />
+              <IconButton type="submit" kind="danger">
+                <Trash />
+              </IconButton>
+            </form>
+          </div>
+
           <a href="/recipes/{meal.recipe.id}">              
             <div class="recipe-image-container">
               <img src={meal.recipe.image} alt="Image of {meal.recipe.name}" />
@@ -76,25 +99,6 @@
               </div>
             </div>
           </a>
-
-          <div class="row recipe-controls-container">
-            <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
-              return ({ result, update }) => {
-                if (result.type === 'success') {
-                  Toast.add({ message: 'Recipe removed from meal plan.' });
-                } else if (result.type === 'failure') {
-                  Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
-                }
-
-                update();
-              }
-            }}>
-              <input type="hidden" name="meal" value={meal.id} />
-              <Button type="submit" kind="transparent">
-                Remove from Meal Plan
-              </Button>
-            </form>
-          </div>
         </li>
       {/each}
     {:else}
@@ -132,15 +136,22 @@
   }
 
   .list-container {
-    display: block;
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 1rem;
+    justify-content: center;
+    align-items: stretch;
     margin: 0 auto;
     padding: 0;
     width: 100%;
-    max-width: 70rem;
+    max-width: 80rem;
     list-style: none;
 
     li:not(.no-recipes) {
-      margin-bottom: 1rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       padding: 0.5rem;
       border-radius: 0.5rem;
       transition: transform .25s ease-in-out;
@@ -157,6 +168,20 @@
         background: linear-gradient(90deg, var(--tertiary-500) 0%, var(--secondary-400) 100%);
       }
 
+      .remove-container {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 3rem;
+        height: 3rem;
+        background: var(--neutral-900);
+        border-radius: 50%;
+        border: 1px solid var(--neutral-500);
+      }
+
       @media (min-width: 768px) {
         &:hover,
         &:has(*:hover),
@@ -165,16 +190,42 @@
           transition: transform .25s ease-in-out;
         }
       }
+
+      @media (pointer: fine) {
+        &:hover,
+        &:focus-visible {
+          .remove-container {
+            visibility: 1;
+            opacity: 1;
+            transition: visibility 0s linear 0.25s, opacity 0.25s linear;
+          }
+        }
+
+        .remove-container {
+          visibility: 0;
+          opacity: 0;
+          transition: visibility 0s linear 0.25s, opacity 0.25s linear;
+        }
+      }
     }
 
-    li a {
-      display: flex;
-      flex-direction: column;
+    li > a {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 10rem auto;
+      grid-gap: 0.5rem;
+      justify-content: stretch;
+      align-items: stretch;
+      flex-grow: 1;
       text-decoration: none;
+    }
 
-      @media (min-width: 768px) {
-        flex-direction: row;
-      }
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1350px) {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 
@@ -182,29 +233,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 10rem;
-    border-top-right-radius: 0.5rem;
-    border-top-left-radius: 0.5rem;
+    min-width: 100%;
+    min-width: 100%;
+    border-radius: 0.5rem;
     overflow: hidden;
+    object-fit: cover;
 
     img {
       width: 100%;
-    }
-
-    @media (min-width: 400px) {
-      height: 15rem;
-    }
-
-    @media (min-width: 768px) {
-      min-width: 15rem;
-      width: 15rem;
-      max-width: 15rem;
-      min-height: 15rem;
-      height: 15rem;
-      max-height: 15rem;
-
-      border-radius: 0.5rem;
     }
   }
 
@@ -213,7 +249,7 @@
     flex-direction: column;
     justify-content: space-between;
     flex-grow: 1;
-    margin-top: 0.5rem;
+    height: 100%;
     padding: 0.5rem 1rem;
     background: var(--neutral-100);
     border-radius: 0.5rem;
@@ -244,15 +280,6 @@
         }
       }
     }
-
-    @media (min-width: 768px) {
-      margin-top: 0;
-      margin-left: 0.5rem;
-
-      h2 {
-        text-align: left;
-      }
-    }
   }
 
   .row {
@@ -264,25 +291,12 @@
     --icon-color: var(--neutral-900);
   }
 
-  .recipe-controls-container {
-    display: flex;
-    justify-content: flex-end;
-    min-width: 100%;
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: var(--neutral-100);
-    border-radius: 0.5rem;
-
-    --button-margin-right: 0;
-    --button-margin-bottom: 0;
-  }
-
   .meta-container {
     display: flex;
     align-items: center;
   }
 
-  .no-recipes {
+  li.no-recipes {
     display: flex;
     flex-direction: column;
     justify-content: center;
