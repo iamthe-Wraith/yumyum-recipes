@@ -1,16 +1,15 @@
 <script lang="ts">
-	import dayjs from "dayjs";
+  import dayjs from "dayjs";
   import { enhance } from "$app/forms";
   import type { PageData } from './$types';
   import Page from "$lib/components/Page.svelte";
-	import IconIndicator from '$lib/components/IconIndicator.svelte';
-	import Eye from '$lib/icons/Eye.svelte';
-	import EyeOff from '$lib/icons/EyeOff.svelte';
-	import Button from '$lib/components/Button.svelte';
-	import { Toast } from "$lib/stores/toast";
-	import LinkButton from "$lib/components/LinkButton.svelte";
-	import IconButton from "$lib/components/IconButton.svelte";
-	import Trash from "$lib/icons/Trash.svelte";
+  import IconIndicator from '$lib/components/IconIndicator.svelte';
+  import Eye from '$lib/icons/Eye.svelte';
+  import EyeOff from '$lib/icons/EyeOff.svelte';
+  import { Toast } from "$lib/stores/toast";
+  import LinkButton from "$lib/components/LinkButton.svelte";
+  import IconButton from "$lib/components/IconButton.svelte";
+  import Trash from "$lib/icons/Trash.svelte";
 
   export let data: PageData;
 </script>

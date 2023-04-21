@@ -1,10 +1,10 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-	import dayjs from "dayjs";
+  import dayjs from "dayjs";
   import Page from "$lib/components/Page.svelte";
   import type { PageData } from "../$types";
-	import Button from "$lib/components/Button.svelte";
-	import { Toast } from "$lib/stores/toast";
+  import Button from "$lib/components/Button.svelte";
+  import { Toast } from "$lib/stores/toast";
 
   export let data: PageData;
 </script>
