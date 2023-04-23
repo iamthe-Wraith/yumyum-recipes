@@ -1,21 +1,32 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { enhance } from "$app/forms";
   import dayjs from "dayjs";
   import Page from "$lib/components/Page.svelte";
   import type { PageData } from "../$types";
   import Button from "$lib/components/Button.svelte";
   import { Toast } from "$lib/stores/toast";
+	import IconButton from "$lib/components/IconButton.svelte";
+	import Trash from "$lib/icons/Trash.svelte";
+  import { mealPlan } from '$lib/stores/meal_plan';
 
   export let data: PageData;
+
+  const updateCurrentMealPlanAfterPlanDeletion = (mealPlanId: number) => {
+    if ($mealPlan?.id === mealPlanId) mealPlan.reset();
+  }
 </script>
 
 <Page>
   <h1>Meal Plans</h1>
+
   <div class="list-container">
     {#if !data?.mealPlans?.length}
       <div class="no-meal-plans">
         <p>You don't have any meal plans yet. Create one to get started!</p>
-        <form method="POST" action="/recipes?/createMealPlan" use:enhance={() => {
+        <form method="POST" action="/mealplans?/createMealPlan" use:enhance={() => {
           return ({ result, update }) => {
             if (result.type === 'success') {
               Toast.add({ message: 'Meal plan created! Start adding meals to your plan!' });
@@ -40,11 +51,45 @@
               </div>
   
               <div class='status m-status {mealPlan.status.toLowerCase()}'>{mealPlan.status.toLowerCase()}</div>
+
+              <form method="POST" class="m-delete-meal-plan" action={`/mealplans/${mealPlan.id}?/deleteMealPlan`} use:enhance={() => {
+                return ({ result, update }) => {
+                  if (result.type === 'success' || (result.type === 'redirect' && result.status === 303)) {
+                    Toast.add({ message: 'Meal plan deleted.' });
+                    updateCurrentMealPlanAfterPlanDeletion(mealPlan.id);
+                  } else if (result.type === 'error') {
+                    Toast.add({ message: 'There was an error deleting your meal plan. Please try again later.', type: 'error' });
+                  }
+      
+                  update();
+                }
+              }}>
+                <IconButton kind="danger">
+                  <Trash />
+                </IconButton>
+              </form>
             </a>
             
             <p class="meal-plan-recipes"><span>{mealPlan._count.meals}</span> Recipe{mealPlan._count.meals === 1 ? '' : 's'}</p>
   
             <div class='status dt-status {mealPlan.status.toLowerCase()}'>{mealPlan.status.toLowerCase()}</div>
+
+            <form method="POST" class="dt-delete-meal-plan" action={`/mealplans/${mealPlan.id}?/deleteMealPlan`} use:enhance={() => {
+              return ({ result, update }) => {
+                if (result.type === 'success' || (result.type === 'redirect' && result.status === 303)) {
+                  Toast.add({ message: 'Meal plan deleted.' });
+                  updateCurrentMealPlanAfterPlanDeletion(mealPlan.id);
+                } else if (result.type === 'error') {
+                  Toast.add({ message: 'There was an error deleting your meal plan. Please try again later.', type: 'error' });
+                }
+    
+                update();
+              }
+            }}>
+              <IconButton kind="danger">
+                <Trash />
+              </IconButton>
+            </form>
           </div>
         </div>
       {/each}
@@ -102,14 +147,41 @@
     border-radius: 0.5rem;
     background: var(--neutral-100);
 
+    .m-delete-meal-plan {
+      display: block;
+    }
+
+    .dt-delete-meal-plan {
+      display: none;
+    }
+
     h2 {
       text-align: left;
     }
 
+    form {
+      --icon-button-padding-top: 0;
+      --icon-button-padding-bottom: 0;
+      --icon-size: 1.5rem;
+    }
+
     @media (min-width: 768px) {
       display: grid;
-      grid-template-columns: 1fr 7rem 7rem;
+      grid-template-columns: 1fr 7rem 7rem 4rem;
+      justify-content: end;
       align-items: center;
+
+      form {
+        justify-self: end;
+
+        &.m-delete-meal-plan {
+          display: none;
+        }
+
+        &.dt-delete-meal-plan {
+          display: block;
+        }
+      }
     }
   }
 
@@ -119,6 +191,10 @@
     align-items: flex-start;
     margin-bottom: 1rem;
     text-decoration: none;
+
+    form {
+      margin-left: 1rem;
+    }
 
     & > div:first-child {
       flex: 1;

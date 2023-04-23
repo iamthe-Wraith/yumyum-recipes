@@ -119,6 +119,16 @@ export const createMealPlan = async (data: IMealPlanData, requestor: users) => {
   return mealPlan;
 };
 
+export const deleteMealPlan = async (mealPlanId: number, requestor: users) => {
+  const mealPlan = await getMealPlan({ id: mealPlanId }, requestor);
+  if (!mealPlan) throw new ApiError('This meal plan does not exist.', 404);
+
+  return await prisma.$transaction(async (tx) => {
+    await tx.meals.deleteMany({ where: { mealPlanId } });
+    await tx.meal_plans.delete({ where: { id: mealPlanId } });
+  });
+};
+
 export const getMealPlan = async (query: Record<string, any>, requestor: users) => await prisma.meal_plans.findFirst({
   where: {
     ...query,

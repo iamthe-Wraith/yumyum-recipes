@@ -3,7 +3,7 @@ import type { PageServerLoad } from './$types';
 import { ApiError } from '$lib/error';
 import { Logger } from '$lib/services/log';
 import { redirect, type Actions, fail } from '@sveltejs/kit';
-import { getMealPlans, removeFromMealPlan, type IUpdateMealPlanData, createMealPlan, getMealPlan, type IMealPlanData, addMealToPlan } from '$lib/services/meal_plans';
+import { getMealPlans, removeFromMealPlan, createMealPlan, getMealPlan, type IMealPlanData, addMealToPlan, type IAddMealPlanData, type IRemoveMealPlanData } from '$lib/services/meal_plans';
 import { parseFormData } from '$lib/helpers/request';
 import { MealPlanStatus } from '@prisma/client';
 
@@ -11,10 +11,10 @@ export const actions = {
   addMealToPlan: async ({ request, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
 
-    let data: IUpdateMealPlanData;
+    let data: IAddMealPlanData;
 
     try {
-      data = await parseFormData<IUpdateMealPlanData>(request);
+      data = await parseFormData<IAddMealPlanData>(request);
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err
@@ -99,10 +99,10 @@ export const actions = {
   removeFromMealPlan: async ({ request, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
 
-    let data: IUpdateMealPlanData;
+    let data: IRemoveMealPlanData;
 
     try {
-      data = await parseFormData<IUpdateMealPlanData>(request);
+      data = await parseFormData<IRemoveMealPlanData>(request);
     } catch (err: any) {
       const error = err instanceof ApiError
         ? err
