@@ -10,8 +10,16 @@
   import LinkButton from "$lib/components/LinkButton.svelte";
   import IconButton from "$lib/components/IconButton.svelte";
   import Trash from "$lib/icons/Trash.svelte";
+	import Button from "$lib/components/Button.svelte";
+	import { goto } from "$app/navigation";
+	import ConfirmationModal from "$lib/components/modals/ConfirmationModal.svelte";
+	import { AppError } from "$lib/stores/error";
+	import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
 
   export let data: PageData;
+
+  let confirmDelete = false;
+  let deleting = false;
 </script>
 
 <Page>
@@ -25,6 +33,16 @@
     </div>
     <div>
       create grocery list...
+
+      <form
+        method="POST" 
+        action={`/mealplans/${data.mealPlan?.id}?/deleteMealPlan`}
+        on:submit|preventDefault={() => confirmDelete = true}
+      >
+        <IconButton kind="danger">
+          <Trash />
+        </IconButton>
+      </form>
     </div>
   </div>
   {/if}
@@ -107,6 +125,52 @@
       </li>
     {/if}
   </ul>
+
+  <ConfirmationModal
+      isOpen={confirmDelete}
+      title="Delete Meal Plan?"
+      message="Are you sure you want to delete this meal plan?"
+      appearance="secondary-primary"
+      processing={deleting}
+      on:close={() => confirmDelete = false}
+    >
+      <form 
+        slot="confirm"
+        method="POST" 
+        class="delete-meal-plan" 
+        action={`/mealplans/${data?.mealPlan?.id}?/deleteMealPlan`}
+        use:enhance={() => {
+          deleting = true;
+
+          return ({ result, update }) => {
+            if (result.type === 'success' || (result.type === 'redirect' && result.status === 303)) {
+              Toast.add({ message: 'Meal plan deleted.' });
+              goto('/mealplans');
+            } else if (result.type === 'failure') {
+              AppError.set({
+                message: result.data?.message || 'An error occurred while deleting the recipe. Please try again later.',
+                title: 'Error Deleting Recipe'
+              });
+            }
+
+            deleting = false;
+            confirmDelete = false;
+
+            update();
+          }
+        }
+      }>
+        {#if deleting}
+          <div class="loading-wrapper">
+            <LoadingBasic />
+          </div>
+        {:else}
+          <IconButton kind="danger">
+            <Trash />
+          </IconButton>
+        {/if}
+      </form>
+    </ConfirmationModal>
 </Page>
 
 <style lang="scss">
@@ -131,6 +195,10 @@
       --link-button-margin-left: 0.5rem;
       --button-margin-right: 0;
       --button-margin-left: 0.5rem;
+      
+      form {
+        --icon-button-margin-left: 0.5rem;
+      }
     }
   }
 
