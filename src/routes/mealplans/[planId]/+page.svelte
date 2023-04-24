@@ -10,11 +10,10 @@
   import LinkButton from "$lib/components/LinkButton.svelte";
   import IconButton from "$lib/components/IconButton.svelte";
   import Trash from "$lib/icons/Trash.svelte";
-	import Button from "$lib/components/Button.svelte";
-	import { goto } from "$app/navigation";
-	import ConfirmationModal from "$lib/components/modals/ConfirmationModal.svelte";
-	import { AppError } from "$lib/stores/error";
-	import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
+  import { goto } from "$app/navigation";
+  import ConfirmationModal from "$lib/components/modals/ConfirmationModal.svelte";
+  import { AppError } from "$lib/stores/error";
+  import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
 
   export let data: PageData;
 
