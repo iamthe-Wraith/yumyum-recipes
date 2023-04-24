@@ -5,17 +5,32 @@
   import type { PageData } from "../$types";
   import Button from "$lib/components/Button.svelte";
   import { Toast } from "$lib/stores/toast";
+  import IconButton from "$lib/components/IconButton.svelte";
+  import Trash from "$lib/icons/Trash.svelte";
+  import { mealPlan } from '$lib/stores/meal_plan';
+  import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
+  import { AppError } from '$lib/stores/error';
+  import LoadingBasic from '$lib/components/processing-anims/LoadingBasic.svelte';
 
   export let data: PageData;
+
+  let confirmDelete = false;
+  let mealPlanToDelete: number | null = null;
+  let deleting = false;
+
+  const updateCurrentMealPlanAfterPlanDeletion = (mealPlanId: number | null) => {
+    if (mealPlanId !== null && $mealPlan?.id === mealPlanId) mealPlan.reset();
+  }
 </script>
 
 <Page>
   <h1>Meal Plans</h1>
-  <div class="list-container">
+
+  <ul>
     {#if !data?.mealPlans?.length}
-      <div class="no-meal-plans">
+      <li class="no-meal-plans">
         <p>You don't have any meal plans yet. Create one to get started!</p>
-        <form method="POST" action="/recipes?/createMealPlan" use:enhance={() => {
+        <form method="POST" action="/mealplans?/createMealPlan" use:enhance={() => {
           return ({ result, update }) => {
             if (result.type === 'success') {
               Toast.add({ message: 'Meal plan created! Start adding meals to your plan!' });
@@ -28,35 +43,113 @@
         }}>
           <Button type="submit">Create Meal Plan</Button>
         </form>
-      </div>
+      </li>
     {:else}
       {#each data.mealPlans as mealPlan}
-        <div class="meal-plan-container">
+        <li class="meal-plan-container">
           <div class="meal-plan-container-inner">
-            <a href="/mealplans/{mealPlan.id}" class='meal-plan-info'>
-              <div>
-                <h2>{mealPlan.name}</h2>
-                <p class="last-updated">last updated: {dayjs(mealPlan.updatedAt).format('DD MMM, YYYY')}</p>
-              </div>
+            <div class='meal-plan-info'>
+              <a href="/mealplans/{mealPlan.id}">
+                <div>
+                  <h2>{mealPlan.name}</h2>
+                  <p class="last-updated">last updated: {dayjs(mealPlan.updatedAt).format('DD MMM, YYYY')}</p>
+                </div>
+    
+                <div class='status m-status {mealPlan.status.toLowerCase()}'>{mealPlan.status.toLowerCase()}</div>
+              </a>
   
-              <div class='status m-status {mealPlan.status.toLowerCase()}'>{mealPlan.status.toLowerCase()}</div>
-            </a>
+              <form
+                class="m-delete-meal-plan"
+                method="POST" 
+                action={`/mealplans/${data.mealPlan?.id}?/deleteMealPlan`}
+                on:submit|preventDefault={() => {
+                  confirmDelete = true;
+                  mealPlanToDelete = mealPlan.id;
+                }}
+              >
+                <IconButton kind="danger">
+                  <Trash />
+                </IconButton>
+              </form>
+            </div>
             
             <p class="meal-plan-recipes"><span>{mealPlan._count.meals}</span> Recipe{mealPlan._count.meals === 1 ? '' : 's'}</p>
   
             <div class='status dt-status {mealPlan.status.toLowerCase()}'>{mealPlan.status.toLowerCase()}</div>
+
+            <form
+              class="dt-delete-meal-plan"
+              method="POST" 
+              action={`/mealplans/${data.mealPlan?.id}?/deleteMealPlan`}
+              on:submit|preventDefault={() => {
+                confirmDelete = true;
+                mealPlanToDelete = mealPlan.id;
+              }}
+            >
+              <IconButton kind="danger">
+                <Trash />
+              </IconButton>
+            </form>
           </div>
-        </div>
+        </li>
       {/each}
     {/if}
-  </div>
+  </ul>
+
+  <ConfirmationModal
+    isOpen={confirmDelete}
+    title="Delete Meal Plan?"
+    message="Are you sure you want to delete this meal plan?"
+    appearance="secondary-primary"
+    processing={deleting}
+    on:close={() => confirmDelete = false}
+  >
+    <form 
+      slot="confirm"
+      method="POST" 
+      class="delete-meal-plan" 
+      action={`/mealplans/${mealPlanToDelete}?/deleteMealPlan`}
+      use:enhance={() => {
+        deleting = true;
+
+        return ({ result, update }) => {
+          if (result.type === 'success' || (result.type === 'redirect' && result.status === 303)) {
+            Toast.add({ message: 'Meal plan deleted.' });
+            updateCurrentMealPlanAfterPlanDeletion(mealPlanToDelete);
+          } else if (result.type === 'failure') {
+            AppError.set({
+              message: result.data?.message || 'An error occurred while deleting the recipe. Please try again later.',
+              title: 'Error Deleting Recipe'
+            });
+          }
+
+          deleting = false;
+          confirmDelete = false;
+          mealPlanToDelete = null;
+
+          update();
+        }
+      }
+    }>
+      {#if deleting}
+        <div class="loading-wrapper">
+          <LoadingBasic />
+        </div>
+      {:else}
+        <IconButton kind="danger">
+          <Trash />
+        </IconButton>
+      {/if}
+    </form>
+  </ConfirmationModal>
 </Page>
 
 <style lang="scss">
-  .list-container {
+  ul {
     max-width: 1000px;
     margin: 0 auto;
     padding-top: 1rem;
+    list-style: none;
   }
 
   .no-meal-plans {
@@ -102,14 +195,41 @@
     border-radius: 0.5rem;
     background: var(--neutral-100);
 
+    .m-delete-meal-plan {
+      display: block;
+    }
+
+    .dt-delete-meal-plan {
+      display: none;
+    }
+
     h2 {
       text-align: left;
     }
 
+    form {
+      --icon-button-padding-top: 0;
+      --icon-button-padding-bottom: 0;
+      --icon-size: 1.5rem;
+    }
+
     @media (min-width: 768px) {
       display: grid;
-      grid-template-columns: 1fr 7rem 7rem;
+      grid-template-columns: 1fr 7rem 7rem 4rem;
+      justify-content: end;
       align-items: center;
+
+      form {
+        justify-self: end;
+
+        &.m-delete-meal-plan {
+          display: none;
+        }
+
+        &.dt-delete-meal-plan {
+          display: block;
+        }
+      }
     }
   }
 
@@ -118,7 +238,18 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 1rem;
-    text-decoration: none;
+
+    a {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-decoration: none;
+      flex-grow: 1;
+    }
+
+    form {
+      margin-left: 1rem;
+    }
 
     & > div:first-child {
       flex: 1;
