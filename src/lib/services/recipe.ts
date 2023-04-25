@@ -239,6 +239,12 @@ export const getRecipes = async (requestor: users, options?: IGetRecipeOptions) 
   });
 };
 
+export const getRecipesCount = async (requestor: users) => prisma.recipes.count({
+  where: {
+    ownerId: requestor.id,
+  }
+});
+
 export const parseIngredients = (
   amounts: string[], 
   names: string[], 

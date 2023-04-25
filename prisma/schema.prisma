@@ -8,15 +8,23 @@ datasource db {
 }
 
 model users {
-  id           Int             @id @default(autoincrement())
-  email        String          @unique
-  password     String
-  sessions     sessions[]
-  recipes      recipes[]
-  mealPlans    meal_plans[]
-  meals        meals[]
-  createdAt    DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
-  updatedAt    DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  password      String
+  sessions      sessions[]
+  recipes       recipes[]
+  mealPlans     meal_plans[]
+  meals         meals[]
+  createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
+}
+
+model user_settings {
+  id                  Int             @id @default(autoincrement())
+  userId              Int             @map("user_id") @unique
+  defaultServingSize  Int             @map("default_serving_size")
+  createdAt           DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt           DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
 
 model sessions {
