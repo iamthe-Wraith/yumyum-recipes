@@ -22,4 +22,4 @@ export const parseFormData = async <T extends object>(request: Request) => {
   }
 
   return body as T;
-}
+};

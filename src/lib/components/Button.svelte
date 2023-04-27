@@ -4,10 +4,12 @@
   export let kind: ColorKind | 'transparent' = 'primary';
   export let type: 'button' | 'submit' = 'submit';
   export let ariaLabel: string | null = null;
+  export let disabled = false;
 </script>
 
 <button
   on:click
+  {disabled}
   {type}
   class={kind}
   aria-label={ariaLabel}
@@ -27,6 +29,11 @@
     border: none;
     cursor: pointer;
     transition: .2s ease-in-out background, .2s ease-in-out box-shadow;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
   }
 
   .primary {
@@ -34,8 +41,8 @@
     color: var(--neutral-100);
     box-shadow: inset 5px 0 15px 0 var(--primary-300);
 
-    &:hover,
-    &:focus {
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
       background: var(--primary-400);
       box-shadow: inset 5px 0 15px 0 var(--primary-200);
     }
@@ -45,8 +52,8 @@
     background: var(--secondary-500);
     color: var(--neutral-900);
 
-    &:hover,
-    &:focus {
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
       background: var(--secondary-400);
       box-shadow: inset 5px 0 15px 0 var(--secondary-200);
     }
@@ -56,8 +63,8 @@
     background: var(--tertiary-500);
     color: var(--neutral-100);
 
-    &:hover,
-    &:focus {
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
       background: var(--tertiary-400);
       box-shadow: inset 5px 0 15px 0 var(--tertiary-200);
     }
@@ -67,8 +74,8 @@
     background: var(--neutral-500);
     color: var(--neutral-900);
 
-    &:hover,
-    &:focus {
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
       background: var(--neutral-400);
       box-shadow: inset 5px 0 15px 0 var(--neutral-200);
     }
@@ -78,14 +85,14 @@
     background: var(--danger-500);
     color: var(--neutral-900);
 
-    &:hover,
-    &:focus {
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
       background: var(--danger-400);
       box-shadow: inset 5px 0 15px 0 var(--danger-200);
     }
 
-    &:focus,
-    &:focus-visible {
+    &:focus:not(:disabled),
+    &:focus-visible:not(:disabled) {
       outline-color: var(--danger-500);
     }
   }
