@@ -94,6 +94,8 @@ export const createUser = async ({ email, password, confirmedPassword }: INewUse
     const hash = await generatePasswordHash(password);
 
     return await prisma.$transaction(async (tx) => {
+      console.log('>>>>> creating user: ', email, password);
+
       const user = await tx.users.create({
         data: {
           email,
