@@ -1,13 +1,13 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-	import InputField from "$lib/components/InputField.svelte";
-	import Page from "$lib/components/Page.svelte";
-	import { isErrorStatus } from "$lib/helpers/response";
-	import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
-	import Button from "$lib/components/Button.svelte";
-	import { user } from "$lib/stores/user";
-	import type { ActionData } from "./$types";
-	import { Toast } from "$lib/stores/toast";
+  import InputField from "$lib/components/InputField.svelte";
+  import Page from "$lib/components/Page.svelte";
+  import { isErrorStatus } from "$lib/helpers/response";
+  import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
+  import Button from "$lib/components/Button.svelte";
+  import { user } from "$lib/stores/user";
+  import type { ActionData } from "./$types";
+  import { Toast } from "$lib/stores/toast";
 
   export let form: ActionData;
   let processing = false;
