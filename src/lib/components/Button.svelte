@@ -29,6 +29,7 @@
     border: none;
     cursor: pointer;
     transition: .2s ease-in-out background, .2s ease-in-out box-shadow;
+    white-space: nowrap;
 
     &:disabled {
       cursor: not-allowed;

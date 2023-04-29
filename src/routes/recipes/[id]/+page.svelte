@@ -9,6 +9,8 @@
   import { AppError } from "$lib/stores/error";
   import { Toast } from "$lib/stores/toast";
   import { mealPlan } from "$lib/stores/meal_plan";
+	import InputField from "$lib/components/InputField.svelte";
+  import { user } from "$lib/stores/user";
 
   export let data: PageData;
 
@@ -68,19 +70,32 @@
               </Button>
             </form>
           {:else}
-            <form method="POST" action="/mealplans?/addMealToPlan" use:enhance={() => {
-              return ({ result, update }) => {
-                if (result.type === 'success') {
-                  recipeIsInMealPlan = true;
-                  Toast.add({ message: 'Recipe added to meal plan!' });
-                } else if (result.type === 'failure') {
-                  Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
+            <form
+              class="add-to-meal-plan-form"
+              method="POST"
+              action="/mealplans?/addMealToPlan"
+              use:enhance={() => {
+                return ({ result, update }) => {
+                  if (result.type === 'success') {
+                    recipeIsInMealPlan = true;
+                    Toast.add({ message: 'Recipe added to meal plan!' });
+                  } else if (result.type === 'failure') {
+                    Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
+                  }
+    
+                  update();
                 }
-  
-                update();
               }
-            }}>
+            }>
               <input type="hidden" name="recipe" value={data.recipe.id} />
+              <div class="input-field-container">
+                <InputField
+                  type="number"
+                  name="servings"
+                  label="Servings"
+                  value={($user?.settings?.defaultServingSize || data.recipe.servings).toString()}
+                />
+              </div>
               <Button type="submit">
                 Add to Meal Plan
               </Button>
@@ -154,19 +169,32 @@
             </Button>
           </form>
         {:else}
-          <form method="POST" action="/mealplans?/addMealToPlan" use:enhance={() => {
-            return ({ result, update }) => {
-              if (result.type === 'success') {
-                recipeIsInMealPlan = true;
-                Toast.add({ message: 'Recipe added to meal plan!' });
-              } else if (result.type === 'failure') {
-                Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
-              }
+          <form
+            class="add-to-meal-plan-form"
+            method="POST"
+            action="/mealplans?/addMealToPlan" 
+            use:enhance={() => {
+              return ({ result, update }) => {
+                if (result.type === 'success') {
+                  recipeIsInMealPlan = true;
+                  Toast.add({ message: 'Recipe added to meal plan!' });
+                } else if (result.type === 'failure') {
+                  Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
+                }
 
-              update();
+                update();
+              }
             }
-          }}>
+          }>
             <input type="hidden" name="recipe" value={data.recipe.id} />
+            <div class="input-field-container">
+              <InputField
+                type="number"
+                name="servings"
+                label="Servings"
+                value={($user?.settings?.defaultServingSize || data.recipe.servings).toString()}
+              />
+            </div>
             <Button type="submit">
               Add to Meal Plan
             </Button>
@@ -492,6 +520,19 @@
     align-items: center;
 
     padding: 3rem 0 0;
+
+    .add-to-meal-plan-form {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      width: 80%;
+    }
+
+    .input-field-container {
+      --input-field-margin-bottom: 0;
+      
+      margin-right: 1rem;
+    }
   }
 
   .loading-wrapper {

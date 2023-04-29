@@ -1,10 +1,8 @@
 <script lang="ts">
   import { user } from '$lib/stores/user';
-  import { authenticated } from '$lib/stores/authenticated';
 	import NotificationBanner from '$lib/components/banners/NotificationBanner.svelte';
 	import Page from '$lib/components/Page.svelte';
 	import LinkButton from '$lib/components/LinkButton.svelte';
-	import Info from '$lib/icons/Info.svelte';
 	import Check from '$lib/icons/Check.svelte';
 </script>
 
@@ -13,7 +11,7 @@
     <h1>Dashboard</h1>
   
     <section class="notifications">
-      {#if !$user?.settings.defaultServingSize}
+      {#if $user?.settings && !$user?.settings?.defaultServingSize}
         <NotificationBanner>
           <div class="no-default-serving-size">
             <div>
