@@ -3,6 +3,7 @@
 
   export let error = '';
   export let label = '';
+  export let text = '';
   export let type = 'text';
   export let id = '';
   export let name = id;
@@ -18,6 +19,10 @@
     <label for={id}>{label}</label>
   {/if}
 
+  {#if text}
+    <p>{text}</p>
+  {/if}
+
   <span>
     <input
       {type}
@@ -30,6 +35,9 @@
       on:change
       on:blur
       on:focus
+      on:keydown
+      on:keypress
+      on:keyup
     />
   </span>
 
@@ -42,6 +50,7 @@
   .input-field-container {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     width: var(--input-width, 100%);
     margin-top: var(--input-field-margin-top, 0);
     margin-right: var(--input-field-margin-right, 0);
@@ -75,6 +84,13 @@
 
   label {
     margin-bottom: 0.25rem;
+  }
+
+  p {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+    line-height: 1.2rem;
   }
 
   span {

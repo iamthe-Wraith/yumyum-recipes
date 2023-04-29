@@ -1,18 +1,21 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { page } from '$app/stores';
   import { enhance } from "$app/forms";
+  import { goto } from '$app/navigation';
+  import type { PageData } from './$types';
   import IconIndicator from "$lib/components/IconIndicator.svelte";
   import LinkButton from "$lib/components/LinkButton.svelte";
   import Page from "$lib/components/Page.svelte";
   import Eye from "$lib/icons/Eye.svelte";
   import EyeOff from "$lib/icons/EyeOff.svelte";
-  import { onMount } from "svelte";
-  import type { ActionData, PageData } from './$types';
   import { Toast } from '$lib/stores/toast';
-  import { goto } from '$app/navigation';
   import Button from '$lib/components/Button.svelte';
   import type { IMealPlan } from '$types/models';
   import { mealPlan } from '$lib/stores/meal_plan';
+  import { user } from "$lib/stores/user";
+	import InputField from '$lib/components/InputField.svelte';
+
 
   export let data: PageData;
 
@@ -118,35 +121,53 @@
           {#if $mealPlan}
             <div class="row recipe-controls-container">
               {#if isInMealPlan(recipe.id)}
-                <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
-                  return ({ result, update }) => {
-                    if (result.type === 'success') {
-                      Toast.add({ message: 'Recipe removed from meal plan.' });
-                    } else if (result.type === 'failure') {
-                      Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
-                    }
+                <form 
+                  method="POST" 
+                  action="/mealplans?/removeFromMealPlan" 
+                  class="remove-from-meal-plan-form"
+                  use:enhance={({ data }) => {
+                    return ({ result, update }) => {
+                      if (result.type === 'success') {
+                        Toast.add({ message: 'Recipe removed from meal plan.' });
+                      } else if (result.type === 'failure') {
+                        Toast.add({ message: result.data?.message || 'There was an error removing the recipe from your meal plan. Please try again.', type: 'error' });
+                      }
 
-                    update();
+                      update();
+                    }
                   }
-                }}>
+                }>
                   <input type="hidden" name="meal" value={$mealPlan.meals.find(meal => meal.recipeId === recipe.id)?.id} />
                   <Button type="submit" kind="transparent">
                     Remove from Meal Plan
                   </Button>
                 </form>
               {:else}
-                <form method="POST" action="/mealplans?/addMealToPlan" use:enhance={() => {
-                  return ({ result, update }) => {
-                    if (result.type === 'success') {
-                      Toast.add({ message: 'Recipe added to meal plan!' });
-                    } else if (result.type === 'failure') {
-                      Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
-                    }
+                <form 
+                  method="POST"
+                  action="/mealplans?/addMealToPlan"
+                  class="add-to-meal-plan-form"
+                  use:enhance={() => {
+                    return ({ result, update }) => {
+                      if (result.type === 'success') {
+                        Toast.add({ message: 'Recipe added to meal plan!' });
+                      } else if (result.type === 'failure') {
+                        Toast.add({ message: result.data?.message || 'There was an error adding the recipe to your meal plan. Please try again.', type: 'error' });
+                      }
 
-                    update();
+                      update();
+                    }
                   }
-                }}>
+                }>
                   <input type="hidden" name="recipe" value={recipe.id} />
+                  <div class="input-field-container">
+                    <InputField
+                      type="number"
+                      name="servings"
+                      label="Servings"
+                      value={($user?.settings?.defaultServingSize || recipe.servings).toString()}
+                    />
+                  </div>
                   <Button type="submit">
                     Add to Meal Plan
                   </Button>
@@ -318,6 +339,9 @@
   }
 
   .recipe-controls-container {
+    --button-margin-right: 0;
+    --button-margin-bottom: 0;
+
     display: flex;
     justify-content: flex-end;
     min-width: 100%;
@@ -326,8 +350,26 @@
     background: var(--neutral-100);
     border-radius: 0.5rem;
 
-    --button-margin-right: 0;
-    --button-margin-bottom: 0;
+    form {
+      --input-field-margin-bottom: 0;
+
+      display: flex;
+      align-items: flex-end;
+      width: 100%;
+      margin-left: auto;
+
+      &.add-to-meal-plan-form {
+        justify-content: space-between;
+      }
+
+      &.remove-from-meal-plan-form {
+        justify-content: flex-end;
+      }
+
+      .input-field-container {
+        margin-right: 1rem;
+      }
+    }
   }
 
   .meta-container {

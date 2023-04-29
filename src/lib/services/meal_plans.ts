@@ -20,8 +20,18 @@ const mealToAddToPlanSchema = z.object({
     (x) => parseInt(z.string().parse(x), 10),
     z.number({
       invalid_type_error: 'Recipe ID must be a number.',
-    }).positive().min(1, { message: 'Invalid recipe ID found.' })
+    })
+      .positive()
+      .min(1, { message: 'Invalid recipe ID found.' })
   ),
+  servings: z.preprocess(
+    (x) => parseInt(z.string().parse(x), 10),
+    z.number({
+      invalid_type_error: 'Serving size must be a number.',
+    })
+      .positive()
+      .min(1, { message: 'Invalid serving size found.' })
+  )
 });
 
 const mealToRemoveFromPlanSchema = z.object({
@@ -29,7 +39,9 @@ const mealToRemoveFromPlanSchema = z.object({
     (x) => parseInt(z.string().parse(x), 10),
     z.number({
       invalid_type_error: 'Meal ID must be a number.',
-    }).positive().min(1, { message: 'Invalid meal ID found.' })
+    })
+      .positive()
+      .min(1, { message: 'Invalid meal ID found.' })
   ),
 });
 
@@ -60,13 +72,19 @@ export const addMealToPlan = async (data: IAddMealPlanData, requestor: users) =>
 
     if (!recipe) throw new ApiError('This recipe does not exist.', 404);
 
+    const settings = await tx.user_settings.findFirst({
+      where: {
+        userId: requestor.id,
+      },
+    });
+
     const meal = await tx.meals.create({
       data: {
         ownerId: requestor.id,
         recipeId: recipe.id,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         mealPlanId: mealPlan!.id,
-        serving: recipe.servings, // TODO: update this with the user's input. if no input, fallback to user's default. if default not set, then fallback to recipe serving size.
+        serving: parsed?.data?.servings || settings?.defaultServingSize || recipe.servings, // TODO: update this with the user's input. if no input, fallback to user's default. if default not set, then fallback to recipe serving size.
       },
       include: {
         recipe: true,
