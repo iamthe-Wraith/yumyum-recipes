@@ -15,6 +15,7 @@ model users {
   recipes       recipes[]
   mealPlans     meal_plans[]
   meals         meals[]
+  groceryLists  grocery_list[]
   createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
@@ -75,6 +76,7 @@ model meal_plans {
   ownerId       Int             @map("owner_id")
   owner         users           @relation(fields: [ownerId], references: [id])
   meals         meals[]
+  groceryList   grocery_list[]
   status        MealPlanStatus
   createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
@@ -91,6 +93,28 @@ model meals {
   serving       Int
   createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
+}
+
+model grocery_list_item {
+  id            Int             @id @default(autoincrement())
+  groceryListId Int             @map("grocery_list_id")
+  groceryList   grocery_list    @relation(fields: [groceryListId], references: [id])
+  name          String
+  kelevens      Float
+  type          IngredientType
+  status        GroceryListItemStatus
+  createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
+}
+
+model grocery_list {
+  id            Int             @id @default(autoincrement())
+  ownerId       Int             @map("owner_id")
+  owner         users           @relation(fields: [ownerId], references: [id])
+  mealPlanId    Int             @map("meal_plan_id")
+  mealPlan      meal_plans      @relation(fields: [mealPlanId], references: [id])
+  status        GroceryListStatus
+  items         grocery_list_item[]
 }
 
 enum IngredientUnitOfMeasure {
@@ -117,6 +141,16 @@ enum IngredientType {
 }
 
 enum MealPlanStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum GroceryListStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum GroceryListItemStatus {
   ACTIVE
   INACTIVE
 }
