@@ -14,9 +14,8 @@
   import ConfirmationModal from "$lib/components/modals/ConfirmationModal.svelte";
   import { AppError } from "$lib/stores/error";
   import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
-	import Button from "$lib/components/Button.svelte";
-	import { MealPlanStatus } from "@prisma/client";
-	import { mealPlan } from "$lib/stores/meal_plan";
+  import Button from "$lib/components/Button.svelte";
+  import { MealPlanStatus } from "@prisma/client";
 
   export let data: PageData;
 
@@ -24,20 +23,6 @@
   let confirmDelete = false;
   let creating = false;
   let deleting = false;
-
-  // use:enhance={() => {
-  //           return ({ result, update }) => {
-  //             if (result.type === 'success') {
-  //               Toast.add({ message: 'Grocery list created.' });
-  //             }
-              
-  //             if (result.type === 'failure') {
-  //               Toast.add({ message: result.data?.message || 'There was an error creating your grocery list. Please try again.', type: 'error' })
-  //             }
-
-  //             update();
-  //           }
-  //         }}
 </script>
 
 <Page>
@@ -158,7 +143,7 @@
   <ConfirmationModal
     isOpen={confirmClose}
     title="All Done?"
-    message="Are you sure you are ready to create your grocery list? This will close your meal plan and mark it as complete."
+    message="Are you sure you're ready to create your grocery list? This will close your meal plan and mark it as complete."
     appearance="secondary-primary"
     processing={creating}
     on:close={() => confirmClose = false}
@@ -170,8 +155,8 @@
       action={`/mealplans/${data.mealPlan?.id}/grocerylist?/createGroceryList`}
       use:enhance={() => {
         creating = true;
-      }
-    }>
+      }}
+    >
       {#if creating}
         <div class="loading-wrapper">
           <LoadingBasic />

@@ -2,11 +2,20 @@ import { z } from 'zod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { prisma } from '$lib/db/client';
-import { MealPlanStatus, type users } from '@prisma/client';
+import { MealPlanStatus, Prisma, PrismaClient, type meal_plans, type meals, type users } from '@prisma/client';
 import { ApiError } from '$lib/error';
 import { HttpStatus } from '$lib/constants/error';
+import type { IRecipe } from './recipe';
 
 dayjs.extend(utc);
+
+export interface IMeal extends meals {
+  recipe: IRecipe;
+}
+
+export interface IMealPlan extends meal_plans {
+  meals: IMeal[];
+}
 
 const mealPlanSchema = z.object({
   name: z.string({
@@ -218,11 +227,16 @@ export const removeFromMealPlan = async (data: IRemoveMealPlanData, requestor: u
   });
 };
 
-export const updateMealPlanStatus = async (mealPlanId: number, status: MealPlanStatus, requestor: users) => {
+export const updateMealPlanStatus = async (
+  mealPlanId: number, 
+  status: MealPlanStatus, 
+  requestor: users, 
+  context?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
+) => {
   const mealPlan = await getMealPlan({ id: mealPlanId }, requestor);
   if (!mealPlan) throw new ApiError('This meal plan does not exist.', 404);
 
-  return await prisma.meal_plans.update({
+  return await (context || prisma).meal_plans.update({
     where: {
       id: mealPlanId,
     },
