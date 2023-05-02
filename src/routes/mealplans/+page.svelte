@@ -107,7 +107,6 @@
     <form 
       slot="confirm"
       method="POST" 
-      class="delete-meal-plan" 
       action={`/mealplans/${mealPlanToDelete}?/deleteMealPlan`}
       use:enhance={() => {
         deleting = true;

@@ -147,19 +147,41 @@ export const deleteMealPlan = async (mealPlanId: number, requestor: users) => {
   });
 };
 
-export const getMealPlan = async (query: Record<string, any>, requestor: users) => await prisma.meal_plans.findFirst({
-  where: {
-    ...query,
-    ownerId: requestor.id
-  },
-  include: {
-    meals: {
-      include: {
-        recipe: true,
-      }
+export const getMealPlanWithIngredients = async (query: Record<string, any>, requestor: users) => {
+  return await prisma.meal_plans.findFirst({
+    where: {
+      ...query,
+      ownerId: requestor.id
     },
-  }
-});
+    include: {
+      meals: {
+        include: {
+          recipe: {
+            include: {
+              ingredients: true,
+            }
+          },
+        }
+      },
+    },
+  });
+};
+
+export const getMealPlan = async (query: Record<string, any>, requestor: users) => {
+  return await prisma.meal_plans.findFirst({
+    where: {
+      ...query,
+      ownerId: requestor.id
+    },
+    include: {
+      meals: {
+        include: {
+          recipe: true,
+        }
+      },
+    },
+  });
+};
 
 export const getMealPlans = async (query: Record<string, any> = {}, requestor: users) => await prisma.meal_plans.findMany({
   where: {
@@ -193,6 +215,20 @@ export const removeFromMealPlan = async (data: IRemoveMealPlanData, requestor: u
     mealPlan = await getMealPlan({ status: MealPlanStatus.ACTIVE }, requestor);
   
     return mealPlan;
+  });
+};
+
+export const updateMealPlanStatus = async (mealPlanId: number, status: MealPlanStatus, requestor: users) => {
+  const mealPlan = await getMealPlan({ id: mealPlanId }, requestor);
+  if (!mealPlan) throw new ApiError('This meal plan does not exist.', 404);
+
+  return await prisma.meal_plans.update({
+    where: {
+      id: mealPlanId,
+    },
+    data: {
+      status,
+    },
   });
 };
 

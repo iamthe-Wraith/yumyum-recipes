@@ -15,7 +15,7 @@ export const IngredientTypes = [
   { name: IngredientType.COUNT },
   { name: IngredientType.VOLUME },
   { name: IngredientType.WEIGHT },
-]
+];
 
 export const UnitsOfMeasure: IUnitOfMeasure[] = [
   {
@@ -108,4 +108,4 @@ export const UnitsOfMeasure: IUnitOfMeasure[] = [
     type: IngredientType.WEIGHT,
     kelevens: 1000,
   },
-]
+];
