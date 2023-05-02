@@ -14,10 +14,14 @@
   import ConfirmationModal from "$lib/components/modals/ConfirmationModal.svelte";
   import { AppError } from "$lib/stores/error";
   import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
+  import Button from "$lib/components/Button.svelte";
+  import { MealPlanStatus } from "@prisma/client";
 
   export let data: PageData;
 
+  let confirmClose = false;
   let confirmDelete = false;
+  let creating = false;
   let deleting = false;
 </script>
 
@@ -30,8 +34,19 @@
     <div class="filter-container">
       filter
     </div>
+
     <div>
-      create grocery list...
+      {#if data.mealPlan?.status === MealPlanStatus.ACTIVE}
+        <form
+          method="POST"
+          action={`/mealplans/${data.mealPlan.id}/grocerylist?/createGroceryList`}
+          on:submit|preventDefault={() => {
+            confirmClose = true;
+          }}
+        >
+          <Button>Create Grocery List</Button>
+        </form>
+      {/if}
 
       <form
         method="POST" 
@@ -51,7 +66,7 @@
       {#each (data.mealPlan?.meals || []) as meal}
         <li>
           <div class='remove-container'>
-            <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={({ data }) => {
+            <form method="POST" action="/mealplans?/removeFromMealPlan" use:enhance={() => {
               return ({ result, update }) => {
                 if (result.type === 'success') {
                   Toast.add({ message: 'Recipe removed from meal plan.' });
@@ -126,50 +141,78 @@
   </ul>
 
   <ConfirmationModal
-      isOpen={confirmDelete}
-      title="Delete Meal Plan?"
-      message="Are you sure you want to delete this meal plan?"
-      appearance="secondary-primary"
-      processing={deleting}
-      on:close={() => confirmDelete = false}
+    isOpen={confirmClose}
+    title="All Done?"
+    message="Are you sure you're ready to create your grocery list? This will close your meal plan and mark it as complete."
+    appearance="secondary-primary"
+    processing={creating}
+    on:close={() => confirmClose = false}
+  >
+    <form 
+      slot="confirm"
+      method="POST" 
+      class="modal-form"
+      action={`/mealplans/${data.mealPlan?.id}/grocerylist?/createGroceryList`}
+      use:enhance={() => {
+        creating = true;
+      }}
     >
-      <form 
-        slot="confirm"
-        method="POST" 
-        class="delete-meal-plan" 
-        action={`/mealplans/${data?.mealPlan?.id}?/deleteMealPlan`}
-        use:enhance={() => {
-          deleting = true;
+      {#if creating}
+        <div class="loading-wrapper">
+          <LoadingBasic />
+        </div>
+      {:else}
+        <Button>
+          Create Grocery List
+        </Button>
+      {/if}
+    </form>
+  </ConfirmationModal>
 
-          return ({ result, update }) => {
-            if (result.type === 'success' || (result.type === 'redirect' && result.status === 303)) {
-              Toast.add({ message: 'Meal plan deleted.' });
-              goto('/mealplans');
-            } else if (result.type === 'failure') {
-              AppError.set({
-                message: result.data?.message || 'An error occurred while deleting the recipe. Please try again later.',
-                title: 'Error Deleting Recipe'
-              });
-            }
+  <ConfirmationModal
+    isOpen={confirmDelete}
+    title="Delete Meal Plan?"
+    message="Are you sure you want to delete this meal plan?"
+    appearance="secondary-primary"
+    processing={deleting}
+    on:close={() => confirmDelete = false}
+  >
+    <form 
+      slot="confirm"
+      method="POST"
+      action={`/mealplans/${data?.mealPlan?.id}?/deleteMealPlan`}
+      use:enhance={() => {
+        deleting = true;
 
-            deleting = false;
-            confirmDelete = false;
-
-            update();
+        return ({ result, update }) => {
+          if (result.type === 'success' || (result.type === 'redirect' && result.status === 303)) {
+            Toast.add({ message: 'Meal plan deleted.' });
+            goto('/mealplans');
+          } else if (result.type === 'failure') {
+            AppError.set({
+              message: result.data?.message || 'An error occurred while deleting the recipe. Please try again later.',
+              title: 'Error Deleting Recipe'
+            });
           }
+
+          deleting = false;
+          confirmDelete = false;
+
+          update();
         }
-      }>
-        {#if deleting}
-          <div class="loading-wrapper">
-            <LoadingBasic />
-          </div>
-        {:else}
-          <IconButton kind="danger">
-            <Trash />
-          </IconButton>
-        {/if}
-      </form>
-    </ConfirmationModal>
+      }
+    }>
+      {#if deleting}
+        <div class="loading-wrapper">
+          <LoadingBasic />
+        </div>
+      {:else}
+        <IconButton kind="danger">
+          <Trash />
+        </IconButton>
+      {/if}
+    </form>
+  </ConfirmationModal>
 </Page>
 
 <style lang="scss">

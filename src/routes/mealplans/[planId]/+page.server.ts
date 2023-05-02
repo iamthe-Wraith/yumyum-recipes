@@ -1,9 +1,10 @@
 import { wrapServerLoadWithSentry } from '@sentry/sveltekit';
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { deleteMealPlan, getMealPlan } from '$lib/services/meal_plans';
 import { ApiError } from '$lib/error';
 import { Logger } from '$lib/services/log';
+import type { grocery_lists } from '@prisma/client';
 
 export const actions = {
   deleteMealPlan: async ({ params, locals }) => {
@@ -27,7 +28,7 @@ export const actions = {
 
     throw redirect(303, '/mealplans');
   },
-};
+} satisfies Actions;
 
 export const load = wrapServerLoadWithSentry(async ({ locals, params }) => {
   if (!locals.user) throw redirect(303, '/signin');
@@ -40,7 +41,7 @@ export const load = wrapServerLoadWithSentry(async ({ locals, params }) => {
     const [mealPlan] = await Promise.all([
       getMealPlan({ id: planId }, locals.user)
     ]);
-    return { mealPlan };
+    return { mealPlan, groceryList: { id: 'fake_id' } as unknown as grocery_lists };
   } catch (err) {
     const error = err instanceof ApiError
       ? err

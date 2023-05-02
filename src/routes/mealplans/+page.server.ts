@@ -73,29 +73,6 @@ export const actions = {
       return fail(error.status, (error as ApiError).toJSON());
     }
   },
-  // createGroceryList: async ({ locals }) => {
-  //   if (!locals.user) throw redirect(303, '/signin');
-
-  //   try {
-  //     const mealPlan = await getMealPlan({ status: MealPlanStatus.ACTIVE }, locals.user);
-
-  //     // TODO: create grocery list
-
-  //     if (!mealPlan) throw new ApiError('There are no active meal plans to create a grocery list from.', 400);
-
-  //     Logger.log('Creating grocery list for meal plan: ', mealPlan.id, mealPlan.name);
-
-  //     return {};
-  //   } catch (err) {
-  //     const error = err instanceof ApiError
-  //       ? new ApiError(err.message, err.status)
-  //       : new ApiError('There was an error creating your grocery list. Please try again later.', 500);
-
-  //     Logger.error('Error creating grocery list: ', err);
-      
-  //     return fail(error.status, (error as ApiError).toJSON());
-  //   }
-  // },
   removeFromMealPlan: async ({ request, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
 

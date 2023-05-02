@@ -92,6 +92,8 @@
 <style lang="scss">
   .modal-outer {
     position: relative;
+    max-width: 40rem;
+    width: 90%;
     padding: 0.5rem;
     border-radius: 0.5rem;
     z-index: 10;
