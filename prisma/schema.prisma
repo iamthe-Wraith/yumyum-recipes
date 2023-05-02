@@ -15,7 +15,7 @@ model users {
   recipes       recipes[]
   mealPlans     meal_plans[]
   meals         meals[]
-  groceryLists  grocery_list[]
+  groceryLists  grocery_lists[]
   createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
@@ -76,7 +76,7 @@ model meal_plans {
   ownerId       Int             @map("owner_id")
   owner         users           @relation(fields: [ownerId], references: [id])
   meals         meals[]
-  groceryList   grocery_list[]
+  groceryList   grocery_lists[]
   status        MealPlanStatus
   createdAt     DateTime        @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
@@ -95,10 +95,10 @@ model meals {
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
 
-model grocery_list_item {
+model grocery_list_items {
   id            Int             @id @default(autoincrement())
   groceryListId Int             @map("grocery_list_id")
-  groceryList   grocery_list    @relation(fields: [groceryListId], references: [id])
+  groceryList   grocery_lists   @relation(fields: [groceryListId], references: [id])
   name          String
   kelevens      Float
   type          IngredientType
@@ -107,14 +107,14 @@ model grocery_list_item {
   updatedAt     DateTime        @default(now()) @db.Timestamp(6) @map("updated_at")
 }
 
-model grocery_list {
+model grocery_lists {
   id            Int             @id @default(autoincrement())
   ownerId       Int             @map("owner_id")
   owner         users           @relation(fields: [ownerId], references: [id])
   mealPlanId    Int             @map("meal_plan_id")
   mealPlan      meal_plans      @relation(fields: [mealPlanId], references: [id])
   status        GroceryListStatus
-  items         grocery_list_item[]
+  items         grocery_list_items[]
 }
 
 enum IngredientUnitOfMeasure {
