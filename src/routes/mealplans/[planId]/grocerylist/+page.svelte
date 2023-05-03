@@ -1,8 +1,8 @@
 <script lang="ts">
   import Checkbox from "$lib/components/Checkbox.svelte";
-import Page from "$lib/components/Page.svelte";
-	import { GroceryListItemStatus } from "$types/models";
-	import type { PageData } from "./$types";
+  import Page from "$lib/components/Page.svelte";
+  import { GroceryListItemStatus } from "$types/models";
+  import type { PageData } from "./$types";
 
   export let data: PageData;
   
