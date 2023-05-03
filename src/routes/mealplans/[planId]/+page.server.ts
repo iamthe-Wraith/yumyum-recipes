@@ -4,7 +4,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { deleteMealPlan, getMealPlan } from '$lib/services/meal_plans';
 import { ApiError } from '$lib/error';
 import { Logger } from '$lib/services/log';
-import type { grocery_lists } from '@prisma/client';
+import { getGroceryList } from '$lib/services/grocery_lists';
 
 export const actions = {
   deleteMealPlan: async ({ params, locals }) => {
@@ -38,10 +38,11 @@ export const load = wrapServerLoadWithSentry(async ({ locals, params }) => {
 
     if (isNaN(planId)) throw new ApiError('Invalid meal plan ID', 400);
 
-    const [mealPlan] = await Promise.all([
-      getMealPlan({ id: planId }, locals.user)
+    const [mealPlan, groceryList] = await Promise.all([
+      getMealPlan({ id: planId }, locals.user),
+      getGroceryList({}, planId, locals.user),
     ]);
-    return { mealPlan, groceryList: { id: 'fake_id' } as unknown as grocery_lists };
+    return { mealPlan, ...groceryList };
   } catch (err) {
     const error = err instanceof ApiError
       ? err
