@@ -15,7 +15,7 @@
   import { AppError } from "$lib/stores/error";
   import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
   import Button from "$lib/components/Button.svelte";
-  import { MealPlanStatus } from "@prisma/client";
+  import { mealPlan } from "$lib/stores/meal_plan";
 
   export let data: PageData;
 
@@ -36,7 +36,11 @@
     </div>
 
     <div>
-      {#if data.mealPlan?.status === MealPlanStatus.ACTIVE}
+      {#if data.groceryList}
+        <LinkButton href={`/mealplans/${data.mealPlan.id}/grocerylist`}>
+          View Grocery List
+        </LinkButton>
+      {:else}
         <form
           method="POST"
           action={`/mealplans/${data.mealPlan.id}/grocerylist?/createGroceryList`}
@@ -155,6 +159,10 @@
       action={`/mealplans/${data.mealPlan?.id}/grocerylist?/createGroceryList`}
       use:enhance={() => {
         creating = true;
+
+        return () => {
+          mealPlan.reset();
+        }
       }}
     >
       {#if creating}

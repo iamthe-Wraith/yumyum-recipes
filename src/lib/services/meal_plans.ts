@@ -2,20 +2,11 @@ import { z } from 'zod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { prisma } from '$lib/db/client';
-import { MealPlanStatus, Prisma, PrismaClient, type meal_plans, type meals, type users } from '@prisma/client';
+import { MealPlanStatus, Prisma, PrismaClient, type users } from '@prisma/client';
 import { ApiError } from '$lib/error';
 import { HttpStatus } from '$lib/constants/error';
-import type { IRecipe } from './recipe';
 
 dayjs.extend(utc);
-
-export interface IMeal extends meals {
-  recipe: IRecipe;
-}
-
-export interface IMealPlan extends meal_plans {
-  meals: IMeal[];
-}
 
 const mealPlanSchema = z.object({
   name: z.string({

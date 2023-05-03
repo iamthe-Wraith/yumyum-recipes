@@ -3,9 +3,8 @@
 
   export let id: string;
   export let name: string;
-  export let value: string = '';
   export let checked = false;
-  export let text: string;
+  export let text = '';
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 </script>
 
@@ -14,7 +13,6 @@
     type="checkbox"
     {id}
     {name}
-    {value}
     bind:checked
   />
 
@@ -26,7 +24,9 @@
         {/if}
       </span>
     </span>
-    <p>{text}</p>
+    {#if text}
+      <p>{text}</p>
+    {/if}
   </label>
 </div>
 

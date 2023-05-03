@@ -2,17 +2,13 @@ import { HttpStatus } from '$lib/constants/error';
 import { UnitsOfMeasure } from '$lib/constants/ingredients';
 import { prisma } from '$lib/db/client';
 import { ApiError } from '$lib/error';
-import { IngredientType, IngredientUnitOfMeasure, type ingredients, type recipes, type users } from '@prisma/client';
+import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from '@prisma/client';
 import { z } from 'zod';
 import { Logger } from './log';
 
 export interface IGetRecipeOptions {
   sort?: 'asc' | 'desc';
   includePublic?: boolean;
-}
-
-export interface IRecipe extends recipes {
-  ingredients: ingredients[];
 }
 
 const recipeSchema = z.object({
