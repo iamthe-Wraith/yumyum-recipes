@@ -14,6 +14,7 @@
     {id}
     {name}
     bind:checked
+    on:change
   />
 
   <label for={id} class={appearance}>
