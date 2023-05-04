@@ -29,6 +29,12 @@ export interface IGroceryList extends grocery_lists {
 }
 
 /** if this changes, the prisma schema needs to be updated as well */
+export enum GroceryListStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
+/** if this changes, the prisma schema needs to be updated as well */
 export enum GroceryListItemStatus {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',

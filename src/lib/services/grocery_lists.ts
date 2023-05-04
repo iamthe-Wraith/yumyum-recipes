@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { z } from 'zod';
-import { GroceryListItemStatus, GroceryListStatus, IngredientType, MealPlanStatus, type grocery_list_items, type grocery_lists, type users } from '@prisma/client';
+import { GroceryListItemStatus, GroceryListStatus, IngredientType, MealPlanStatus, Prisma, PrismaClient, type grocery_list_items, type grocery_lists, type users } from '@prisma/client';
 import { getMealPlanWithIngredients, updateMealPlanStatus } from './meal_plans';
 import { ApiError } from '$lib/error';
 import { HttpStatus } from '$lib/constants/error';
@@ -75,6 +75,25 @@ const constructGroceryListItems = (mealPlan: IMealPlan, groceryList: grocery_lis
   return groceryListItems;
 };
 
+export const completeGroceryList = async (mealPlanId: number, requestor: users) => {
+  return await prisma.$transaction(async (tx) => {
+    const groceryList = await getGroceryList({ status: GroceryListStatus.ACTIVE }, mealPlanId, requestor, tx);
+
+    if (!groceryList?.groceryList) {
+      throw new ApiError('Grocery list not found.', HttpStatus.NOT_FOUND);
+    }
+
+    return await tx.grocery_lists.update({
+      where: {
+        id: groceryList.groceryList.id,
+      },
+      data: {
+        status: GroceryListStatus.INACTIVE,
+      },
+    });
+  });
+};
+
 export const createGroceryList = async (mealPlanId: number, requestor: users) => {
   return await prisma.$transaction(async (tx) => {
     const mealPlan = await getMealPlanWithIngredients({ id: mealPlanId }, requestor);
@@ -131,8 +150,13 @@ export const createGroceryList = async (mealPlanId: number, requestor: users) =>
   });
 };
 
-export const getGroceryList = async (query: Record<string, any>, mealPlanId: number, requestor: users) => {
-  const groceryList = await prisma.grocery_lists.findFirst({
+export const getGroceryList = async (
+  query: Record<string, any>, 
+  mealPlanId: number, 
+  requestor: users,
+  context?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
+) => {
+  const groceryList = await (context || prisma).grocery_lists.findFirst({
     where: {
       ...query,
       mealPlanId,
@@ -149,7 +173,7 @@ export const getGroceryList = async (query: Record<string, any>, mealPlanId: num
 
   if (!groceryList) return null;
 
-  const itemsRemaining = await prisma.grocery_list_items.count({
+  const itemsRemaining = await (context || prisma).grocery_list_items.count({
     where: {
       groceryListId: groceryList.id,
       status: GroceryListItemStatus.ACTIVE
@@ -159,8 +183,13 @@ export const getGroceryList = async (query: Record<string, any>, mealPlanId: num
   return { groceryList, itemsRemaining };
 };
 
-export const getGroceryListWithItems = async (query: Record<string, any>, mealPlanId: number, requestor: users) => {
-  const groceryList: IGroceryList | null = await prisma.grocery_lists.findFirst({
+export const getGroceryListWithItems = async (
+  query: Record<string, any>,
+  mealPlanId: number,
+  requestor: users,
+  context?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
+) => {
+  const groceryList: IGroceryList | null = await (context || prisma).grocery_lists.findFirst({
     where: {
       ...query,
       mealPlanId,
@@ -204,7 +233,7 @@ const getIngredientUnitFromAmount = (kelevens: number, type: IngredientType): II
   };
 };
 
-export const updateGroceryList = async (data: IUpdateGroceryListItemData, requestor: users) => {
+export const updateGroceryList = async (data: IUpdateGroceryListItemData, mealPlanId: number, requestor: users) => {
   return await prisma.$transaction(async (tx) => {
     const parsed = validateGroceryListItemDataToUpdate(data);
 
@@ -231,7 +260,7 @@ export const updateGroceryList = async (data: IUpdateGroceryListItemData, reques
       },
     });
     
-    return getGroceryListWithItems({ id: parsed.data.listId }, item.groceryListId, requestor);
+    return await getGroceryListWithItems({ id: parsed.data.listId }, mealPlanId, requestor, tx);
   });
 };
 

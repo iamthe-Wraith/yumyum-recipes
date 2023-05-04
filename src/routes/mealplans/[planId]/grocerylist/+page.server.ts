@@ -1,5 +1,5 @@
 import { ApiError } from '$lib/error';
-import { createGroceryList, getGroceryListWithItems, updateGroceryList, type IUpdateGroceryListItemData } from '$lib/services/grocery_lists';
+import { createGroceryList, getGroceryListWithItems, updateGroceryList, type IUpdateGroceryListItemData, completeGroceryList } from '$lib/services/grocery_lists';
 import { Logger } from '$lib/services/log';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
@@ -8,6 +8,25 @@ import type { IGroceryList } from '$types/models';
 import { parseFormData } from '$lib/helpers/request';
 
 export const actions = {
+  completeGroceryList: async ({ params, locals }) => {
+    if (!locals.user) throw redirect(303, '/signin');
+
+    const planId = parseInt(params.planId);
+
+    try {
+      if (isNaN(planId)) throw new ApiError('Invalid meal plan ID', 400);
+      const groceryList = await completeGroceryList(planId, locals.user);
+      return { groceryList };
+    } catch (err) {
+      const error = err instanceof ApiError
+        ? new ApiError(err.message, err.status)
+        : new ApiError('There was an error completing your grocery list. Please try again later.', 500);
+
+      Logger.error('Error completing grocery list: ', err);
+      
+      return fail(error.status, (error as ApiError).toJSON());
+    }
+  },
   createGroceryList: async ({ params, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
 
@@ -28,13 +47,17 @@ export const actions = {
 
     throw redirect(303, `/mealplans/${planId}/grocerylist`);
   },
-  updateGroceryListItemStatus: async ({ request, locals }) => {
+  updateGroceryListItemStatus: async ({ request, params, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');
 
     try {
+      const mealPlanId = parseInt(params.planId, 10);
+
+      if (isNaN(mealPlanId)) throw new ApiError('Invalid meal plan ID', 400);
+
       const data = await parseFormData<IUpdateGroceryListItemData>(request);
 
-      const groceryList = await updateGroceryList(data, locals.user);
+      const groceryList = await updateGroceryList(data, mealPlanId, locals.user);
 
       return { groceryList };
     } catch (err) {
