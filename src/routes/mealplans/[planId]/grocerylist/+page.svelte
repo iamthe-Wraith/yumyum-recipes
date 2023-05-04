@@ -1,10 +1,10 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-	import Button from "$lib/components/Button.svelte";
+  import Button from "$lib/components/Button.svelte";
   import Page from "$lib/components/Page.svelte";
-	import ConfirmationModal from "$lib/components/modals/ConfirmationModal.svelte";
-	import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
-	import { Toast } from "$lib/stores/toast";
+  import ConfirmationModal from "$lib/components/modals/ConfirmationModal.svelte";
+  import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
+  import { Toast } from "$lib/stores/toast";
   import { GroceryListItemStatus, GroceryListStatus, type IGroceryListItem } from "$types/models";
   import type { PageData } from "./$types";
 
