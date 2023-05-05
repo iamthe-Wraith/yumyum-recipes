@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { enhance } from "$app/forms";
-	import Button from "$lib/components/Button.svelte";
-	import ErrorText from "$lib/components/ErrorText.svelte";
+  import { enhance } from "$app/forms";
+  import Button from "$lib/components/Button.svelte";
+  import ErrorText from "$lib/components/ErrorText.svelte";
   import InputField from "$lib/components/InputField.svelte";
-	import Page from "$lib/components/Page.svelte";
+  import Page from "$lib/components/Page.svelte";
   import { isErrorStatus } from "$lib/helpers/response";
-	import type { ActionData } from "./$types";
+  import type { ActionData } from "./$types";
   
   export let form: ActionData;
 </script>
