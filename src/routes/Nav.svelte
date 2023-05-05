@@ -300,6 +300,10 @@
 
           &.unauthenticated {
             flex-direction: row;
+
+            a {
+              margin-right: 1rem;
+            }
           }
 
           & > * {
