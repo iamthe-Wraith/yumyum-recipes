@@ -351,12 +351,12 @@
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
-    max-width: 20rem;
     margin-right: auto;
     margin-left: auto;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    background: var(--primary-500);
+    padding: 1rem 15vw;
+    background: none;
+    border-top: 1px solid var(--primary-500);
+    border-bottom: 1px solid var(--primary-500);
 
     .cooking-time {
       display: flex;
@@ -367,9 +367,9 @@
         display: block;
         width: 50%;
         font-size: 1rem;
-        text-align: center;
 
         &:first-child {
+          text-align: left;
           font-weight: 700;
         }
 
@@ -382,12 +382,7 @@
     @media (min-width: 768px) {
       flex-direction: row;
       justify-content: space-between;
-      max-width: 100%;
       padding: 2rem;
-      background: none;
-      border-top: 1px solid var(--primary-500);
-      border-bottom: 1px solid var(--primary-500);
-      border-radius: 0;
 
       .cooking-time {
         flex-direction: column;
@@ -401,6 +396,7 @@
 
         span:first-child {
           margin-bottom: 0.5rem;
+          text-align: center;
         }
 
         span:last-child {
@@ -519,7 +515,7 @@
     justify-content: center;
     align-items: center;
 
-    padding: 3rem 0 0;
+    padding: 1rem 0 0;
 
     .add-to-meal-plan-form {
       display: flex;
