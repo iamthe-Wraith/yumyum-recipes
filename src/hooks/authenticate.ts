@@ -12,7 +12,7 @@ export const authenticate = (async ({ event, resolve }) => {
       const sessionPayload = readToken(session);
 
       if (!isValidToken(sessionPayload) || isExpired(sessionPayload)) {
-        // TODO: delete session cookie
+        event.cookies.delete('session');
         return resolve(event);
       }
 
