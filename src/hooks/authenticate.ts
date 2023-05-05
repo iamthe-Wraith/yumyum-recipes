@@ -1,3 +1,4 @@
+import { ApiError } from '$lib/error';
 import { isExpired, isValidToken, readToken } from '$lib/services/jwt';
 import { Logger } from '$lib/services/log';
 import { getSession } from '$lib/services/session';
@@ -22,6 +23,10 @@ export const authenticate = (async ({ event, resolve }) => {
       }
     } catch (err) {
       Logger.error('Authentication error: ', err);
+
+      throw err instanceof ApiError
+        ? new ApiError(err.message, err.status)
+        : new ApiError('There was an error completing your grocery list. Please try again later.', 500);
     }
   }
 
