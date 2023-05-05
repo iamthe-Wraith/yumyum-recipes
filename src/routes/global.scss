@@ -133,7 +133,7 @@ select,
   &:focus-visible,
   &:focus-visible ~ .focusable-child {
     outline: 1px dashed var(--primary-500);
-    outline-offset: 2px;
+    outline-offset: 4px;
   }
 }
 
