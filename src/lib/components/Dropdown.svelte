@@ -47,6 +47,16 @@
     dropdownInput.name = name;
     dropdownInput.value = selected.value;
     dropdownLabel.after(dropdownInput);
+
+    const closeOnOutsideClick = () => {
+      closeList();
+    }
+
+    window.addEventListener("click", closeOnOutsideClick);
+
+    return () => {
+      window.removeEventListener("click", closeOnOutsideClick);
+    }
   })
 
   function closeList() {
@@ -141,8 +151,8 @@
       tabindex="0"
       aria-labelledby="dropdown-label"
       bind:this={dropdownSelected}
-      on:click={onTriggerEngaged}
-      on:keydown={onTriggerEngaged}
+      on:click|stopPropagation={onTriggerEngaged}
+      on:keydown|stopPropagation={onTriggerEngaged}
     >
       <span>
         {selected.label}
@@ -267,7 +277,6 @@
     border: none;
     border-radius: 0.25rem;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
 
     span {
       display: block;
