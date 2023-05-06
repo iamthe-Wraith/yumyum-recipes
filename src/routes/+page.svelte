@@ -5,6 +5,10 @@
 	import Steps from "./Steps.svelte";
 </script>
 
+<svelte:head>
+  <title>YumYum</title>
+</svelte:head>
+
 <Hero />
 
 {#if !$authenticated}

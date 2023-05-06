@@ -22,7 +22,7 @@
     defaultServingSize = parseInt((e.target as HTMLInputElement)?.value);
   }
 </script>
-<Page>
+<Page title="Settings">
   <div class="form-container">
     <h1>Settings</h1>
     <p>Change your account settings here.</p>

@@ -10,7 +10,7 @@
   export let form: ActionData;
 </script>
 
-<Page>
+<Page title="Sign In">
   <div class="signin-container">
     <h1>Sign in</h1>
     <form

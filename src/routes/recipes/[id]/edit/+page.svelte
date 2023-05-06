@@ -17,7 +17,7 @@
   }
 </script>
 
-<Page>
+<Page title={`Edit ${data.recipe.name}`}>
   <div class="edit-recipe-container">
     <h1>Edit Recipe</h1>
     <RecipeForm

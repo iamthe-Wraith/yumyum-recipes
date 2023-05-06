@@ -5,7 +5,7 @@
   export let message: string;
 </script>
 
-<Page>
+<Page title="Not Found">
   <div class='container'>
     <div class='four-o-four'>404</div>
     <h1>{ header }</h1>

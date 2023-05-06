@@ -15,7 +15,7 @@
   }
 </script>
 
-<Page>
+<Page title="Add Recipe">
   <div class="add-recipe-container">
     <h1>Add New Recipe</h1>
     <RecipeForm

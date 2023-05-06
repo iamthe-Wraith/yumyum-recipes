@@ -10,7 +10,7 @@
   export let form: ActionData;
 </script>
 
-<Page>
+<Page title="Sign Up">
   <div class="signup-container">
     <h1>Sign up</h1>
     <form method="POST" use:enhance>

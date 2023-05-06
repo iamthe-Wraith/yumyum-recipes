@@ -6,7 +6,7 @@
 	import Check from '$lib/icons/Check.svelte';
 </script>
 
-<Page>
+<Page title="Dashboard">
   <div class="dashboard-container">
     <h1>Dashboard</h1>
   
