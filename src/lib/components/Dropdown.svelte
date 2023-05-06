@@ -35,6 +35,7 @@
   let dropdownList: HTMLUListElement;
   let dropdownArrow: SVGSVGElement;
   let dropdownOptions: HTMLLIElement[];
+  let open = false;
 
   onMount(() => {
     const dropdown = document.getElementById(id);
@@ -49,7 +50,7 @@
     dropdownLabel.after(dropdownInput);
 
     const closeOnOutsideClick = () => {
-      closeList();
+      if (open) closeList(true);
     }
 
     window.addEventListener("click", closeOnOutsideClick);
@@ -59,12 +60,13 @@
     }
   })
 
-  function closeList() {
+  function closeList(preventFocus = false) {
     dropdownListContainer.classList.remove("open");
     dropdownListContainer.setAttribute("aria-expanded", "false");
     dropdownArrow.classList.remove("expanded");
     highlighted = null;
-    dropdownSelected.focus();
+    if (!preventFocus) dropdownSelected.focus();
+    open = false;
   }
 
   function focusNextListItem(dir: 'ArrowUp' | 'ArrowDown') {
@@ -107,6 +109,7 @@
       dropdownListContainer.classList.toggle('open');
       dropdownListContainer.setAttribute("aria-expanded", dropdownList.classList.contains("open").toString());
       dropdownArrow.classList.toggle("expanded");
+      open = true;
     }
 
     if ((e as KeyboardEvent).key === 'ArrowUp' || (e as KeyboardEvent).key === 'ArrowDown') {

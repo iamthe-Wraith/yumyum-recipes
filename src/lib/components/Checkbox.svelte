@@ -5,6 +5,7 @@
   export let name: string;
   export let checked = false;
   export let text = '';
+  export let value = '';
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 </script>
 
@@ -13,6 +14,7 @@
     type="checkbox"
     {id}
     {name}
+    {value}
     bind:checked
     on:change
   />
