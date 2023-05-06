@@ -65,7 +65,7 @@
   </div>
   {/if}
 
-  <ul class="list-container {data.mealPlan?.meals?.length ? 'no-recipes' : ''}">
+  <ul class="list-container {data.mealPlan?.meals?.length ? '' : 'no-recipes'}">
     {#if data.mealPlan?.meals?.length}
       {#each (data.mealPlan?.meals || []) as meal}
         <li>
@@ -338,11 +338,15 @@
     }
 
     @media (min-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
+      &:not(.no-recipes) {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (min-width: 1350px) {
-      grid-template-columns: repeat(3, 1fr);
+      &:not(.no-recipes) {
+        grid-template-columns: repeat(3, 1fr);
+      }
     }
   }
 

@@ -1,9 +1,12 @@
 <script lang="ts">
   import { user } from '$lib/stores/user';
-	import NotificationBanner from '$lib/components/banners/NotificationBanner.svelte';
-	import Page from '$lib/components/Page.svelte';
-	import LinkButton from '$lib/components/LinkButton.svelte';
-	import Check from '$lib/icons/Check.svelte';
+  import NotificationBanner from '$lib/components/banners/NotificationBanner.svelte';
+  import Page from '$lib/components/Page.svelte';
+  import LinkButton from '$lib/components/LinkButton.svelte';
+  import Check from '$lib/icons/Check.svelte';
+  import type { PageData } from './$types';
+  import { mealPlan } from '$lib/stores/meal_plan';
+  import Star from '$lib/icons/Star.svelte';
 </script>
 
 <Page title="Dashboard">
@@ -13,7 +16,7 @@
     <section class="notifications">
       {#if $user?.settings && !$user?.settings?.defaultServingSize}
         <NotificationBanner>
-          <div class="no-default-serving-size">
+          <div class="notification no-default-serving-size">
             <div>
               <Check />
             </div>
@@ -22,6 +25,22 @@
             </p>
             <div>
               <LinkButton href="/settings">Go to settings</LinkButton>
+            </div>
+          </div>
+        </NotificationBanner>
+      {/if}
+
+      {#if $mealPlan?.id}
+        <NotificationBanner>
+          <div class="notification active-meal-plan">
+            <div>
+              <Star />
+            </div>
+            <p>
+              You have a meal plan in the works!
+            </p>
+            <div>
+              <LinkButton href={`/mealplans/${$mealPlan?.id}`}>View meal plan</LinkButton>
             </div>
           </div>
         </NotificationBanner>
@@ -51,8 +70,7 @@
     grid-gap: 1rem;
   }
 
-  .no-default-serving-size {
-    --icon-color: var(--tertiary-500);
+  .notification {
     --icon-size: 4rem;
 
     display: grid;
@@ -69,6 +87,24 @@
 
       grid-template-columns: 3rem 1fr 10rem;
       align-items: center;
+    }
+  }
+
+  .no-default-serving-size {
+    --icon-color: var(--tertiary-500);
+  }
+
+  .active-meal-plan {
+    --icon-color: var(--tertiary-500);
+
+    p {
+      text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      p {
+        text-align: left;
+      }
     }
   }
 </style>
