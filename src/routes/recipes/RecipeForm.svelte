@@ -18,6 +18,7 @@
     path: string;
   }
 
+  export let actionType: 'create' | 'edit' = 'create';
   export let status: number | null = null;
   export let error: string | null = null;
   export let errorField: string | undefined = undefined;
@@ -331,7 +332,9 @@
       text="Make Public"
       {appearance}
     />
-    <Button>Add Recipe</Button>
+    <Button>
+      { actionType === 'create' ? 'Create Recipe' : 'Save Changes' }
+    </Button>
   </div>
 
   {#if typeof status === 'number' && isErrorStatus(status) && !errorField && error}
