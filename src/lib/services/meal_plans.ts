@@ -194,6 +194,9 @@ export const getMealPlans = async (query: Record<string, any> = {}, requestor: u
         meals: true,
       }
     }
+  },
+  orderBy: {
+    updatedAt: 'desc',
   }
 });
 
