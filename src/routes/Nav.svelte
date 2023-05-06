@@ -60,7 +60,7 @@
         <nav class={$authenticated ? 'authenticated' : 'unauthenticated center-col'}>
           {#if $authenticated}
             <a href="/dashboard">Home</a>
-            <a href="/recipes">Cookbook</a>
+            <a href="/cookbook">Cookbook</a>
             <a href="/mealplans">Meal Plans</a>
             <a href="/signout" class="signout">Sign Out</a>
             {#if $mealPlan?.id}

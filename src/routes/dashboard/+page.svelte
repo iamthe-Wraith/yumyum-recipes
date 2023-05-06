@@ -11,8 +11,7 @@
 
 <Page title="Dashboard">
   <div class="dashboard-container">
-    <h1>Dashboard</h1>
-  
+    <h1>Mmm Yum!</h1>
     <section class="notifications">
       {#if $user?.settings && !$user?.settings?.defaultServingSize}
         <NotificationBanner>

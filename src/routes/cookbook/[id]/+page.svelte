@@ -30,9 +30,9 @@
   <article>
     <section>
       <div class="options-container">
-        <a class="back-to-recipes" href="/recipes">Back to Recipes</a>
+        <a class="back-to-recipes" href="/cookbook">Back to Cookbook</a>
         <div>
-          <a href="/recipes/{data.recipe.id}/edit">Edit</a>
+          <a href="/cookbook/{data.recipe.id}/edit">Edit</a>
 
           <form
             method="POST" 
@@ -152,7 +152,7 @@
     <div class="meal-plan-controls">
       {#if isPlanningMeal}
         {#if recipeIsInMealPlan}
-          <form method="POST" action="/recipes?/removeFromMealPlan" use:enhance={({ data }) => {
+          <form method="POST" action="/cookbook?/removeFromMealPlan" use:enhance={({ data }) => {
             return ({ result, update }) => {
               if (result.type === 'success') {
                 Toast.add({ message: 'Recipe removed from meal plan.' });

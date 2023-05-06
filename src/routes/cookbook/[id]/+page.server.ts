@@ -27,7 +27,7 @@ export const actions = {
       return fail(error.status, (error as ApiError).toJSON());
     }
 
-    throw redirect(303, '/recipes?deleted=true');
+    throw redirect(303, '/cookbook?deleted=true');
   }
 } satisfies Actions;
 
