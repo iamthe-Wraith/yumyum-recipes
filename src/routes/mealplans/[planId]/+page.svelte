@@ -128,7 +128,7 @@
                   </div>
                   <div>
                     <span>Servings: </span>
-                    <span>{meal.recipe.servings}</span>
+                    <span>{meal.serving}</span>
                   </div>
                 </div>
               </div>
