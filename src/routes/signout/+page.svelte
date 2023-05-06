@@ -6,7 +6,7 @@
   user.reset();
 </script>
 
-<Page>
+<Page title="Sign Out">
   <div class="signout-container">
     <h1>You have been signed out.</h1>
     <p>We hope to see you again soon!</p>

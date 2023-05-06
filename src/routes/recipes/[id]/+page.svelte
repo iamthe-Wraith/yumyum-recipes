@@ -26,7 +26,7 @@
   }
 </script>
 
-<Page>
+<Page title={data.recipe.name}>
   <article>
     <section>
       <div class="options-container">

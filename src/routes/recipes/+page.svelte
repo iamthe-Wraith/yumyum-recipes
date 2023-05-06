@@ -39,7 +39,7 @@
   }
 </script>
 
-<Page>
+<Page title="Recipes">
   <h1>Recipes</h1>
 
   {#if data.recipes?.length}

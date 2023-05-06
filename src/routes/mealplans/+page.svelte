@@ -23,7 +23,7 @@
   }
 </script>
 
-<Page>
+<Page title="Meal Plans">
   <h1>Meal Plans</h1>
 
   <ul>

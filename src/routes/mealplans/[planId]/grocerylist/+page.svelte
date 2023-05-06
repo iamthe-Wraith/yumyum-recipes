@@ -33,7 +33,7 @@
   }
 </script>
 
-<Page>
+<Page title="Grocery List">
   <h1>Grocery List</h1>
   {#if data.groceryList.status === GroceryListStatus.INACTIVE}
     <div class="list-status">Complete</div>

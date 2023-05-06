@@ -25,7 +25,7 @@
   let deleting = false;
 </script>
 
-<Page>
+<Page title="Meal Plan">
   <h1>{data.mealPlan?.name}</h1>
   <p class="last-updated">last updated {dayjs(data.mealPlan?.updatedAt).format('DD MMM, YYYY')}</p>
 
