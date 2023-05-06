@@ -88,7 +88,7 @@
             </form>
           </div>
 
-          <a href="/recipes/{meal.recipe.id}">              
+          <a href="/cookbook/{meal.recipe.id}">              
             <div class="recipe-image-container">
               <img src={meal.recipe.image} alt="Image of {meal.recipe.name}" />
             </div>
@@ -139,7 +139,7 @@
     {:else}
       <li class="no-recipes">
         <p>You haven't added any recipes to this meal plan yet.</p>
-        <LinkButton href="/recipes">Go to My Recipes</LinkButton>
+        <LinkButton href="/cookbook">Go to My Cookbook</LinkButton>
       </li>
     {/if}
   </ul>

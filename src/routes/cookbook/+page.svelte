@@ -24,12 +24,12 @@
   onMount(() => {
     if ($page.url.searchParams.get('deleted') === 'true') {
       Toast.add({ message: 'Recipe deleted' });
-      goto('/recipes', { replaceState: true });
+      goto('/cookbook', { replaceState: true });
     }
 
     if ($page.url.searchParams.get('recipe') !== null) {
       Toast.add({ message: 'Recipe created!' });
-      goto('/recipes', { replaceState: true });
+      goto('/cookbook', { replaceState: true });
     }
   })
 
@@ -39,8 +39,8 @@
   }
 </script>
 
-<Page title="Recipes">
-  <h1>Recipes</h1>
+<Page title="Cookbook">
+  <h1>Cookbook</h1>
 
   {#if data.recipes?.length}
     <div class="controls-container">
@@ -64,14 +64,14 @@
           </form>
         {/if}
 
-        <LinkButton href="/recipes/add">Add Recipe</LinkButton>
+        <LinkButton href="/cookbook/add">Add Recipe</LinkButton>
       </div>
     </div>
 
     <ul>
       {#each data.recipes as recipe}
         <li>
-          <a href="/recipes/{recipe.id}">              
+          <a href="/cookbook/{recipe.id}">              
             <div class="recipe-image-container">
               <img src={recipe.image} alt="Image of {recipe.name}" />
             </div>
@@ -181,7 +181,7 @@
   {:else}
     <div class="no-recipes">
       <p>No recipes found</p>
-      <LinkButton href="/recipes/add">Add Recipe</LinkButton>
+      <LinkButton href="/cookbook/add">Add Recipe</LinkButton>
     </div>
   {/if}
 </Page>

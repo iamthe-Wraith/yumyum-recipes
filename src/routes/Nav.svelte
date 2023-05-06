@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import LinkButton from "$lib/components/LinkButton.svelte";
+	import House from '$lib/icons/House.svelte';
   import { authenticated } from "$lib/stores/authenticated";
   import { mealPlan } from '$lib/stores/meal_plan';
   import { onMount } from "svelte";
@@ -59,8 +60,10 @@
       <div class="nav-container">
         <nav class={$authenticated ? 'authenticated' : 'unauthenticated center-col'}>
           {#if $authenticated}
-            <a href="/dashboard">Home</a>
-            <a href="/recipes">Cookbook</a>
+            <a href="/dashboard">
+              <House />
+            </a>
+            <a href="/cookbook">Cookbook</a>
             <a href="/mealplans">Meal Plans</a>
             <a href="/signout" class="signout">Sign Out</a>
             {#if $mealPlan?.id}
@@ -207,6 +210,8 @@
     }
 
     a {
+      --icon-color: var(--neutral-900);
+
       display: block;
       padding: .5rem 0;
       font-size: 1rem;
@@ -215,6 +220,8 @@
 
       &:hover,
       &:focus {
+        --icon-color: var(--primary-500);
+
         color: var(--primary-500);
         text-decoration: underline;
       }
