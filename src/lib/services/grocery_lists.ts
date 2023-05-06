@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { z } from 'zod';
-import { GroceryListItemStatus, GroceryListStatus, IngredientType, MealPlanStatus, Prisma, PrismaClient, type grocery_list_items, type grocery_lists, type users } from '@prisma/client';
+import { GroceryListItemStatus, GroceryListStatus, IngredientType, IngredientUnitOfMeasure, MealPlanStatus, Prisma, PrismaClient, type grocery_list_items, type grocery_lists, type users } from '@prisma/client';
 import { getMealPlanWithIngredients, updateMealPlanStatus } from './meal_plans';
 import { ApiError } from '$lib/error';
 import { HttpStatus } from '$lib/constants/error';
@@ -217,7 +217,9 @@ export const getGroceryListWithItems = async (
 const getIngredientUnitFromAmount = (kelevens: number, type: IngredientType): IIngredientAmount => {
   if (type === IngredientType.COUNT) return { amount: kelevens };
 
-  const units = UnitsOfMeasure.filter(unit => unit.type === type);
+  const units = UnitsOfMeasure
+    .filter(unit => unit.type === type)
+    .sort((a, b) => a.kelevens - b.kelevens);
 
   let largestUnit = units[0];
 
@@ -225,6 +227,8 @@ const getIngredientUnitFromAmount = (kelevens: number, type: IngredientType): II
     if (kelevens >= unit.kelevens) {
       largestUnit = unit;
     }
+
+    if (type === IngredientType.VOLUME && largestUnit.name === IngredientUnitOfMeasure.CUP) break;
   }
 
   return {
