@@ -1,3 +1,5 @@
+import { json } from '@sveltejs/kit';
+
 export function GET() {
-  return {};
+  return json({ status: 'ok' });
 }
