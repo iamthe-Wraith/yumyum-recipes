@@ -1,6 +1,7 @@
 <script lang="ts">
   import Error from '$lib/components/modals/Error.svelte';
   import Toast from '$lib/components/modals/Toast.svelte';
+	import CoffeeCup from '$lib/icons/CoffeeCup.svelte';
   import { mealPlan } from '$lib/stores/meal_plan';
   import { user } from '$lib/stores/user';
   import type { LayoutData } from './$types';
@@ -36,7 +37,17 @@
 </main>
 
 <footer class="flex-row-center">
-  <p>YumYum Recipes is a project by <a href="https://github.com/iamthe-Wraith">@iamthe-Wraith</a>
+  <Logo />
+
+  <a
+    href="https://www.buymeacoffee.com/wraith"
+    class="buy-me-a-coffee"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <CoffeeCup />
+    <span>Buy me a coffee</span>
+  </a>
 </footer>
 
 <style lang="scss">
@@ -55,7 +66,7 @@
 
   main {
     position: relative;
-    min-height: calc(100vh - 50px);
+    min-height: calc(100vh - 80px);
     padding: 85px 0 1rem;
 
     &:before,
@@ -90,9 +101,28 @@
   }
 
   footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
-    height: 50px;
+    height: 80px;
     padding: 0 1rem;
     background: #000;
+  }
+
+  .buy-me-a-coffee {
+    --icon-size: 1.5rem;
+
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--primary-500);
+    border-radius: 0.25rem;
+    text-decoration: none;
+
+    span {
+      padding-left: 0.5rem;
+      color: var(--neutral-100);
+    }
   }
 </style>
