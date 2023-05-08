@@ -5,6 +5,8 @@
 
 <style lang="scss">
   a {
+    position: relative;
+    display: flex;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -24,6 +26,9 @@
   }
 
   p {
+    position: absolute;
+    top: calc(100% - 0.25rem);
+    right: 0;
     font-family: var(--header-font);
     color: var(--primary-500);
   }
