@@ -43,6 +43,7 @@
 	"dependencies": {
 		"@prisma/client": "^4.11.0",
 		"@sentry/sveltekit": "^7.48.0",
+		"@sveltejs/adapter-node": "^1.2.4",
 		"aws-sdk": "^2.1352.0",
 		"bcrypt": "^5.1.0",
 		"dayjs": "^1.11.7",
