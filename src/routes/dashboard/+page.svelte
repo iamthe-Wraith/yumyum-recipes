@@ -4,9 +4,12 @@
   import Page from '$lib/components/Page.svelte';
   import LinkButton from '$lib/components/LinkButton.svelte';
   import Check from '$lib/icons/Check.svelte';
-  import type { PageData } from './$types';
   import { mealPlan } from '$lib/stores/meal_plan';
   import Star from '$lib/icons/Star.svelte';
+  import type { PageData } from './$types';
+  import { GroceryListItemStatus } from '$types/models';
+
+  export let data: PageData;
 </script>
 
 <Page title="Dashboard">
@@ -36,13 +39,31 @@
               <Star />
             </div>
             <p>
-              You have a meal plan in the works!
+              You have a meal plan in the works. Would you like to view it?
             </p>
             <div>
               <LinkButton href={`/mealplans/${$mealPlan?.id}`}>View meal plan</LinkButton>
             </div>
           </div>
         </NotificationBanner>
+      {/if}
+
+      {#if data.groceryLists?.length}
+        {#each data.groceryLists as groceryList}
+          <NotificationBanner>
+            <div class="notification active-grocery-list">
+              <div>
+                <Star />
+              </div>
+              <p>
+                You have an open grocery list with {groceryList.items.filter(item => item.status === GroceryListItemStatus.ACTIVE).length} item left! Would you like to view it?
+              </p>
+              <div>
+                <LinkButton href={`/mealplans/${groceryList.mealPlanId}/grocerylist`}>View grocery list</LinkButton>
+              </div>
+            </div>
+          </NotificationBanner>
+        {/each}
       {/if}
     </section>
   </div>
@@ -95,6 +116,20 @@
 
   .active-meal-plan {
     --icon-color: var(--tertiary-500);
+
+    p {
+      text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      p {
+        text-align: left;
+      }
+    }
+  }
+
+  .active-grocery-list {
+    --icon-color: var(--secondary-500);
 
     p {
       text-align: center;

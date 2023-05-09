@@ -150,6 +150,18 @@ export const createGroceryList = async (mealPlanId: number, requestor: users) =>
   });
 };
 
+export const getActiveGroceryLists = async (requestor: users) => {
+  return await prisma.grocery_lists.findMany({
+    where: {
+      status: GroceryListStatus.ACTIVE,
+      ownerId: requestor.id,
+    },
+    include: {
+      items: true,
+    },
+  });
+};
+
 export const getGroceryList = async (
   query: Record<string, any>, 
   mealPlanId: number, 
