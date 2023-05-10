@@ -1,4 +1,4 @@
-import { IngredientUnitOfMeasure, IngredientType } from '@prisma/client';
+import { IngredientType, IngredientUnitOfMeasure } from '$types/models';
 
 export interface IIngredientTypes {
   name: IngredientType;

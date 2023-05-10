@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { ingredients, recipes } from "@prisma/client";
   import { enhance } from "$app/forms";
   import Button from "$lib/components/Button.svelte";
   import Checkbox from "$lib/components/Checkbox.svelte";
@@ -13,7 +12,7 @@
   import XIcon from "$lib/icons/XIcon.svelte";
   import type { IDropdownOption } from "$types/dropdown";
   import ErrorBanner from "$lib/components/ErrorBanner.svelte";
-	import { IngredientType } from "$types/models";
+  import { IngredientType, type IRecipe } from "$types/models";
   
   interface IFile extends File {
     path: string;
@@ -23,7 +22,7 @@
   export let status: number | null = null;
   export let error: string | null = null;
   export let errorField: string | undefined = undefined;
-  export let recipe: recipes & { ingredients: ingredients[] } | null = null;
+  export let recipe: IRecipe | null = null;
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 
   let ingredients = recipe?.ingredients?.length || 1;

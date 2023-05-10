@@ -1,6 +1,24 @@
 import type { grocery_list_items, grocery_lists, ingredients, meal_plans, meals, recipes } from '@prisma/client';
 
 /** Ingredients */
+export interface IIngredient extends ingredients {}
+
+export enum IngredientUnitOfMeasure {
+  PINCH = 'PINCH',
+  TEASPOON = 'TEASPOON',
+  TABLESPOON = 'TABLESPOON',
+  CUP = 'CUP',
+  PINT = 'PINT',
+  QUART = 'QUART',
+  GALLON = 'GALLON',
+  POUND = 'POUND',
+  MILLILITER = 'MILLILITER',
+  LITER = 'LITER',
+  GRAM = 'GRAM',
+  OUNCE = 'OUNCE',
+  FLUID_OUNCE = 'FLUID_OUNCE',
+  KILOGRAM = 'KILOGRAM',
+}
 
 /** if this changes, the prisma schema needs to be updated as well */
 export enum IngredientType {

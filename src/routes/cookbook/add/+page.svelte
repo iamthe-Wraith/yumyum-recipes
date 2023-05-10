@@ -3,12 +3,12 @@
   import type { ActionData } from "./$types";
 	import Page from "$lib/components/Page.svelte";
 	import RecipeForm from "../RecipeForm.svelte";
-	import type { ingredients, recipes } from "@prisma/client";
+	import type { IRecipe } from "$types/models";
 
   export let form: ActionData;
-  let formData: recipes & { ingredients: ingredients[] } | null = null;
+  let formData: IRecipe | null = null;
 
-  $: formData = form?.data as recipes & { ingredients: ingredients[] } || null;
+  $: formData = form?.data as IRecipe || null;
 
   $: if (isErrorStatus(form?.status)) {
     window.scrollTo(0, 0);
