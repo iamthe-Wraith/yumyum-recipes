@@ -1,14 +1,25 @@
 <script lang="ts">
   import { isErrorStatus } from "$lib/helpers/response";
   import type { ActionData } from "./$types";
-	import Page from "$lib/components/Page.svelte";
-	import RecipeForm from "../RecipeForm.svelte";
-	import type { IRecipe } from "$types/models";
+  import Page from "$lib/components/Page.svelte";
+  import RecipeForm from "../RecipeForm.svelte";
+  import type { IRecipe } from "$types/models";
+  import type { IFormError } from "$types/errors";
 
   export let form: ActionData;
   let formData: IRecipe | null = null;
+  let formError: IFormError | null = null;
 
   $: formData = form?.data as IRecipe || null;
+  $: {
+    formError = form && form?.status >= 400
+      ? {
+        field: form.field,
+        message: form.message || "Something went wrong.",
+        status: form.status,
+      }
+      : null;
+  }
 
   $: if (isErrorStatus(form?.status)) {
     window.scrollTo(0, 0);
@@ -19,9 +30,7 @@
   <div class="add-recipe-container">
     <h1>Add New Recipe</h1>
     <RecipeForm
-      status={form?.status}
-      error={form?.message}
-      errorField={form?.field}
+      error={ formError }
       recipe={formData}
     />
   </div>
