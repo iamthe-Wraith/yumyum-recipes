@@ -37,17 +37,25 @@
 </main>
 
 <footer class="flex-row-center">
-  <Logo />
+  <div class="footer-row footer-top-row">
+    <Logo />
 
-  <a
-    href="https://www.buymeacoffee.com/wraith"
-    class="buy-me-a-coffee"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <CoffeeCup />
-    <span>Buy me a coffee</span>
-  </a>
+    <div class="footer-links">
+      <a href="/privacy">Privacy Policy</a>
+    </div>
+  </div>
+
+  <div class="footer-row footer-bottom-row">
+    <a
+      href="https://www.buymeacoffee.com/wraith"
+      class="buy-us-a-coffee"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <CoffeeCup />
+      <span>Buy us a coffee</span>
+    </a>
+  </div>
 </footer>
 
 <style lang="scss">
@@ -66,7 +74,7 @@
 
   main {
     position: relative;
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 132px);
     padding: 85px 0 1rem;
 
     &:before,
@@ -102,15 +110,36 @@
 
   footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     width: 100%;
-    height: 80px;
+    height: 132px;
     padding: 0 1rem;
     background: #000;
   }
 
-  .buy-me-a-coffee {
+  .footer-row {
+    width: 100%;
+    padding: 0.75rem 0;
+
+    &.footer-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    &.footer-bottom-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+  }
+
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .buy-us-a-coffee {
     --icon-size: 1.5rem;
 
     display: flex;
