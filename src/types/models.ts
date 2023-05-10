@@ -1,5 +1,14 @@
 import type { grocery_list_items, grocery_lists, ingredients, meal_plans, meals, recipes } from '@prisma/client';
 
+/** Ingredients */
+
+/** if this changes, the prisma schema needs to be updated as well */
+export enum IngredientType {
+  VOLUME = 'VOLUME',
+  WEIGHT = 'WEIGHT',
+  COUNT = 'COUNT',
+}
+
 /** Recipes */
 export interface IRecipe extends recipes {
   ingredients: ingredients[];

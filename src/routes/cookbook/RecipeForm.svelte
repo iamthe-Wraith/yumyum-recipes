@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { IngredientType, type ingredients, type recipes } from "@prisma/client";
+  import type { ingredients, recipes } from "@prisma/client";
   import { enhance } from "$app/forms";
   import Button from "$lib/components/Button.svelte";
   import Checkbox from "$lib/components/Checkbox.svelte";
@@ -13,6 +13,7 @@
   import XIcon from "$lib/icons/XIcon.svelte";
   import type { IDropdownOption } from "$types/dropdown";
   import ErrorBanner from "$lib/components/ErrorBanner.svelte";
+	import { IngredientType } from "$types/models";
   
   interface IFile extends File {
     path: string;
