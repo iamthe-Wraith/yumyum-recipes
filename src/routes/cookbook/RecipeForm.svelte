@@ -8,20 +8,18 @@
   import InputField from "$lib/components/InputField.svelte";
   import TextArea from "$lib/components/TextArea.svelte";
   import { IngredientTypes, UnitsOfMeasure, type IIngredientTypes } from "$lib/constants/ingredients";
-  import { isErrorStatus } from "$lib/helpers/response";
   import XIcon from "$lib/icons/XIcon.svelte";
   import type { IDropdownOption } from "$types/dropdown";
   import ErrorBanner from "$lib/components/ErrorBanner.svelte";
   import { IngredientType, type IRecipe } from "$types/models";
+  import type { IFormError } from "$types/errors";
   
   interface IFile extends File {
     path: string;
   }
 
   export let actionType: 'create' | 'edit' = 'create';
-  export let status: number | null = null;
-  export let error: string | null = null;
-  export let errorField: string | undefined = undefined;
+  export let error: IFormError | null = null;
   export let recipe: IRecipe | null = null;
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 
@@ -50,8 +48,6 @@
       }
     }
   }
-
-  const fieldError = (field: string) => typeof status === 'number' && isErrorStatus(status) && errorField === field && typeof error === 'string' ? error : '';
 
   const onAmountChange = (i: number) => (e: Event) => {
     const target = e.target as HTMLInputElement;
@@ -138,7 +134,7 @@
         id="name"
         name="name"
         value={recipe?.name || ''}
-        error={fieldError('name')}
+        error={error && error.field === 'name' ? error.message : ''}
         {appearance}
       />
 
@@ -148,7 +144,7 @@
         id="description"
         name="description"
         value={recipe?.description || ''}
-        error={fieldError('description')}
+        error={error && error.field === 'description' ? error.message : ''}
         {appearance}
       />
     </div>
@@ -163,7 +159,7 @@
         name="prepTime"
         placeholder="1 hour 30 minutes"
         value={recipe?.prepTime || ''}
-        error={fieldError('prepTime')}
+        error={error && error.field === 'prepTime' ? error.message : ''}
         {appearance}
       />
 
@@ -173,7 +169,7 @@
         name="cookTime"
         placeholder="45 minutes"
         value={recipe?.cookTime || ''}
-        error={fieldError('cookTime')}
+        error={error && error.field === 'cookTime' ? error.message : ''}
         {appearance}
       />
 
@@ -184,7 +180,7 @@
         type="number"
         placeholder="3"
         value={recipe?.servings?.toString() || ''}
-        error={fieldError('servings')}
+        error={error && error.field === 'servings' ? error.message : ''}
         {appearance}
       />
     </div>
@@ -266,9 +262,9 @@
               />
             {/if}
           </div>
-          {#if typeof status === 'number' && isErrorStatus(status) && error && (errorField === `ingredients.${i}.type` || errorField === `ingredients.${i}.amount` || errorField === `ingredients.${i}.unit` || errorField === `ingredients.${i}.name`)}
+          {#if error && (error.field === `ingredients.${i}.type` || error.field === `ingredients.${i}.amount` || error.field === `ingredients.${i}.unit` || error.field === `ingredients.${i}.name`)}
             <div>
-              <ErrorText>{error}</ErrorText>
+              <ErrorText>{error.message}</ErrorText>
             </div>
           {/if}
         </div>
@@ -303,9 +299,9 @@
             {/if}
           </div>
 
-          {#if typeof status === 'number' && isErrorStatus(status) && errorField === `steps.${i}`}
+          {#if error && error.field === `steps.${i}`}
             <div>
-              <ErrorText>{error}</ErrorText>
+              <ErrorText>{error.message}</ErrorText>
             </div>
           {/if}
         </div>
@@ -320,7 +316,7 @@
     description="These are notes just for you. They will not be shared with the public."
     id="notes"
     name="notes"
-    error={fieldError('notes')}
+    error={error && error.field === 'notes' ? error.message : ''}
     {appearance}
   />
 
@@ -337,8 +333,8 @@
     </Button>
   </div>
 
-  {#if typeof status === 'number' && isErrorStatus(status) && !errorField && error}
-    <ErrorText>{error}</ErrorText>
+  {#if error && !error.field}
+    <ErrorText>{error.message}</ErrorText>
   {/if}
 </form>
 

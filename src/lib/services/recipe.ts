@@ -17,12 +17,12 @@ const recipeSchema = z.object({
     invalid_type_error: 'Recipe name must be a string.',
   })
     .min(1, { message: 'Recipe name must be at least 1 character.' })
-    .max(50, { message: 'Recipe name must be less than 50 characters.' }),
+    .max(50, { message: 'Recipe name cannot be more than 50 characters.' }),
   description: z.string({
     invalid_type_error: 'Password must be a string.',
   })
-    .min(1, { message: 'Recipe name must be at least 1 character.' })
-    .max(300, { message: 'Recipe name must be less than 50 characters.' }),
+    .min(1, { message: 'Recipe description must be at least 1 character.' })
+    .max(300, { message: 'Recipe description cannot be more than 300 characters.' }),
   prepTime: z.string({
     invalid_type_error: 'Prep time must be a string.',
   })
