@@ -1,5 +1,5 @@
 export interface IDropdownOption {
-  value: string;
+  value: number | string;
   label: string;
   selected?: boolean;
 }
