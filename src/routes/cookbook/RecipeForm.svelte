@@ -7,15 +7,22 @@
   import IconButton from "$lib/components/IconButton.svelte";
   import InputField from "$lib/components/InputField.svelte";
   import TextArea from "$lib/components/TextArea.svelte";
-  import { IngredientTypes, UnitsOfMeasure, type IIngredientTypes } from "$lib/constants/ingredients";
+  import { UnitsOfMeasure, type IUnitOfMeasure } from "$lib/constants/ingredients";
   import XIcon from "$lib/icons/XIcon.svelte";
   import type { IDropdownOption } from "$types/dropdown";
   import ErrorBanner from "$lib/components/ErrorBanner.svelte";
-  import { IngredientType, type IRecipe } from "$types/models";
+  import { IngredientType, IngredientUnitOfMeasure, type IRecipe } from "$types/models";
   import type { IFormError } from "$types/errors";
   
   interface IFile extends File {
     path: string;
+  }
+
+  interface IIngredient {
+    amount: number;
+    name: string;
+    type: IngredientType;
+    unit?: IngredientUnitOfMeasure;
   }
 
   export let actionType: 'create' | 'edit' = 'create';
@@ -23,35 +30,61 @@
   export let recipe: IRecipe | null = null;
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 
-  let ingredients = recipe?.ingredients?.length || 1;
-  let steps = recipe?.steps?.length || 1;
-  let amounts = recipe?.ingredients ? recipe.ingredients.map(ingredient => ingredient.amount) : [1];
-  let ingredientTypes: IIngredientTypes[] = recipe?.ingredients.map(ingredient => ({ name: ingredient.type } as IIngredientTypes)) || [IngredientTypes[0]];
-  let unitsOfMeasureOptions: IDropdownOption[][] = [];
-  let file: IFile;
-  let preview: HTMLImageElement;
+  let ingredients: IIngredient[] = [{
+    amount: 1,
+    name: '',
+    type: IngredientType.COUNT,
+  }];
 
-  recipe?.ingredients?.length
-    ? recipe.ingredients.forEach((_, i) => setUnitsOfMeasure(i))
-    : setUnitsOfMeasure(0);
+  let unitsOfMeasureByType: Record<IngredientType, IUnitOfMeasure[]> = {
+    [IngredientType.COUNT]: [],
+    [IngredientType.VOLUME]: [],
+    [IngredientType.WEIGHT]: [],
+  };
 
-  $: if (ingredients !== ingredientTypes.length) {
-    if (ingredients < ingredientTypes.length) {
-      ingredientTypes.splice(ingredients, ingredientTypes.length - ingredients);
-      unitsOfMeasureOptions.splice(ingredients, unitsOfMeasureOptions.length - ingredients);
-    }
+  for (const uom of UnitsOfMeasure) {
+    unitsOfMeasureByType[uom.type].push(uom);
+  }
 
-    if (ingredients > ingredientTypes.length) {
-      for (let i = ingredientTypes.length; i < ingredients; i++) {
-        ingredientTypes.push(IngredientTypes[0]);
-        setUnitsOfMeasure(i);
-      }
+  $: {
+    if (recipe?.ingredients?.length) {
+      ingredients = recipe?.ingredients?.map(ingredient => ({
+        amount: ingredient.amount,
+        name: ingredient.name,
+        type: ingredient.type,
+        unit: ingredient.unit,
+      } as IIngredient)) || [];
     }
   }
 
+  let steps = recipe?.steps?.length || 1;
+  let file: IFile;
+  let preview: HTMLImageElement;
+
+  const getTypeOptions = (ingredient: IIngredient) => Object.keys(unitsOfMeasureByType).map((type) => ({
+    value: type,
+    label: type,
+    selected: type === ingredient.type,
+  }));
+
+  const getUnitOptions = (ingredient: IIngredient) => unitsOfMeasureByType[ingredient.type]
+    .map((unit) => ({
+      value: unit.name,
+      label: unit.name,
+      selected: unit.name === ingredient.unit,
+    } as IDropdownOption))
+
+  const onAddIngredient = () => {
+    ingredients = [...ingredients, {
+      amount: 1,
+      name: '',
+      type: IngredientType.COUNT,
+    }];
+  };
+
   const onAmountChange = (i: number) => (e: Event) => {
     const target = e.target as HTMLInputElement;
-    amounts[i] = Number(target.value);
+    ingredients[i].amount = Number(target.value);
   };
 
   const onImageUploadChange = (event: Event) => {
@@ -71,22 +104,26 @@
   };
 
   const onIngredientTypeChange = (i: number) => (option: IDropdownOption) => {
-    ingredientTypes[i] = IngredientTypes.find((type) => type.name === option.value)!;
-    setUnitsOfMeasure(i);
+    if (ingredients[i].type !== option.value) {
+      ingredients[i].type = Object.values(IngredientType).find(type => type === option.value)!;
+      ingredients[i].unit = unitsOfMeasureByType[option.value as IngredientType].length > 0
+        ? unitsOfMeasureByType[option.value as IngredientType][0].name
+        : undefined;
+    }
   };
 
-  function setUnitsOfMeasure(index: number) {
-    if (ingredientTypes[index].name === IngredientType.COUNT) {
-      unitsOfMeasureOptions[index] = [];
-      return;
-    };
+  const onRemoveIngredient = (i: number) => () => {
+    const updated = [...ingredients];
+    updated.splice(i, 1);
+    ingredients = updated;
+  };
 
-    const uom = UnitsOfMeasure.filter((u) => u.type === ingredientTypes[index].name);
-    unitsOfMeasureOptions[index] = uom.map((unit) => ({
-      value: unit.name,
-      label: unit.name,
-    })) as IDropdownOption[];
-  }
+  const onUnitOfMeasureChange = (i: number) => (option: IDropdownOption) => {
+    ingredients = ingredients.map((ingredient, index) => {
+      if (index === i) ingredient.unit = option.value as IngredientUnitOfMeasure;
+      return ingredient;
+    });
+  };
 </script>
 
 <noscript>
@@ -189,21 +226,17 @@
   <div>
     <fieldset>
       <legend>Ingredients</legend>
-      {#each {length: ingredients} as _, i}
+      {#each ingredients as ingredient, i}
         <div class="ingredient-row">
-          <div class="ingredient-row-inputs {ingredientTypes[i].name === IngredientType.COUNT ? 'partial-row' : 'full-row'}">
+          <div class="ingredient-row-inputs {ingredient.type === IngredientType.COUNT ? 'partial-row' : 'full-row'}">
             <div>
               <Dropdown
                 id="ingredient-{i}-type"
                 name="ingredients[].type"
                 label="Type"
-                {appearance}
+                options={getTypeOptions(ingredient)}
                 onChange={onIngredientTypeChange(i)}
-                options={IngredientTypes.map((type) => ({
-                  value: type.name,
-                  label: type.name,
-                  selected: type.name === ingredientTypes[i].name,
-                }))}
+                {appearance}
               />
             </div>
 
@@ -211,7 +244,7 @@
               <InputField
                 id="ingredient-{i}-amount"
                 name="ingredients[].amount"
-                value={recipe?.ingredients?.[i]?.amount?.toString() ?? ''}
+                value={ingredient.amount?.toString() ?? ''}
                 type="number"
                 step={0.01}
                 label="Amount"
@@ -220,13 +253,14 @@
               />
             </div>
 
-            {#if unitsOfMeasureOptions[i].length}
+            {#if ingredient.type !== IngredientType.COUNT}
               <div>
                 <Dropdown
                   id="ingredient-{i}-unit"
                   name="ingredients[].unit"
                   label="Unit"
-                  options={unitsOfMeasureOptions[i]}
+                  options={getUnitOptions(ingredient)}
+                  onChange={onUnitOfMeasureChange(i)}
                   {appearance}
                 />
               </div>
@@ -236,25 +270,25 @@
               <InputField
                 id="ingredient-{i}-name"
                 name="ingredients[].name"
-                value={recipe?.ingredients?.[i]?.name ?? ''}
+                value={ingredient.name ?? ''}
                 label="Name"
                 {appearance}
               />
             </div>
 
-            {#if i === ingredients - 1 && ingredients > 1}
+            {#if ingredients.length > 1}
               <div>
                 <IconButton
                   kind="danger"
                   type="button"
-                  on:click={() => ingredients--}
+                  on:click={onRemoveIngredient(i)}
                 >
                   <XIcon />
                 </IconButton>
               </div>
             {/if}
 
-            {#if !unitsOfMeasureOptions[i].length}
+            {#if ingredient.type === IngredientType.COUNT}
               <input
                 type="hidden" 
                 name="ingredients[].unit" 
@@ -270,7 +304,7 @@
         </div>
       {/each}
 
-      <Button type="button" on:click={() => ingredients++}>+ Add Ingredient</Button>
+      <Button type="button" on:click={onAddIngredient}>+ Add Ingredient</Button>
     </fieldset>
   </div>
 

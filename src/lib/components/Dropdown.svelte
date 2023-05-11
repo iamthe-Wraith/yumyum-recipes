@@ -22,7 +22,7 @@
   export let options: IDropdownOption[];
   export let error = ''
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
-
+  
   let selected: IDropdownOption = options.find((option) => option.selected) || options[0];
   let highlighted: number | null = null;
 
@@ -46,7 +46,7 @@
     dropdownInput = document.createElement('input');
     dropdownInput.type = 'hidden';
     dropdownInput.name = name;
-    dropdownInput.value = selected.value;
+    dropdownInput.value = selected.value.toString();
     dropdownLabel.after(dropdownInput);
 
     const closeOnOutsideClick = () => {
@@ -120,8 +120,8 @@
 
   function setSelectedListItem(e: KeyboardEvent | MouseEvent) {
     if ((e.type !== 'click' && (e as KeyboardEvent).key !== 'Enter') || e.target === null) return;
-    selected = options.find((option) => option.value === (e.target as HTMLLIElement).dataset.value) || options[0];
-    dropdownInput.value = selected.value;
+    selected = options.find((option) => option.value.toString() === (e.target as HTMLLIElement).dataset.value) || options[0];
+    dropdownInput.value = selected.value.toString();
     onChange(selected);
   }
 </script>
