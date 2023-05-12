@@ -19,8 +19,10 @@
 
   export let data: PageData;
 
+  let addForMe = false;
   let confirmClose = false;
   let confirmDelete = false;
+  let addingForMe = false;
   let creating = false;
   let deleting = false;
 </script>
@@ -36,6 +38,18 @@
     </div>
 
     <div>
+      <form
+        method="POST"
+        action={`/mealplans/${data.mealPlan.id}?/addMealsForMe`}
+        on:submit|preventDefault={() => {
+          addForMe = true;
+        }}
+      >
+        <Button kind="secondary">
+          Add Meals For Me
+        </Button>
+      </form>
+
       {#if data.groceryList}
         <LinkButton href={`/mealplans/${data.mealPlan.id}/grocerylist`}>
           View Grocery List
