@@ -1,22 +1,34 @@
+<script>
+  import cookbooks_img from '$lib/assets/images/cookbooks.jpg';
+  import menu_img from '$lib/assets/images/menu.jpg';
+  import grocery_list_img from '$lib/assets/images/grocery-list.jpg';
+</script>
+
 <h2>3 easy steps</h2>
 
 <div class="cards">
 	<div class="card flex-col-center">
-		<div class='card-img'></div>
+		<div class='card-img'>
+      <img src={cookbooks_img} alt="cookbooks on a shelf" />
+    </div>
     <h3>Create Your Cookbook</h3>
 		<p>Create your cookbook by adding your own recipes, or upgrade to a pro account to select meals from our library of more than XXX,XXX recipes!</p>
     <span>1</span>
 	</div>
 	
 	<div class="card flex-col-center">
-		<div class='card-img'></div>
+		<div class='card-img'>
+      <img src={menu_img} alt="a menu on the wall behind the checkout counter at a deli" />
+    </div>
     <h3>Pick Your Meals</h3>
 		<p>Creating a meal plan has never been easier! Just select meals from your cookbook, or even better...we can do it for you!</p>
     <span>2</span>
 	</div>
 	
 	<div class="card flex-col-center">
-		<div class='card-img'></div>
+		<div class='card-img'>
+      <img src={grocery_list_img} alt="a grocery list written on a notepad with a pen resting on top of it" />
+    </div>
     <h3>Get your Grocery List!</h3>
 		<p>When you're done, we'll create a complete, easy to manage grocery list for you!</p>
     <span>3</span>
@@ -100,6 +112,15 @@
     max-height: 10rem;
     margin-bottom: .5rem;
     background: var(--neutral-500);
+    border: 2px solid var(--neutral-100);
+    border-radius: 0.5rem;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 
   span {
