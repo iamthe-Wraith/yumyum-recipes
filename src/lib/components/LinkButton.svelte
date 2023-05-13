@@ -45,16 +45,16 @@
   }
 
   a.secondary {
-    background-color: var(--secondary-500);
+    background-color: var(--secondary-300);
     color: var(--neutral-900);
 
     &:hover {
-      background-color: var(--secondary-300);
+      background-color: var(--secondary-100);
       color: var(--neutral-700);
     }
 
     &:focus {
-      outline-color: var(--secondary-500);
+      outline-color: var(--secondary-300);
     }
   }
 
