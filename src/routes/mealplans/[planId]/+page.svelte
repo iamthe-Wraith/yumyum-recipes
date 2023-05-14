@@ -270,8 +270,15 @@
       use:enhance={() => {
         creating = true;
 
-        return () => {
-          mealPlan.reset();
+        return ({ result, update }) => {
+          if (result.type === 'success') {
+            Toast.add({ message: 'Grocery list created.' });
+            mealPlan.reset();
+          } else if (result.type === 'failure') {
+            Toast.add({ message: result.data?.message })
+          }
+
+          update();
         }
       }}
     >
