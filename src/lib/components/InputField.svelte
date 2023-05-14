@@ -6,6 +6,8 @@
   export let text = '';
   export let type = 'text';
   export let id = '';
+  export let max: number = 999999999;
+  export let min: number = 0;
   export let name = id;
   export let step = 1
   export let value = '';
@@ -24,21 +26,41 @@
   {/if}
 
   <span>
-    <input
-      {type}
-      {id}
-      {name}
-      {value}
-      {required}
-      {placeholder}
-      step={type === 'number' ? step : undefined} 
-      on:change
-      on:blur
-      on:focus
-      on:keydown
-      on:keypress
-      on:keyup
-    />
+    {#if type === 'number'}
+      <input
+        {type}
+        {id}
+        {name}
+        {value}
+        {required}
+        {max}
+        {min}
+        {placeholder}
+        {step} 
+        on:change
+        on:blur
+        on:focus
+        on:keydown
+        on:keypress
+        on:keyup
+      />
+    {:else}
+      <input
+        {type}
+        {id}
+        {name}
+        {value}
+        {required}
+        {placeholder}
+        step={type === 'number' ? step : undefined} 
+        on:change
+        on:blur
+        on:focus
+        on:keydown
+        on:keypress
+        on:keyup
+      />
+    {/if}
   </span>
 
   {#if error}

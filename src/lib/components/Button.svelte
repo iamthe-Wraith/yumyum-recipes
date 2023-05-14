@@ -50,13 +50,13 @@
   }
 
   .secondary {
-    background: var(--secondary-500);
+    background: var(--secondary-300);
     color: var(--neutral-900);
 
     &:hover:not(:disabled),
     &:focus:not(:disabled) {
-      background: var(--secondary-400);
-      box-shadow: inset 5px 0 15px 0 var(--secondary-200);
+      background: var(--secondary-100);
+      box-shadow: inset 5px 0 15px 0 var(--secondary-300);
     }
   }
 

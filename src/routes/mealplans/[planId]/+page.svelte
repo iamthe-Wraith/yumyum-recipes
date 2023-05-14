@@ -16,11 +16,17 @@
   import LoadingBasic from "$lib/components/processing-anims/LoadingBasic.svelte";
   import Button from "$lib/components/Button.svelte";
   import { mealPlan } from "$lib/stores/meal_plan";
+  import Modal from "$lib/components/modals/Modal.svelte";
+  import InputField from "$lib/components/InputField.svelte";
+  import ErrorText from "$lib/components/ErrorText.svelte";
 
   export let data: PageData;
 
+  let addForMe = false;
   let confirmClose = false;
   let confirmDelete = false;
+  let addingForMe = false;
+  let addingForMeError = '';
   let creating = false;
   let deleting = false;
 </script>
@@ -41,6 +47,17 @@
           View Grocery List
         </LinkButton>
       {:else}
+        <form
+          method="POST"
+          action={`/mealplans/${data.mealPlan.id}?/addMealsForMe`}
+          on:submit|preventDefault={() => {
+            addForMe = true;
+          }}
+        >
+          <Button kind="secondary">
+            Add Meals For Me
+          </Button>
+        </form>
         <form
           method="POST"
           action={`/mealplans/${data.mealPlan.id}/grocerylist?/createGroceryList`}
@@ -139,10 +156,103 @@
     {:else}
       <li class="no-recipes">
         <p>You haven't added any recipes to this meal plan yet.</p>
-        <LinkButton href="/cookbook">Go to My Cookbook</LinkButton>
+        {#if data.mealPlan}
+          <form
+            method="POST"
+            action={`/mealplans/${data.mealPlan?.id}?/addMealsForMe`}
+            on:submit|preventDefault={() => {
+              addForMe = true;
+            }}
+          >
+            <Button kind="primary">
+              Add Meals For Me
+            </Button>
+          </form>
+        {/if}
+        <LinkButton href="/cookbook" type="secondary">Go to My Cookbook</LinkButton>
       </li>
     {/if}
   </ul>
+
+  <Modal
+    title="We got you!"
+    text="We can add meals to your meal plan for you. Just let us know how many meals you want to add and we'll take care of the rest."
+    isOpen={addForMe}
+    on:close={() => addForMe = false}
+  >
+    <form
+      slot="content"
+      class="add-meals-for-me-form"
+      method="POST"
+      action={`/mealplans/${data.mealPlan?.id}?/addMealsForUser`}
+      let:onClose={onClose}
+      use:enhance={({ data }) => {
+        const numberOfMeals = data.get('numberOfMeals');
+        addingForMe = true;
+
+        return ({ result, update }) => {
+          if (result.type === 'success') {
+            Toast.add({ message: `${numberOfMeals + ' ' || ''}meals added to your meal plan.` });
+            addForMe = false;
+            addingForMeError = ''
+          } else if (result.type === 'failure') {
+            addingForMeError = result.data?.message
+          }
+
+          addingForMe = false;
+
+          update();
+        }
+      }}
+    >
+      <div class="add-meals-for-me-fields-container">
+        <InputField
+          label="Number of Meals"
+          name="numberOfMeals"
+          type="number"
+          min={1}
+          required
+        />
+
+        <!-- 
+          TODO: uncomment this and remove hidden field below once we
+          support duplicate recipes being added.default.
+          (https://github.com/iamthe-Wraith/yumyum-recipes/issues/145)
+        -->
+        <!-- <Checkbox
+          id="allowDuplicates"
+          name="allowDuplicates"
+          text="Allow Duplicates"
+          value="true"
+          checked={true}
+        /> -->
+
+        <input type="hidden" value="false" name="allowDuplicates" />
+      </div>
+
+      {#if addingForMeError}
+        <ErrorText>{addingForMeError}</ErrorText>
+      {/if}
+
+      <div class="add-meals-for-me-buttons-container">
+        {#if addingForMe}   
+          <LoadingBasic />
+        {:else}
+          <Button
+            type="button"
+            kind="transparent"
+            disabled={addingForMe}
+            on:click={onClose}
+          >
+            Cancel
+          </Button>
+          <Button kind="secondary">
+            Add Meals
+          </Button>
+        {/if}
+      </div>
+    </form>
+  </Modal>
 
   <ConfirmationModal
     isOpen={confirmClose}
@@ -418,6 +528,8 @@
   }
 
   li.no-recipes {
+    --button-margin-bottom: 0.5rem;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -428,5 +540,18 @@
     p {
       margin-bottom: 1rem;
     }
+  }
+
+  .add-meals-for-me-fields-container {
+    max-width: 20rem;
+    margin: 0 auto 1rem;
+  }
+
+  .add-meals-for-me-buttons-container {
+    --button-margin-left: 1rem;
+
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
   }
 </style>

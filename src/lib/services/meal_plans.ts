@@ -2,11 +2,28 @@ import { z } from 'zod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { prisma } from '$lib/db/client';
-import { MealPlanStatus, Prisma, PrismaClient, type users } from '@prisma/client';
+import { MealPlanStatus, Prisma, PrismaClient, type recipes, type users } from '@prisma/client';
 import { ApiError } from '$lib/error';
 import { HttpStatus } from '$lib/constants/error';
+import { Logger } from './log';
 
 dayjs.extend(utc);
+
+const addMealsForUserSchema = z.object({
+  numberOfMeals: z.preprocess(
+    (x) => parseInt(z.string().parse(x), 10),
+    z.number({
+      invalid_type_error: 'Number of meals must be a number.',
+    })
+      .positive()
+      .min(1, { message: 'Invalid number of meals found.' })
+  ),
+  allowDuplicates: z.string({
+    invalid_type_error: 'allowDuplicates must be a string.',
+  })
+    .default('false')
+    .transform((val) => val === 'true')
+});
 
 const mealPlanSchema = z.object({
   name: z.string({
@@ -51,9 +68,124 @@ export interface IAddMealPlanData {
   recipe: number;
 }
 
+export interface IAddMealsForUserData {
+  numberOfMeals: number;
+  allowDuplicates: boolean;
+}
+
 export interface IRemoveMealPlanData {
   meal: number;
 }
+
+export const addMealsForUser = async (data: IAddMealsForUserData, planId: number, requestor: users) => {
+  const parsed = validateAddMealsForUserData(data);
+
+  return await prisma.$transaction(async (tx) => {
+    const mealPlan = await tx.meal_plans.findFirst({
+      where: {
+        id: planId,
+      },
+      include: {
+        meals: true,
+      },
+    });
+
+    const recipesCount = await tx.recipes.count({
+      where: {
+        ownerId: requestor.id,
+      },
+    });
+
+    // TODO: add support for duplicate meals in meal plan
+
+    // if no duplicates allowed, check that user has enough recipes in their cookbook.
+    if (recipesCount < (parsed.data.numberOfMeals + (mealPlan?.meals?.length || 0))) {
+      throw new ApiError('You do not have enough recipes in your cookbook to add this many meals to your meal plan.', HttpStatus.BAD_REQUEST);
+    }
+
+    const currentRecipeIds = mealPlan?.meals?.map(meal => meal.recipeId) || [];
+    const recipesToAdd: recipes[] = [];
+
+    for (let i = 0; i < parsed.data.numberOfMeals; i++) {
+      // get a random recipe that hasn't already been selected
+      const randomMeal = await tx.recipes.findFirst({
+        where: {
+          ownerId: requestor.id,
+          id: {
+            notIn: currentRecipeIds,
+          },
+        },
+        skip: Math.floor(Math.random() * (recipesCount - currentRecipeIds.length)),
+      });
+
+      // if no recipe found, try again
+      // this *shouldn't* ever happen, but just in case...
+      if (!randomMeal) {
+        Logger.log('failed to get random meal. trying again...');
+        i--;
+        continue;
+      }
+
+      // if recipe already in meal plan, try again
+      // this also *shouldn't* ever happen, but just in case...
+      if (currentRecipeIds.includes(randomMeal.id)) {
+        Logger.log('random meal already in meal plan. trying again...');
+        i--;
+        continue;
+      }
+
+      currentRecipeIds.push(randomMeal.id);
+      recipesToAdd.push(randomMeal);
+    }
+
+    // get user's default serving size from their settings
+    const settings = await tx.user_settings.findFirst({
+      where: {
+        userId: requestor.id,
+      },
+    });
+
+    const newMealsData = recipesToAdd.map(recipe => ({
+      ownerId: requestor.id,
+      recipeId: recipe.id,
+      mealPlanId: planId,
+      serving: settings?.defaultServingSize || recipe.servings,
+    }));
+
+    // create meals from the random list of recipes
+    await tx.meals.createMany({
+      data: newMealsData,
+    });
+
+    // get the newly created meals
+    const newMeals = await tx.meals.findMany({
+      where: {
+        ownerId: requestor.id,
+        mealPlanId: planId,
+        recipeId: {
+          in: recipesToAdd.map(recipe => recipe.id),
+        },
+      },
+    });
+
+    // add the new meals to the meal plan
+    await tx.meal_plans.update({
+      where: {
+        id: planId,
+      },
+      data: {
+        meals: {
+          connect: newMeals.map(meal => ({
+            id: meal.id,
+          })),
+        },
+      },
+    });
+
+    // return the updated meal plan
+    return await getMealPlan({ id: planId }, requestor);
+  });
+};
 
 export const addMealToPlan = async (data: IAddMealPlanData, requestor: users) => {
   const parsed = validateMealDataToAddToPlan(data);
@@ -84,7 +216,7 @@ export const addMealToPlan = async (data: IAddMealPlanData, requestor: users) =>
         recipeId: recipe.id,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         mealPlanId: mealPlan!.id,
-        serving: parsed?.data?.servings || settings?.defaultServingSize || recipe.servings, // TODO: update this with the user's input. if no input, fallback to user's default. if default not set, then fallback to recipe serving size.
+        serving: parsed?.data?.servings || settings?.defaultServingSize || recipe.servings,
       },
       include: {
         recipe: true,
@@ -238,6 +370,17 @@ export const updateMealPlanStatus = async (
       status,
     },
   });
+};
+
+const validateAddMealsForUserData = (data: IAddMealsForUserData) => {
+  const parsed = addMealsForUserSchema.safeParse(data);
+
+  if (!parsed.success) {
+    const error = parsed.error.issues[0];
+    throw new ApiError(error.message, HttpStatus.INVALID_ARG, error.path.join('.'), data);
+  }
+
+  return parsed;
 };
 
 export const validateMealPlanData = (data: IMealPlanData) => {
