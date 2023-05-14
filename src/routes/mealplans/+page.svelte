@@ -11,6 +11,7 @@
   import ConfirmationModal from '$lib/components/modals/ConfirmationModal.svelte';
   import { AppError } from '$lib/stores/error';
   import LoadingBasic from '$lib/components/processing-anims/LoadingBasic.svelte';
+  import type { IMealPlanWithCount } from "$types/models";
 
   export let data: PageData;
 
@@ -19,6 +20,8 @@
   let deleting = false;
 
   const updateCurrentMealPlanAfterPlanDeletion = (mealPlanId: number | null) => {
+    data.mealPlans = data.mealPlans.filter((mealPlan: IMealPlanWithCount) => mealPlan.id !== mealPlanId);
+
     if (mealPlanId !== null && $mealPlan?.id === mealPlanId) mealPlan.reset();
   }
 </script>
