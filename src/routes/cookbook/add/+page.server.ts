@@ -44,7 +44,7 @@ export const actions = {
     }
 
     try {
-      let url = 'https://s3.us-east-2.wasabisys.com/yumyum/default_recipe_image.png';
+      let url = 'https://s3.us-east-2.wasabisys.com/yumyum/default-meal.png';
 
       if (!!(data.image as File).name && (data.image as File).name !== 'undefined') {
         url = await uploadImage(data.image as File, locals.user.id, data.name);
