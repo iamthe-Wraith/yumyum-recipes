@@ -92,7 +92,7 @@
                 <InputField
                   type="number"
                   name="servings"
-                  label="Servings"
+                  label="I'll be serving:"
                   value={($user?.settings?.defaultServingSize || data.recipe.servings).toString()}
                 />
               </div>
@@ -191,7 +191,7 @@
               <InputField
                 type="number"
                 name="servings"
-                label="Servings"
+                label="I'll be serving:"
                 value={($user?.settings?.defaultServingSize || data.recipe.servings).toString()}
               />
             </div>
