@@ -6,6 +6,7 @@
   export let text = '';
   export let type = 'text';
   export let id = '';
+  export let maxlength = 999999999;
   export let max: number = 999999999;
   export let min: number = 0;
   export let name = id;
@@ -52,7 +53,8 @@
         {value}
         {required}
         {placeholder}
-        step={type === 'number' ? step : undefined} 
+        {maxlength}
+        step={type === 'number' ? step : undefined}
         on:change
         on:blur
         on:focus
