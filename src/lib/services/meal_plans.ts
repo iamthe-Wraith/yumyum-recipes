@@ -251,22 +251,39 @@ export const addMealToPlan = async (data: IAddMealPlanData, requestor: users) =>
 export const createMealPlan = async (data: IMealPlanData, requestor: users) => {
   const parsed = validateMealPlanData(data);
 
-  const mealPlan = await prisma.meal_plans.create({
-    data: {
-      ...parsed.data,
-      ownerId: requestor.id,
-      status: MealPlanStatus.ACTIVE,
-    },
-    include: {
-      meals: {
-        include: {
-          recipe: true,
+  return await prisma.$transaction(async (tx) => {
+    const existingMealPlansWithSimilarName = await tx.meal_plans.findMany({
+      where: {
+        name: {
+          search: parsed.data.name,
         }
-      },
-    },
-  });
+      }
+    });
 
-  return mealPlan;
+    let name = parsed.data.name;
+
+    if (existingMealPlansWithSimilarName?.length) {
+      name = `${name} (${existingMealPlansWithSimilarName.length + 1})`;
+    }
+
+    const mealPlan = await tx.meal_plans.create({
+      data: {
+        ...parsed.data,
+        name,
+        ownerId: requestor.id,
+        status: MealPlanStatus.ACTIVE,
+      },
+      include: {
+        meals: {
+          include: {
+            recipe: true,
+          }
+        },
+      },
+    });
+  
+    return mealPlan;
+  });
 };
 
 export const deleteMealPlan = async (mealPlanId: number, requestor: users) => {
