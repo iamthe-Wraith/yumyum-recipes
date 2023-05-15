@@ -6,6 +6,7 @@ import { redirect, type Actions, fail } from '@sveltejs/kit';
 import { getMealPlans, removeFromMealPlan, createMealPlan, getMealPlan, type IMealPlanData, addMealToPlan, type IAddMealPlanData, type IRemoveMealPlanData } from '$lib/services/meal_plans';
 import { parseFormData } from '$lib/helpers/request';
 import { MealPlanStatus } from '@prisma/client';
+import type { IMealPlanWithCount } from '$types/models';
 
 export const actions = {
   addMealToPlan: async ({ request, locals }) => {
@@ -109,7 +110,7 @@ export const load = wrapServerLoadWithSentry(async ({ locals }) => {
   if (!locals.user) throw redirect(303, '/signin');
   
   try {
-    const mealPlans = getMealPlans({}, locals.user);
+    const mealPlans: IMealPlanWithCount[] = await getMealPlans({}, locals.user);
     return { mealPlans };
   } catch (err) {
     const error = err instanceof ApiError

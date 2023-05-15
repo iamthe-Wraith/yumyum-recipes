@@ -275,6 +275,14 @@ export const deleteMealPlan = async (mealPlanId: number, requestor: users) => {
 
   return await prisma.$transaction(async (tx) => {
     await tx.meals.deleteMany({ where: { mealPlanId } });
+    
+    const groceryList = await tx.grocery_lists.findFirst({ where: { mealPlanId } });
+
+    if (groceryList) {
+      await tx.grocery_list_items.deleteMany({ where: { groceryListId: groceryList.id } });
+      await tx.grocery_lists.delete({ where: { id: groceryList.id } });
+    }
+
     await tx.meal_plans.delete({ where: { id: mealPlanId } });
   });
 };
@@ -299,8 +307,12 @@ export const getMealPlanWithIngredients = async (query: Record<string, any>, req
   });
 };
 
-export const getMealPlan = async (query: Record<string, any>, requestor: users) => {
-  return await prisma.meal_plans.findFirst({
+export const getMealPlan = async (
+  query: Record<string, any>, 
+  requestor: users, 
+  context?: Omit<PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
+) => {
+  return await (context || prisma).meal_plans.findFirst({
     where: {
       ...query,
       ownerId: requestor.id

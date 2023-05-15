@@ -41,6 +41,12 @@ export interface IMealPlan extends meal_plans {
   meals: IMeal[];
 }
 
+export interface IMealPlanWithCount extends meal_plans {
+  _count: {
+    meals: number;
+  }
+}
+
 /** Grocery Lists */
 export interface IIngredientAmount {
   amount: number;
