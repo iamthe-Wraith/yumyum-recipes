@@ -325,6 +325,7 @@
   }
   
   .dropdown-list {
+    max-height: 10rem;
     background: var(--neutral-300);
     border-radius: 0.25rem;
     list-style: none;
