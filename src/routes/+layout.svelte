@@ -145,13 +145,14 @@
     display: flex;
     align-items: center;
     padding: 0.5rem 1rem;
-    background: var(--primary-500);
+    background: var(--neutral-100);
+    border: 1px solid var(--tertiary-500);
     border-radius: 0.25rem;
     text-decoration: none;
 
     span {
       padding-left: 0.5rem;
-      color: var(--neutral-100);
+      color: var(--neutral-900);
     }
   }
 </style>
