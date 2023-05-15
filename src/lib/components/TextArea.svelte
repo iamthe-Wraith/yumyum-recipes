@@ -7,6 +7,7 @@
   export let id = '';
   export let name = id;
   export let value = '';
+  export let maxlength = 99999999999;
   export let required = false;
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
 </script>
@@ -26,6 +27,13 @@
       {name}
       {value}
       {required}
+      {maxlength}
+      on:change
+      on:focus
+      on:blur
+      on:keypress
+      on:keydown
+      on:keyup
     />
   </span>
 

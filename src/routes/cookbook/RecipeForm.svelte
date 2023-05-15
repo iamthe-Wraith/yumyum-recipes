@@ -13,6 +13,7 @@
   import ErrorBanner from "$lib/components/ErrorBanner.svelte";
   import { IngredientType, IngredientUnitOfMeasure, type IRecipe } from "$types/models";
   import type { IFormError } from "$types/errors";
+  import CountOfMax from "$lib/components/CountOfMax.svelte";
   
   interface IFile extends File {
     path: string;
@@ -29,6 +30,11 @@
   export let error: IFormError | null = null;
   export let recipe: IRecipe | null = null;
   export let appearance: 'primary-tertiary' | 'secondary-primary' | 'tertiary-secondary' = 'primary-tertiary';
+  
+  let MAX_NAME_LENGTH = 50;
+  let MAX_DESCRIPTION_LENGTH = 300;
+  let name = '';
+  let description = '';
 
   let ingredients: IIngredient[] = [{
     amount: 1,
@@ -46,6 +52,7 @@
     unitsOfMeasureByType[uom.type].push(uom);
   }
 
+  $: if (!!recipe?.name) name = recipe.name
   $: {
     if (recipe?.ingredients?.length) {
       ingredients = recipe?.ingredients?.map(ingredient => ({
@@ -85,6 +92,21 @@
   const onAmountChange = (i: number) => (e: Event) => {
     const target = e.target as HTMLInputElement;
     ingredients[i].amount = Number(target.value);
+  };
+
+  const onFieldChange = (field: 'name' | 'description') => (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    switch (field) {
+      case 'name':
+        name = target.value;
+        break;
+      case 'description':
+        description = target.value;
+        break;
+      default:
+        break;
+    }
   };
 
   const onImageUploadChange = (event: Event) => {
@@ -166,24 +188,40 @@
     </div>
 
     <div class="name-desc-container">
-      <InputField
-        label="Name"
-        id="name"
-        name="name"
-        value={recipe?.name || ''}
-        error={error && error.field === 'name' ? error.message : ''}
-        {appearance}
-      />
+      <div class="input-row">
+        <InputField
+          label="Name"
+          id="name"
+          name="name"
+          value={recipe?.name || ''}
+          maxlength={MAX_NAME_LENGTH}
+          error={error && error.field === 'name' ? error.message : ''}
+          on:keyup={onFieldChange('name')}
+          {appearance}
+        />
+        <div class="count-container">
+          <CountOfMax current={name.length} max={MAX_NAME_LENGTH} />
+        </div>
+      </div>
 
-      <TextArea
-        label="Description"
-        description="Add a short description of the recipe to let others know what it's like."
-        id="description"
-        name="description"
-        value={recipe?.description || ''}
-        error={error && error.field === 'description' ? error.message : ''}
-        {appearance}
-      />
+      <div class="input-row">
+        <div class="input-row">
+          <TextArea
+            label="Description"
+            description="Add a short description of the recipe to let others know what it's like."
+            id="description"
+            name="description"
+            value={recipe?.description || ''}
+            maxlength={MAX_DESCRIPTION_LENGTH}
+            error={error && error.field === 'description' ? error.message : ''}
+            on:keyup={onFieldChange('description')}
+            {appearance}
+          />
+          <div class="count-container">
+            <CountOfMax current={description.length} max={MAX_DESCRIPTION_LENGTH} />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -468,6 +506,20 @@
       }
 
       --button-width: 100%;
+    }
+
+    .input-row {
+      --input-field-margin-bottom: 0;
+      --text-area-margin-bottom: 0;
+
+      &:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+
+      .count-container {
+        display: flex;
+        justify-content: flex-end;
+      }
     }
 
     @media (min-width: 450px) {
