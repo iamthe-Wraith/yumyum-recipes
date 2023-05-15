@@ -35,6 +35,8 @@ export const actions = {
     try {
       if (isNaN(planId)) throw new ApiError('Invalid meal plan ID', 400);
       await createGroceryList(planId, locals.user);
+
+      return {};
     } catch (err) {
       const error = err instanceof ApiError
         ? new ApiError(err.message, err.status)
@@ -44,8 +46,6 @@ export const actions = {
       
       return fail(error.status, (error as ApiError).toJSON());
     }
-
-    throw redirect(303, `/mealplans/${planId}/grocerylist`);
   },
   updateGroceryListItemStatus: async ({ request, params, locals }) => {
     if (!locals.user) throw redirect(303, '/signin');

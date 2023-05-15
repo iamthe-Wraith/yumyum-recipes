@@ -1,7 +1,14 @@
 import { writable } from 'svelte/store';
 
+interface IRedirect {
+  url: string;
+  text: string;
+  target?: '_blank';
+}
+
 interface IToast {
   message: string;
+  redirect?: IRedirect;
   type?: 'success' | 'error';
   duration?: number;
 }

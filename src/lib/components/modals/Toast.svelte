@@ -14,6 +14,12 @@
     <div class="modal">
       <span>{$Toast[0].message}</span>
       
+      {#if $Toast[0].redirect}
+        <a href={$Toast[0].redirect.url}>
+          {$Toast[0].redirect.text}
+        </a>
+      {/if}
+
       <IconButton
         kind={$Toast[0].type === 'error' ? 'danger' : 'neutral'}
         on:click={() => Toast.remove()}
@@ -36,19 +42,30 @@
     transform: translateX(-50%);
 
     &.success {
+      --icon-color: var(--neutral-900);
+
       background: var(--primary-500);
 
-      --icon-color: var(--neutral-900);
+      a {
+        color: var(--secondary-500)
+      }
     }
 
     &.error {
+      --icon-color: var(--danger-800);
+      
       background: var(--danger-500);
 
-      --icon-color: var(--danger-800);
+      a {
+        color: var(--danger-500)
+      }
     }
   }
 
   .modal {
+    --icon-button-margin-left: 1.5rem;
+    --icon-size: 0.75rem;
+
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -56,7 +73,13 @@
     background: var(--neutral-100);
     border-radius: 0.5rem;
 
-    --icon-button-margin-left: 1.5rem;
-    --icon-size: 0.75rem;
+    a {
+      margin: 0 0.5rem;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 </style>

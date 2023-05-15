@@ -7,7 +7,7 @@ function createMealPlanStore() {
   return {
     subscribe,
     set: (mealPlan: IMealPlan) => set(mealPlan),
-    reset: () => set(null)
+    reset: () => set(null),
   };
 }
 

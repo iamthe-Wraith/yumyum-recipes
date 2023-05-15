@@ -272,12 +272,21 @@
 
         return ({ result, update }) => {
           if (result.type === 'success') {
-            Toast.add({ message: 'Grocery list created.' });
+            Toast.add({
+              message: 'Grocery list created.',
+              duration: 5000,
+              redirect: {
+                url: `/mealplans/${data.mealPlan?.id}/grocerylist`, 
+                text: 'Go To Grocery List'
+              },
+            });
             mealPlan.reset();
+            confirmClose = false;
           } else if (result.type === 'failure') {
-            Toast.add({ message: result.data?.message })
+            Toast.add({ message: result.data?.message, type: 'error', duration: 5000 })
           }
 
+          creating = false;
           update();
         }
       }}
