@@ -1,20 +1,21 @@
-import Aws from 'aws-sdk';
-import S3 from 'aws-sdk/clients/s3';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 import { S3_ENDPOINT, S3_BUCKET, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY } from '$env/static/private';
-import { Logger } from './log';
 import { ApiError } from '$lib/error';
 
-export const uploadImage = async (image: File, requestorId: number, name?: string) => {
+export const uploadImage = async (image: File, requestorId: number, name?: string, altEndpoint?: string): Promise<string> => {
+  let endpoint = altEndpoint || S3_ENDPOINT;
+
   try {
     if (!requestorId) throw new ApiError('You must be signed in to upload an image.', 401);
 
-    const s3Endpoint = new Aws.Endpoint(S3_ENDPOINT);
-    const s3 = new S3({
-      endpoint: s3Endpoint,
+    const s3Client = new S3Client({
       region: S3_REGION,
-      accessKeyId: S3_ACCESS_KEY,
-      secretAccessKey: S3_SECRET_KEY,
+      endpoint,
+      credentialDefaultProvider: () => async () => ({
+        accessKeyId: S3_ACCESS_KEY,
+        secretAccessKey: S3_SECRET_KEY,
+      }),
     });
 
     const arrayBuffer = await image.arrayBuffer();
@@ -37,29 +38,34 @@ export const uploadImage = async (image: File, requestorId: number, name?: strin
       parsedName = parsedName.split(' ').join('_');
     }
 
+    const key = `${id}_${timestamp}_${parsedName}_${image.name}`;
+
     const params = {
       Bucket: S3_BUCKET,
-      Key: `${id}_${timestamp}_${parsedName}_${image.name}`,
+      Key: key,
       Body: buffer,
       ACL: 'public-read',
       ContentType: image.type,
     };
 
-    const url = await new Promise<string>((resolve, reject) => {
-      s3.upload(params, async (error: Error, data: Aws.S3.ManagedUpload.SendData) => {
-        if (error) {
-          Logger.error('Error uploading image to S3: ', error);
-          reject(new ApiError('An error occurred while attempting to upload your image. Please try again later.', 500));
-        }
+    await s3Client.send(new PutObjectCommand(params));
 
-        resolve(data.Location);
-      });
-    });
-
-    return url;
+    return `${endpoint}/${S3_BUCKET}/${key}`;
   } catch (err: any) {
+    if (err.Code === 'TemporaryRedirect' && err.Endpoint) {
+      endpoint = `https://${err.Endpoint.split('yumyum.').join('')}`;
+    } else {
+      throw err instanceof ApiError
+        ? err
+        : new ApiError('An error occurred while attempting to upload your image. Please try again later.', 500);
+    }
+  }
+  
+  try {
+    return await uploadImage(image, requestorId, name, endpoint);
+  } catch (err) {
     throw err instanceof ApiError
       ? err
       : new ApiError('An error occurred while attempting to upload your image. Please try again later.', 500);
-  } 
+  }
 };
