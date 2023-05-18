@@ -5,7 +5,7 @@
   import InputField from "$lib/components/InputField.svelte";
   import Page from "$lib/components/Page.svelte";
   import { isErrorStatus } from "$lib/helpers/response";
-	import { newUserSchema } from "$lib/schemas/user";
+  import { newUserSchema } from "$lib/schemas/user";
   import type { ActionData } from "./$types";
   
   export let form: ActionData;

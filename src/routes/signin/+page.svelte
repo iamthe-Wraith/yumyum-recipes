@@ -1,13 +1,49 @@
 <script lang="ts">
-	import { enhance } from "$app/forms";
-	import Button from "$lib/components/Button.svelte";
-	import ErrorText from "$lib/components/ErrorText.svelte";
+  import { enhance } from "$app/forms";
+  import Button from "$lib/components/Button.svelte";
+  import ErrorText from "$lib/components/ErrorText.svelte";
   import InputField from "$lib/components/InputField.svelte";
-	import Page from "$lib/components/Page.svelte";
+  import Page from "$lib/components/Page.svelte";
   import { isErrorStatus } from "$lib/helpers/response";
-	import type { ActionData } from "./$types";
+  import type { ActionData } from "./$types";
   
   export let form: ActionData;
+
+  let emailError: string;
+  let passwordError: string;
+  let formError: string;
+
+  $: if (form && isErrorStatus(form?.status)) {
+    handleError(form.message, form.field);
+  }
+
+  function handleError(message: string, field?: string) {
+    switch (field) {
+      case 'email':
+        emailError = message;
+        break;
+      case 'password':
+        passwordError = message;
+        break;
+      default:
+        formError = message;
+        break;
+    }
+  }
+
+  function validateUserData(data: FormData, cancel: () => void) {
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
+    const confirmedPassword = data.get('confirmedPassword') as string;
+
+    if (!email) emailError = 'Email is required';
+    if (!password) passwordError = 'Password is required';
+
+    if (emailError || passwordError) {
+      cancel();
+      return;
+    }
+  }
 </script>
 
 <Page title="Sign In">
@@ -15,7 +51,7 @@
     <h1>Sign in</h1>
     <form
       method="POST"
-      use:enhance
+      use:enhance={({ data, cancel }) => validateUserData(data, cancel)}
     >
       <div class="input-field-container">
         <InputField
@@ -24,7 +60,7 @@
           id="email"
           name="email"
           value={form?.data?.email ?? ''}
-          error={isErrorStatus(form?.status) && form?.field === 'email' ? form.message : ''}
+          error={emailError}
           appearance="secondary-primary"
         />
       </div>
@@ -36,12 +72,12 @@
           id="password"
           name="password"
           value={form?.data?.password ?? ''}
-          error={isErrorStatus(form?.status) && form?.field === 'password' ? form.message : ''}
+          error={passwordError}
           appearance="secondary-primary"
         />
       </div>
   
-      {#if isErrorStatus(form?.status) && !form?.field}
+      {#if formError}
         <div class="error-container">
           <ErrorText>
             {form?.message}
