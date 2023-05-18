@@ -5,15 +5,71 @@
   import InputField from "$lib/components/InputField.svelte";
   import Page from "$lib/components/Page.svelte";
   import { isErrorStatus } from "$lib/helpers/response";
+  import { newUserSchema } from "$lib/schemas/user";
   import type { ActionData } from "./$types";
   
   export let form: ActionData;
+
+  let emailError: string;
+  let passwordError: string;
+  let confirmedPasswordError: string;
+  let formError: string;
+
+  $: if (form && isErrorStatus(form?.status)) {
+    handleError(form.message, form.field);
+  }
+
+  function handleError(message: string, field?: string) {
+    switch (field) {
+      case 'email':
+        emailError = message;
+        break;
+      case 'password':
+        passwordError = message;
+        break;
+      case 'confirmedPassword':
+        confirmedPasswordError = message;
+        break;
+      default:
+        formError = message;
+        break;
+    }
+  }
+
+  function validateUserData(data: FormData, cancel: () => void) {
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
+    const confirmedPassword = data.get('confirmedPassword') as string;
+
+    if (!email) emailError = 'Email is required';
+    if (!password) passwordError = 'Password is required';
+    if (!confirmedPassword) confirmedPasswordError = 'Confirmed password is required';
+
+    if (emailError || passwordError || confirmedPasswordError) {
+      cancel();
+      return;
+    }
+
+    const parsed = newUserSchema.safeParse({ email, password, confirmedPassword });
+    
+    if (!parsed.success && !emailError && !passwordError && !confirmedPasswordError) {
+      const error = parsed.error.issues[0];
+      handleError(error.message, error.path[0].toString());
+    }
+
+    if (password !== confirmedPassword) confirmedPasswordError = 'Passwords do not match.';
+
+    if (emailError || passwordError || confirmedPasswordError) {
+      cancel();
+      return;
+    }
+  }
 </script>
 
 <Page title="Sign Up">
   <div class="signup-container">
     <h1>Sign up</h1>
-    <form method="POST" use:enhance>
+    <form method="POST" use:enhance={({ data, cancel }) => validateUserData(data, cancel)}>
       <div class="input-field-container">
         <InputField
           label="Email"
@@ -21,8 +77,11 @@
           id="email"
           name="email"
           value={form?.data?.email ?? ''}
-          error={isErrorStatus(form?.status) && form?.field === 'email' ? form.message : ''}
+          error={emailError}
           appearance="secondary-primary"
+          on:keydown={() => {
+            emailError = '';
+          }}
         />
       </div>
   
@@ -33,8 +92,11 @@
           id="password"
           name="password"
           value={form?.data?.password ?? ''}
-          error={isErrorStatus(form?.status) && form?.field === 'password' ? form.message : ''}
+          error={passwordError}
           appearance="secondary-primary"
+          on:keydown={() => {
+            passwordError = '';
+          }}
         />
       </div>
   
@@ -45,12 +107,15 @@
           id="confirmedPassword"
           name="confirmedPassword"
           value={form?.data?.confirmedPassword ?? ''}
-          error={isErrorStatus(form?.status) && form?.field === 'confirmedPassword' ? form.message : ''}
+          error={confirmedPasswordError}
           appearance="secondary-primary"
+          on:keydown={() => {
+            confirmedPasswordError = '';
+          }}
         />
       </div>
 
-      {#if isErrorStatus(form?.status) && !form?.field}
+      {#if formError}
         <div class="error-container">
           <ErrorText>
             {form?.message}
