@@ -4,6 +4,7 @@
   import Page from "$lib/components/Page.svelte";
   import RecipeForm from "../../RecipeForm.svelte";
   import type { IRecipe } from "$types/models";
+	import type { IFormError } from "$types/errors";
 
   export let form: ActionData;
   export let data: PageData;
@@ -11,9 +12,16 @@
   let formData: IRecipe | null = null;
 
   $: formData = form?.data as IRecipe || null;
+  let formError: IFormError | null = null;
 
-  $: if (isErrorStatus(form?.status)) {
-    window.scrollTo(0, 0);
+  $: {
+    formError = form && form?.status >= 400
+      ? {
+        field: form.field,
+        message: form.message || "Something went wrong.",
+        status: form.status,
+      }
+      : null;
   }
 </script>
 
@@ -21,9 +29,8 @@
   <div class="edit-recipe-container">
     <h1>Edit Recipe</h1>
     <RecipeForm
-      status={form?.status}
-      error={form?.message}
-      errorField={form?.field}
+      actionType="edit"
+      error={formError}
       recipe={formData || data.recipe}
     />
   </div>
