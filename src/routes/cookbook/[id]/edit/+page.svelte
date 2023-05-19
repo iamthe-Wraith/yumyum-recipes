@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { isErrorStatus } from "$lib/helpers/response";
   import type { ActionData, PageData } from "./$types";
   import Page from "$lib/components/Page.svelte";
   import RecipeForm from "../../RecipeForm.svelte";
   import type { IRecipe } from "$types/models";
-	import type { IFormError } from "$types/errors";
+  import type { IFormError } from "$types/errors";
 
   export let form: ActionData;
   export let data: PageData;
