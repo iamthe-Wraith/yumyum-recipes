@@ -1,28 +1,26 @@
 import { UnitsOfMeasure, type IUnitOfMeasure } from '$lib/constants/ingredients';
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-export const getUnitOfMeasure = (uomName: string): IUnitOfMeasure | undefined => Object.values(UnitsOfMeasure).find(u => u.name === uomName);
+export const getUnitOfMeasure = (uomName?: string): IUnitOfMeasure | undefined => Object.values(UnitsOfMeasure).find(u => u.name === uomName);
 
-export const getUnitOfMeasureAbbv = (uom: IUnitOfMeasure | string, amount?: number) => {
-  let unitOfMeasure: IUnitOfMeasure;
+export const getUnitOfMeasureAbbv = (uom?: IUnitOfMeasure | string, amount?: number) => {
+  if (!uom) return UnitsOfMeasure.find(u => !u.name)?.abbv;
 
-  if (typeof uom !== 'string') unitOfMeasure = uom;
-
-  if (typeof uom === 'string') {
-    const u = getUnitOfMeasure(uom);
-    if (!u) return '';
-    unitOfMeasure = u;
-  } else {
-    unitOfMeasure = uom;
+  if ((typeof uom !== 'string' && !(uom as IUnitOfMeasure).abbv)) {
+    return UnitsOfMeasure.find(u => !u.name)?.abbv;
   }
 
-  if (!amount || amount === 1) return unitOfMeasure.abbv;
+  const u = getUnitOfMeasure(typeof uom === 'string' ? uom : (uom as IUnitOfMeasure).name);
 
-  switch (unitOfMeasure.abbv) {
+  if (!u) return UnitsOfMeasure.find(u => !u.name)?.abbv;
+
+  if (typeof amount !== 'number' || amount === 1) return u.abbv;
+
+  switch (u.abbv) {
     case '--': return '';
     case 'pinch': return 'pinches';
     case 'mL': return 'mLs';
     case 'lb': return 'lbs';
-    default: return unitOfMeasure.abbv;
+    default: return u.abbv;
   }
 };
