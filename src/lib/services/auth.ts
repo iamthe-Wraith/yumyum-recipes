@@ -25,18 +25,22 @@ export const generatePasswordHash = (password: string): Promise<string> => {
   });
 };
 
-export const isValidPassword = (providedPassword: string, encryptedPassword: string): Promise<void> => {
+export const isValidPassword = (providedPassword: string, encryptedPassword: string): Promise<boolean> => {
+  const error = new ApiError('Invalid email or password.', HttpStatus.AUTHENTICATION);
+
   return new Promise((resolve, reject) => {
+    if (!providedPassword || !encryptedPassword) reject(error);
+
     bcrypt.compare(providedPassword, encryptedPassword, (err: Error | undefined, authenticated: boolean) => {
       if (err) {
         reject(err);
       } else {
         if (authenticated) {
-          resolve();
+          resolve(true);
         } else {
-          reject(new ApiError('Invalid email or password.', HttpStatus.AUTHENTICATION));
+          reject(error);
         }
       }
     });
   });
-}
+};
