@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { UnitsOfMeasure } from '$lib/constants/ingredients';
-import { getUnitOfMeasure, getUnitOfMeasureAbbv } from './units_of_measure';
 import { IngredientUnitOfMeasure } from '$types/models';
+import { getUnitOfMeasure, getUnitOfMeasureAbbv } from '$lib/helpers/units_of_measure';
 
 describe('helpers/units_of_measure', () => {
   describe('getUnitOfMeasure', () => {

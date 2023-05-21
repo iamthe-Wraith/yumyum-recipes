@@ -1,5 +1,5 @@
+import { pluralize } from '$lib/helpers/string';
 import { describe, expect, it } from 'vitest';
-import { pluralize } from './string';
 
 describe('helpers/string', () => {
   describe('pluralize', () => {

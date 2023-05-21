@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseFormData } from './request';
+import { parseFormData } from '../../../src/lib/helpers/request';
 
 interface IMockBasicFormData {
   username: string;

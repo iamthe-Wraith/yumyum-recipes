@@ -1,18 +1,15 @@
-import type { z } from 'zod';
 import { HttpStatus } from '$lib/constants/error';
 import { UnitsOfMeasure } from '$lib/constants/ingredients';
 import { prisma } from '$lib/db/client';
 import { ApiError } from '$lib/error';
 import { IngredientType, IngredientUnitOfMeasure, type recipes, type users } from '@prisma/client';
 import { Logger } from './log';
-import { recipeSchema } from '$lib/schemas/recipe';
+import { recipeSchema, type IRecipeData } from '$lib/schemas/recipe';
 
 export interface IGetRecipeOptions {
   sort?: 'asc' | 'desc';
   includePublic?: boolean;
 }
-
-export type IRecipeData = z.infer<typeof recipeSchema> & { id?: number, image: File | string};
 
 export interface IIngredient {
   amount: number;

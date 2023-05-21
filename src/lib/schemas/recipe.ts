@@ -9,23 +9,35 @@ export const recipeSchema = z.object({
     .min(1, { message: 'Recipe name must be at least 1 character.' })
     .max(50, { message: 'Recipe name cannot be more than 50 characters.' }),
   description: z.string({
+    required_error: 'Recipe description is required.',
     invalid_type_error: 'Recipe description must be a string.',
   })
     .min(1, { message: 'Recipe description must be at least 1 character.' })
     .max(300, { message: 'Recipe description cannot be more than 300 characters.' }),
   prepTime: z.string({
+    required_error: 'Prep time is required.',
     invalid_type_error: 'Prep time must be a string.',
   })
     .regex(/min|hour/gm, { message: 'Prep time must be in minutes and hours.' }),
   cookTime: z.string({
+    required_error: 'Cook time is required.',
     invalid_type_error: 'Cook time must be a string.',
   })
     .regex(/min|hour/gm, { message: 'Cook time must be in minutes and hours.' }),
   servings: z.preprocess(
-    (x) => parseInt(z.string().parse(x), 10),
+    (x) => {
+      if (typeof x === 'number') {
+        return x;
+      } else {
+        const parsed = z.string().safeParse(x);
+        if (parsed.success) return parseInt(parsed.data, 10);
+      }
+    },
     z.number({
+      required_error: 'Servings are required.',
       invalid_type_error: 'Servings must be a number.',
-    }).positive().min(1, { message: 'Servings must be at least 1.' })
+    })
+      .positive({ message: 'Servings must be a positive number.' })
   ),
   ingredients: z.object({
     id: z.number({
@@ -54,10 +66,13 @@ export const recipeSchema = z.object({
   })
     .array()
     .min(1, { message: 'Recipes must have at least 1 ingredient.' }),
-  steps: z.string()
+  steps: z.string({
+    required_error: 'Recipe steps are required.',
+    invalid_type_error: 'Recipe steps must be a string.',
+  })
     .min(1, { message: 'Recipe steps must have at least 1 character.' })
     .array()
-    .min(1, { message: 'Recipes must have at least 1 step. ' }),
+    .min(1, { message: 'Recipes must have at least 1 step.' }),
   notes: z.string({
     invalid_type_error: 'Notes must be a string.',
   })
@@ -69,3 +84,5 @@ export const recipeSchema = z.object({
     .default('false')
     .transform((val) => val === 'true')
 });
+
+export type IRecipeData = z.infer<typeof recipeSchema> & { id?: number, image: File | string};

@@ -1,5 +1,5 @@
+import { isErrorStatus } from '$lib/helpers/response';
 import { describe, expect, it } from 'vitest';
-import { isErrorStatus } from './response';
 
 describe('helpers/response', () => {
   describe('isErrorStatus', () => {
