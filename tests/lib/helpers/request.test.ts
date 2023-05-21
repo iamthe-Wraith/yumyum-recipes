@@ -26,7 +26,7 @@ describe('helpers/request', () => {
       formData.append('username', username);
       formData.append('email', email);
 
-      parseFormData<IMockBasicFormData>({ formData } as unknown as Request)
+      parseFormData<IMockBasicFormData>({ formData: () => formData } as unknown as Request)
         .then(parsed => {
           expect(parsed.username).toEqual(username);
           expect(parsed.email).toEqual(email);
@@ -39,7 +39,7 @@ describe('helpers/request', () => {
         formData.append('ingredients[]', ingredient);
       });
 
-      parseFormData<IMockArrayFormData>({ formData } as unknown as Request)
+      parseFormData<IMockArrayFormData>({ formData: () => formData } as unknown as Request)
         .then(parsed => {
           expect(parsed.ingredients.length).toEqual(ingredients.length);
           ingredients.forEach(ingredient => {
@@ -52,7 +52,7 @@ describe('helpers/request', () => {
       const formData = new FormData();
       formData.append('image', image);
 
-      parseFormData<IMockFileFormData>({ formData } as unknown as Request)
+      parseFormData<IMockFileFormData>({ formData: () => formData } as unknown as Request)
         .then(parsed => {
           expect(parsed.image).toBeDefined();
         });
@@ -61,7 +61,7 @@ describe('helpers/request', () => {
     it('should parse form data when is empty', () => {
       const formData = new FormData();
 
-      parseFormData<IMockFileFormData>({ formData } as unknown as Request)
+      parseFormData<IMockFileFormData>({ formData: () => formData } as unknown as Request)
         .then(parsed => {
           expect(Object.values(parsed).length).toEqual(0);
         });

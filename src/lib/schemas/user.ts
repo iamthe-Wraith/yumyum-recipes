@@ -32,7 +32,7 @@ export const newUserSchema = z.object({
     .regex(/[A-Z]/, { message: passwordError })
     .regex(/[a-z]/, { message: passwordError }),
   confirmedPassword: z.string({
-    required_error: 'You must confirmed your password.',
+    required_error: 'You must confirm your password.',
     invalid_type_error: 'Password confirmation must be a string.',
   }),
 });
@@ -51,11 +51,18 @@ export const signInSchema = z.object({
 
 export const userSettingsSchema = z.object({
   defaultServingSize: z.preprocess(
-    (x) => parseInt(z.string().parse(x), 10),
+    (x) => {
+      if (typeof x === 'number') {
+        return x;
+      } else {
+        const parsed = z.string().safeParse(x);
+        if (parsed.success) return parseInt(parsed.data, 10);
+      }
+    },
     z.number({
+      required_error: 'Default serving size is required.',
       invalid_type_error: 'Default serving size must be a number.',
     })
-      .positive()
-      .min(1, { message: 'Default servings must be 0 or greater.' })
+      .positive({ message: 'Default servings must be a positive number.' })
   ),
 });
