@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { z } from 'zod';
 import { GroceryListItemStatus, GroceryListStatus, IngredientType, IngredientUnitOfMeasure, MealPlanStatus, Prisma, PrismaClient, type grocery_list_items, type grocery_lists, type users } from '@prisma/client';
 import { getMealPlanWithIngredients, updateMealPlanStatus } from './meal_plans';
 import { ApiError } from '$lib/error';
@@ -8,30 +7,9 @@ import { HttpStatus } from '$lib/constants/error';
 import { prisma } from '$lib/db/client';
 import type { IGroceryList, IIngredientAmount, IMealPlan } from '$types/models';
 import { UnitsOfMeasure } from '$lib/constants/ingredients';
+import { updateGroceryListItemSchema, type IUpdateGroceryListItemData } from '$lib/schemas/grocery_list';
 
 dayjs.extend(utc);
-
-const updateGroceryListItemSchema = z.object({
-  listId: z.preprocess(
-    (x) => parseInt(z.string().parse(x), 10),
-    z.number({
-      invalid_type_error: 'Grocery list ID must be a number.',
-    })
-      .positive()
-  ),
-  itemId: z.preprocess(
-    (x) => parseInt(z.string().parse(x), 10),
-    z.number({
-      invalid_type_error: 'Grocery list ID must be a number.',
-    })
-      .positive()
-  ),
-  status: z.string({
-    invalid_type_error: 'Grocery list item checked status must be a string.',
-  })
-});
-
-export type IUpdateGroceryListItemData = z.infer<typeof updateGroceryListItemSchema>;
 
 const constructGroceryListItems = (mealPlan: IMealPlan, groceryList: grocery_lists) => {
   const groceryListItems: Omit<grocery_list_items, 'id' | 'createdAt' | 'updatedAt'>[] = [];
