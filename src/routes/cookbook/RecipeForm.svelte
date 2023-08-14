@@ -14,6 +14,7 @@
   import { IngredientType, IngredientUnitOfMeasure, type IRecipe } from "$types/models";
   import type { IFormError } from "$types/errors";
   import CountOfMax from "$lib/components/CountOfMax.svelte";
+  import { recipeSchema } from "$lib/schemas/recipe";
   
   interface IFile extends File {
     path: string;
@@ -26,6 +27,21 @@
     unit?: IngredientUnitOfMeasure;
   }
 
+  interface IStep {
+    text: string;
+    isNew?: boolean;
+  }
+
+  interface IRecipeData {
+    name: string;
+    description: string;
+    prepTime: string;
+    cookTime: string;
+    servings: string;
+    ingredients: IIngredient[];
+    steps: string[];
+  }
+
   export let actionType: 'create' | 'edit' = 'create';
   export let error: IFormError | null = null;
   export let recipe: IRecipe | null = null;
@@ -33,14 +49,21 @@
   
   let MAX_NAME_LENGTH = 50;
   let MAX_DESCRIPTION_LENGTH = 300;
+
   let name = '';
   let description = '';
+  let prepTime = '';
+  let cookTime = '';
+  let servings = '';
+
+  let errors: IFormError[] = [];
 
   let ingredients: IIngredient[] = [{
     amount: 1,
     name: '',
     type: IngredientType.COUNT,
   }];
+  let steps: IStep[] = [{ text: '' }];
 
   let unitsOfMeasureByType: Record<IngredientType, IUnitOfMeasure[]> = {
     [IngredientType.COUNT]: [],
@@ -52,7 +75,23 @@
     unitsOfMeasureByType[uom.type].push(uom);
   }
 
-  $: if (!!recipe?.name) name = recipe.name
+  $: if (recipe) {
+    name = recipe.name;
+    description = recipe.description;
+    prepTime = recipe.prepTime;
+    cookTime = recipe.cookTime;
+    servings = recipe.servings.toString();
+
+    validateRecipeData({
+      name,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      ingredients,
+      steps: steps.map(step => step.text),
+    });
+  }
   $: {
     if (recipe?.ingredients?.length) {
       ingredients = recipe?.ingredients?.map(ingredient => ({
@@ -63,8 +102,27 @@
       } as IIngredient)) || [];
     }
   }
+  $: {
+    if (recipe?.steps?.length) {
+      steps = recipe?.steps?.map(step => ({
+        text: step,
+      } as IStep));
+    }
+  }
+  $: if (!!error) {
+    const existingErrorIndex = errors.findIndex(e => e.field === error?.field);
+    
+    if (existingErrorIndex > -1) {
+      errors = errors.map((e, i) => i === existingErrorIndex ? error as IFormError : e);
+    } else {
+      errors = [...errors, error];
+    }
+  }
+  $: if (errors.length) {
+    // TODO: add scrolling to position of first error
+    window.scrollTo(0, 0);
+  }
 
-  let steps = recipe?.steps?.length || 1;
   let file: IFile;
   let preview: HTMLImageElement;
 
@@ -89,24 +147,47 @@
     }];
   };
 
-  const onAmountChange = (i: number) => (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    ingredients[i].amount = Number(target.value);
+  const onAddStep = () => {
+    steps = [...steps, { text: '', isNew: true }];
   };
 
-  const onFieldChange = (field: 'name' | 'description') => (e: Event) => {
+  const onFieldChange = (field: 'name' | 'description' | 'prepTime' | 'cookTime' | 'servings') => (e: Event) => {
     const target = e.target as HTMLInputElement;
 
     switch (field) {
       case 'name':
         name = target.value;
+        if (recipe) recipe.name = name;
         break;
       case 'description':
         description = target.value;
+        if (recipe) recipe.description = description;
+        break;
+      case 'prepTime':
+        prepTime = target.value;
+        if (recipe) recipe.prepTime = prepTime;
+        break;
+      case 'cookTime':
+        cookTime = target.value;
+        if (recipe) recipe.cookTime = cookTime;
+        break;
+      case 'servings':
+        servings = target.value;
+        if (recipe) recipe.servings = parseInt(servings);
         break;
       default:
         break;
     }
+
+    validateRecipeData({
+      name,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      ingredients,
+      steps: steps.map(step => step.text),
+    });
   };
 
   const onImageUploadChange = (event: Event) => {
@@ -125,27 +206,147 @@
     };
   };
 
+  const onIngredientAmountChange = (i: number) => (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    ingredients[i].amount = Number(target.value);
+    
+    validateRecipeData({
+      name,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      ingredients,
+      steps: steps.map(step => step.text),
+    });
+  };
+
+  const onIngredientNameChange = (i: number) => (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    ingredients[i].name = target.value;
+    
+    validateRecipeData({
+      name,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      ingredients,
+      steps: steps.map(step => step.text),
+    });
+  };
+
   const onIngredientTypeChange = (i: number) => (option: IDropdownOption) => {
     if (ingredients[i].type !== option.value) {
       ingredients[i].type = Object.values(IngredientType).find(type => type === option.value)!;
       ingredients[i].unit = unitsOfMeasureByType[option.value as IngredientType].length > 0
         ? unitsOfMeasureByType[option.value as IngredientType][0].name
         : undefined;
+      
+      validateRecipeData({
+        name,
+        description,
+        prepTime,
+        cookTime,
+        servings,
+        ingredients,
+        steps: steps.map(step => step.text),
+      });
     }
+  };
+
+  const onIngredientUnitOfMeasureChange = (i: number) => (option: IDropdownOption) => {
+    ingredients = ingredients.map((ingredient, index) => {
+      if (index === i) ingredient.unit = option.value as IngredientUnitOfMeasure;
+      return ingredient;
+    });
+
+    validateRecipeData({
+      name,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      ingredients,
+      steps: steps.map(step => step.text),
+    });
   };
 
   const onRemoveIngredient = (i: number) => () => {
     const updated = [...ingredients];
     updated.splice(i, 1);
     ingredients = updated;
+    errors = errors.filter(error => !error.field?.includes(`ingredients.${i}`));
   };
 
-  const onUnitOfMeasureChange = (i: number) => (option: IDropdownOption) => {
-    ingredients = ingredients.map((ingredient, index) => {
-      if (index === i) ingredient.unit = option.value as IngredientUnitOfMeasure;
-      return ingredient;
-    });
+  const onRemoveStep = (i: number) => () => {
+    const updated = [...steps];
+    updated.splice(i, 1);
+    steps = updated;
+    errors = errors.filter(error => !error.field?.includes(`steps.${i}`));
   };
+
+  const onStepChange = (i: number) => (e: Event) => {
+    const target = e.target as HTMLTextAreaElement;
+    steps[i] = {
+      text: target.value,
+      isNew: false,
+    }
+    
+    validateRecipeData({
+      name,
+      description,
+      prepTime,
+      cookTime,
+      servings,
+      ingredients,
+      steps: steps.map(step => step.text),
+    });
+  }
+
+  const parseRecipeFormData = (data: FormData): IRecipeData => {
+    const recipeName = data.get('name');
+    const recipeDescription = data.get('description');
+    const recipePrepTime = data.get('prepTime');
+    const recipeCookTime = data.get('cookTime');
+    const recipeServings = data.get('servings');
+
+    return {
+      name: recipeName ? recipeName.toString() : '',
+      description: recipeDescription ? recipeDescription.toString() : '',
+      prepTime: recipePrepTime ? recipePrepTime.toString() : '',
+      cookTime: recipeCookTime ? recipeCookTime.toString() : '',
+      servings: recipeServings ? recipeServings.toString() : '',
+      ingredients,
+      steps: steps.map(step => step.text),
+    };
+  }
+
+  function validateRecipeData(data: IRecipeData, cancel?: () => void) {
+    errors = [];
+    const newErrors: IFormError[] = [];
+
+    const parsed = recipeSchema.safeParse(data);
+
+    if (!parsed.success) {
+      for (let i = 0; i < parsed.error.issues.length; i++) {
+        const issue = parsed.error.issues[i];
+
+        if (issue.path[0] === 'steps' && steps[Number(issue.path[1])].isNew) continue;
+
+        newErrors.push({
+          message: issue.message,
+          field: issue.path.join('.'),
+        });
+      }
+    }
+
+    if (newErrors.length) {
+      errors = newErrors;
+      cancel?.();
+      return;
+    }
+}
 </script>
 
 <noscript>
@@ -154,12 +355,15 @@
   />
 </noscript>
 
-<form method="POST" use:enhance>
+<form method="POST" use:enhance={({ data, cancel }) => {
+  const parsed = parseRecipeFormData(data);
+  validateRecipeData(parsed, cancel);
+}}>
   <div class="primary-data-container">
     <div class="image-upload-container">
       <span class="image-upload-label">Photo</span>
 
-      {#if recipe}
+      {#if recipe?.id}
         <input type="hidden" name="id" value={recipe.id} />
       {/if}
 
@@ -195,8 +399,8 @@
           name="name"
           value={recipe?.name || ''}
           maxlength={MAX_NAME_LENGTH}
-          error={error && error.field === 'name' ? error.message : ''}
-          on:keyup={onFieldChange('name')}
+          error={errors.find(error => error.field === 'name')?.message}
+          on:change={onFieldChange('name')}
           {appearance}
         />
         <div class="count-container">
@@ -213,8 +417,8 @@
             name="description"
             value={recipe?.description || ''}
             maxlength={MAX_DESCRIPTION_LENGTH}
-            error={error && error.field === 'description' ? error.message : ''}
-            on:keyup={onFieldChange('description')}
+            error={errors.find(error => error.field === 'description')?.message}
+            on:change={onFieldChange('description')}
             {appearance}
           />
           <div class="count-container">
@@ -234,7 +438,8 @@
         name="prepTime"
         placeholder="1 hour 30 minutes"
         value={recipe?.prepTime || ''}
-        error={error && error.field === 'prepTime' ? error.message : ''}
+        error={errors.find(error => error.field === 'prepTime')?.message}
+        on:change={onFieldChange('prepTime')}
         {appearance}
       />
 
@@ -244,7 +449,8 @@
         name="cookTime"
         placeholder="45 minutes"
         value={recipe?.cookTime || ''}
-        error={error && error.field === 'cookTime' ? error.message : ''}
+        error={errors.find(error => error.field === 'cookTime')?.message}
+        on:change={onFieldChange('cookTime')}
         {appearance}
       />
 
@@ -255,7 +461,8 @@
         type="number"
         placeholder="3"
         value={recipe?.servings?.toString() || ''}
-        error={error && error.field === 'servings' ? error.message : ''}
+        error={errors.find(error => error.field === 'servings')?.message}
+        on:change={onFieldChange('servings')}
         {appearance}
       />
     </div>
@@ -287,7 +494,7 @@
                 step={0.01}
                 label="Amount"
                 {appearance}
-                on:change={onAmountChange(i)}
+                on:change={onIngredientAmountChange(i)}
               />
             </div>
 
@@ -298,7 +505,7 @@
                   name="ingredients[].unit"
                   label="Unit"
                   options={getUnitOptions(ingredient)}
-                  onChange={onUnitOfMeasureChange(i)}
+                  onChange={onIngredientUnitOfMeasureChange(i)}
                   {appearance}
                 />
               </div>
@@ -310,6 +517,7 @@
                 name="ingredients[].name"
                 value={ingredient.name ?? ''}
                 label="Name"
+                on:change={onIngredientNameChange(i)}
                 {appearance}
               />
             </div>
@@ -334,9 +542,11 @@
               />
             {/if}
           </div>
-          {#if error && (error.field === `ingredients.${i}.type` || error.field === `ingredients.${i}.amount` || error.field === `ingredients.${i}.unit` || error.field === `ingredients.${i}.name`)}
+          {#if errors.find(error => error.field === `ingredients.${i}.type` || error.field === `ingredients.${i}.amount` || error.field === `ingredients.${i}.unit` || error.field === `ingredients.${i}.name`)}
             <div>
-              <ErrorText>{error.message}</ErrorText>
+              <ErrorText>
+                {errors.find(error => error.field === `ingredients.${i}.type` || error.field === `ingredients.${i}.amount` || error.field === `ingredients.${i}.unit` || error.field === `ingredients.${i}.name`)?.message}
+              </ErrorText>
             </div>
           {/if}
         </div>
@@ -349,37 +559,38 @@
   <div>
     <fieldset>
       <legend>Steps</legend>
-      {#each {length: steps} as _, i}
+      {#each steps as step, i}
         <div class="step-row">
           <div class="step-row-inputs">
             <label for="step-{i}">{i + 1}.</label>
             <InputField
               id="step-{i}"
               name="steps[]"
-              value={recipe?.steps?.[i] ?? ''}
+              value={step.text}
+              on:change={onStepChange(i)}
               {appearance}
             />
 
-            {#if i === steps - 1 && steps > 1}
+            {#if steps.length > 1}
               <IconButton
                 kind="danger"
                 type="button"
-                on:click={() => steps--}
+                on:click={onRemoveStep(i)}
               >
                 <XIcon />
               </IconButton>
             {/if}
           </div>
 
-          {#if error && error.field === `steps.${i}`}
+          {#if errors.find((error) => error.field === `steps.${i}`) && !steps[i].isNew}
             <div>
-              <ErrorText>{error.message}</ErrorText>
+              <ErrorText>{errors.find((error) => error.field === `steps.${i}`)?.message}</ErrorText>
             </div>
           {/if}
         </div>
       {/each}
 
-      <Button type="button" on:click={() => steps++}>+ Add Step</Button>
+      <Button type="button" on:click={onAddStep}>+ Add Step</Button>
     </fieldset>
   </div>
 
@@ -400,7 +611,7 @@
       text="Make Public"
       {appearance}
     />
-    <Button>
+    <Button disabled={ !!errors.length }>
       { actionType === 'create' ? 'Create Recipe' : 'Save Changes' }
     </Button>
   </div>

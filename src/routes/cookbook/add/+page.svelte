@@ -20,10 +20,6 @@
       }
       : null;
   }
-
-  $: if (isErrorStatus(form?.status)) {
-    window.scrollTo(0, 0);
-  }
 </script>
 
 <Page title="Add Recipe">
