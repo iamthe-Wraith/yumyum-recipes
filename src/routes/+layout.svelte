@@ -48,12 +48,12 @@
   <div class="footer-row footer-bottom-row">
     <a
       href="https://www.buymeacoffee.com/wraith"
-      class="buy-us-a-coffee"
+      class="buy-me-a-coffee"
       target="_blank"
       rel="noopener noreferrer"
     >
       <CoffeeCup />
-      <span>Buy us a coffee</span>
+      <span>Buy me a coffee</span>
     </a>
   </div>
 </footer>
@@ -139,7 +139,7 @@
     flex-direction: column;
   }
 
-  .buy-us-a-coffee {
+  .buy-me-a-coffee {
     --icon-size: 1.5rem;
 
     display: flex;
