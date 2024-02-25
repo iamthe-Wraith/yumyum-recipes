@@ -3,6 +3,9 @@ WORKDIR /usr/app
 
 COPY . ./
 
+ENV SENTRY_LOG_LEVEL=debug
+ENV SENTRY_RELEASE=yumyum@0.0.1
+
 RUN npm install
 RUN npm run build
 RUN npx prisma migrate deploy
