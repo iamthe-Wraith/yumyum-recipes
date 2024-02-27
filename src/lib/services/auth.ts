@@ -1,16 +1,16 @@
 import { HASH_SALT_ROUNDS } from '$lib/constants/auth';
 import { HttpStatus } from '$lib/constants/error';
 import { ApiError } from '$lib/error';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export const generatePasswordHash = (password: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (password) {
-      bcrypt.genSalt(HASH_SALT_ROUNDS, (err: Error | undefined, salt: string) => {
+      bcrypt.genSalt(HASH_SALT_ROUNDS, (err: Error | null, salt: string) => {
         if (err) {
           reject(err);
         } else {
-          bcrypt.hash(password, salt, (error: Error | undefined, hash: string) => {
+          bcrypt.hash(password, salt, (error: Error | null, hash: string) => {
             if (error) {
               reject(error);
             } else {
@@ -27,7 +27,7 @@ export const generatePasswordHash = (password: string): Promise<string> => {
 
 export const isValidPassword = (providedPassword: string, encryptedPassword: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    bcrypt.compare(providedPassword, encryptedPassword, (err: Error | undefined, authenticated: boolean) => {
+    bcrypt.compare(providedPassword, encryptedPassword, (err: Error | null, authenticated: boolean) => {
       if (err) {
         reject(err);
       } else {
@@ -39,4 +39,4 @@ export const isValidPassword = (providedPassword: string, encryptedPassword: str
       }
     });
   });
-}
+};
