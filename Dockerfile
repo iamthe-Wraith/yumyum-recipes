@@ -27,6 +27,10 @@ ENV SENTRY_ORG=${SENTRY_ORG}
 ENV SENTRY_PROJECT=${SENTRY_PROJECT}
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 
+RUN echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+RUN echo $PUBLIC_APP_ENV
+RUN echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+
 COPY ./ ./
 
 RUN npm install
