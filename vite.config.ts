@@ -3,7 +3,12 @@ import { sentrySvelteKit } from '@sentry/sveltekit';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [sentrySvelteKit(), sveltekit()],
+  plugins: [sentrySvelteKit({
+    sourceMapsUploadOptions: {
+      org: 'wraith',
+      project: 'yumyum'
+    }
+  }), sveltekit()],
   test: {
     include: ['src/**/*.{test,spec}.{js,ts}']
   }
