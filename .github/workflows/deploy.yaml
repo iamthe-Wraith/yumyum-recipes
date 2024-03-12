@@ -13,15 +13,6 @@ jobs:
                 name: Check out the repo
                 uses: actions/checkout@v4
 
-            - run: echo 'DATABASE_URL=${{secrets.DATABASE_URL}}' >> .env
-            - run: echo 'JWT_SESSION_SECRET=${{secrets.JWT_SESSION_SECRET}}' >> .env
-            - run: echo 'PUBLIC_APP_ENV=${{secrets.PUBLIC_APP_ENV}}' >> .env
-            - run: echo 'S3_ACCESS_KEY=${{secrets.S3_ACCESS_KEY}}' >> .env
-            - run: echo 'S3_BUCKET=${{secrets.S3_BUCKET}}' >> .env
-            - run: echo 'S3_ENDPOINT=${{secrets.S3_ENDPOINT}}' >> .env
-            - run: echo 'S3_REGION=${{secrets.S3_REGION}}' >> .env
-            - run: echo 'S3_SECRET_KEY=${{secrets.S3_SECRET_KEY}}' >> .env
-
             - 
                 name: Login to Docker Hub
                 uses: docker/login-action@v3
@@ -30,4 +21,14 @@ jobs:
                     password: ${{ secrets.DOCKER_PASSWORD }}
 
             - run: docker compose down --rmi all --volumes --remove-orphans
-            - run: docker compose up -d --build
+            - 
+              env: 
+                DATABASE_URL: ${{secrets.DATABASE_URL}}
+                JWT_SESSION_SECRET: ${{secrets.JWT_SESSION_SECRET}}
+                PUBLIC_APP_ENV: ${{secrets.PUBLIC_APP_ENV}}
+                S3_ACCESS_KEY: ${{secrets.S3_ACCESS_KEY}}
+                S3_BUCKET: ${{secrets.S3_BUCKET}}
+                S3_ENDPOINT: ${{secrets.S3_ENDPOINT}}
+                S3_REGION: ${{secrets.S3_REGION}}
+                S3_SECRET_KEY: ${{secrets.S3_SECRET_KEY}}
+              run: docker compose up -d --build
